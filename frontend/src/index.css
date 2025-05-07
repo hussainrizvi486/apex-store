@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@source "../node_modules/@my-company/ui-lib";
+
+html {
+    @apply font-poppins;
+}
+
+
+
+@theme {
+    --color-background: oklch(1 0 0); /* pure white */
+    --color-foreground: oklch(0.2 0.01 285); /* near-black text */
+    --color-popover: oklch(0.98 0.005 280); /* soft gray popover background */
+    --color-accent: oklch(0.95 0.02 270); /* soft bluish lavender */
+    --color-primary: oklch(0.6 0.22 265); /* rich purple-blue */
+    --color-primary-foreground: oklch(0.98 0.02 160); /* light yellow for contrast */
+    --color-destructive: oklch(0.55 0.22 30); /* toned-down red-orange */
+    --color-input: oklch(0.94 0.005 275); /* slightly off-white input bg */
+    --color-ring: oklch(0.65 0.18 263); /* visible bluish ring */
+    --color-muted-foreground: oklch(0.45 0.01 280); /* softer gray text */
+    --font-poppins: 'Poppins', sans-serif;
+    --font-roboto: 'Roboto', sans-serif;
+}
