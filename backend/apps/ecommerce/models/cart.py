@@ -43,7 +43,11 @@ class CartItem(BaseModel):
         Product, on_delete=models.CASCADE, related_name="cart_items"
     )
     variant = models.ForeignKey(
-        ProductVariant, on_delete=models.CASCADE, related_name="cart_items"
+        ProductVariant,
+        on_delete=models.CASCADE,
+        related_name="cart_items",
+        blank=True,
+        null=True,
     )
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     price = models.DecimalField(max_digits=10, decimal_places=2)

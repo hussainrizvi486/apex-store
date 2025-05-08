@@ -7,6 +7,7 @@ from django.utils.html import format_html
 
 # Register your models here.
 
+admin.site.register(Customer)
 admin.site.register(Category)
 admin.site.register(Currency)
 admin.site.register(PriceList)
