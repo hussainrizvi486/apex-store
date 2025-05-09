@@ -2,11 +2,20 @@ import React, { useState } from 'react';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { NavLink } from 'react-router-dom';
-import {  ChevronDown, Trash2, Heart, Lock } from 'lucide-react';
+import { ChevronDown, Trash2, Heart, Lock } from 'lucide-react';
 import { ProductHeader } from '@features/components/ProductHeader';
+import { useQuery } from '@tanstack/react-query';
+import { getCart } from '../api';
 
 
 export const CartPage = () => {
+
+  const cartQuery = useQuery({
+    queryKey: ['get_cart'],
+    queryFn: getCart,
+  })
+
+  console.log(cartQuery.data)
   const [isPromoOpen, setIsPromoOpen] = useState(false);
   const ImgURL: string =
     'https://resource.logitech.com/w_464,ar_1,c_pad,q_auto,f_auto,dpr_2.0/d_transparent.gif/content/dam/logitech/en/homepage/delorean-hp/hero-product-banner/hero-combo-touch-for-ipad-keyboard-case-desktop.png';
@@ -62,7 +71,7 @@ export const CartPage = () => {
                           <span className="sm:hidden md:inline lg:hidden">Remove</span>
                         </Button>
                         <Button variant="ghost" size="sm" className="text-gray-700 hover:text-blue-500 flex items-center gap-1 cursor-pointer">
-                          <Heart size={20}/>
+                          <Heart size={20} />
                           <span className="sm:hidden md:inline lg:hidden">Move to Wishlist</span>
                         </Button>
                       </div>
