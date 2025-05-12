@@ -64,9 +64,9 @@ const products: Product[] = [
 
 export const ProductGridCard = () => {
   return (
-    <div className="bg-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-white py-5 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
           <div className="rounded-xl overflow-hidden md:col-span-2 lg:col-span-2">
             <div className="bg-red-100 rounded-xl p-6 flex flex-col justify-center h-full">
               <h2 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">Mice</h2>
@@ -85,7 +85,7 @@ export const ProductGridCard = () => {
           </div>
 
           {products.map((product, index) => (
-            <div key={product.title} className="bg-gray-50 rounded-lg shadow-sm overflow-hidden flex flex-col">
+            <NavLink to='/product' key={product.title} className="bg-gray-50 rounded-lg shadow-sm overflow-hidden flex flex-col hover:bg-gray-100 transition-all cursor-pointer pt-2">
               <div className="relative">
                 <img
                   src={product.imageUrl}
@@ -94,15 +94,15 @@ export const ProductGridCard = () => {
                 />
                 {product.badge && (
                   <div className={`absolute top-2 left-2 text-xs font-semibold rounded-full px-2 py-1 ${product.badge === 'Best Seller' ? 'bg-blue-100 text-blue-700' :
-                      product.badge === 'Special Offer' ? 'bg-green-100 text-green-700' :
-                        product.badge === 'Low Inventory' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-gray-200 text-gray-700'
+                    product.badge === 'Special Offer' ? 'bg-green-100 text-green-700' :
+                      product.badge === 'Low Inventory' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-gray-200 text-gray-700'
                     }`}>
                     {product.badge}
                   </div>
                 )}
-                <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
-                  <Heart size={16}/>
+                <button className="absolute top-2 right-2 cursor-pointer text-gray-500 hover:text-gray-700">
+                  <Heart size={16} className='hover:scale-105' />
                 </button>
               </div>
               <div className="p-4 flex flex-col justify-between flex-grow">
@@ -112,15 +112,15 @@ export const ProductGridCard = () => {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900 mb-2">{product.price}</p>
-                  <button className="text-xs text-gray-700 hover:text-gray-900 flex items-center gap-1.5">
-                    <NavLink to="/cart">
-                      {product.buttonText}
-                    </NavLink>
+                  <button className="text-xs text-gray-700 hover:text-gray-900 flex items-center gap-1.5 hover:bg-violet-200 rounded-full px-2 py-1 cursor-pointer transition-colors">
+                      <NavLink to="/cart">
+                        {product.buttonText}
+                      </NavLink>
                     <ShoppingCart size={16} />
                   </button>
                 </div>
               </div>
-            </div>
+            </NavLink>
           ))}
         </div>
       </div>

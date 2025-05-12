@@ -68,11 +68,11 @@ export const CartPage = () => {
                       <div className='flex items-center'>
                         <Button variant="ghost" size="sm" className="text-gray-700 hover:text-red-500 flex items-center gap-1 cursor-pointer">
                           <Trash2 size={20} />
-                          <span className="sm:hidden md:inline lg:hidden">Remove</span>
+                          <span className="hidden sm:hidden md:inline lg:hidden">Remove</span>
                         </Button>
                         <Button variant="ghost" size="sm" className="text-gray-700 hover:text-blue-500 flex items-center gap-1 cursor-pointer">
                           <Heart size={20} />
-                          <span className="sm:hidden md:inline lg:hidden">Move to Wishlist</span>
+                          <span className="hidden sm:hidden md:inline lg:hidden">Move to Wishlist</span>
                         </Button>
                       </div>
                     </div>
