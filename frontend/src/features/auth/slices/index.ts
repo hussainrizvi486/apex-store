@@ -6,11 +6,13 @@ import { getAuthState } from "@features/auth"
 export interface AuthState {
     access_token?: string;
     refresh_token?: string;
+    isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
     access_token: undefined,
     refresh_token: undefined,
+    isAuthenticated: false,
     ...getAuthState() || {},
 }
 
@@ -24,11 +26,16 @@ export const authSlice = createSlice({
             state.access_token = action.payload.access_token
             state.refresh_token = action.payload.refresh_token
             localStorage.setItem('tokens', JSON.stringify(action.payload))
+            state.isAuthenticated = true
         },
         logoutUser: (state) => {
+
+            localStorage.removeItem('tokens')
+
             state.access_token = undefined
             state.refresh_token = undefined
-            localStorage.removeItem('tokens')
+            state.isAuthenticated = false;
+
         },
     },
 })
