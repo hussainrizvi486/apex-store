@@ -9,7 +9,7 @@ export const ProductHeader = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsLargeScreen(window.innerWidth > 1000);
+      setIsLargeScreen(window.innerWidth > 1024);
     };
 
     window.addEventListener('resize', handleResize);
@@ -40,9 +40,9 @@ export const ProductHeader = () => {
               <NavLink to="#" className="text-gray-600 hover:text-gray-900">
                 Support
               </NavLink>
-              <span className="text-gray-400">|</span>
-              <Globe size={16} className="text-gray-600" />
-              <span className='text-xs'>US, EN</span>
+              <span className="text-gray-400 ">|</span>
+              <Globe size={16} className="text-gray-600 hover:text-gray-800 cursor-pointer" />
+              <span className='text-xs hover:text-gray-800 cursor-pointer'>US, EN</span>
             </div>
           </div>
         </div>
@@ -57,17 +57,17 @@ export const ProductHeader = () => {
           <div className="flex items-center justify-between flex-grow">
             {/* Nav Links */}
             <div className="flex items-center gap-7 ml-4">
-              <NavLink to="/" className="text-gray-700 font-semibold hover:text-gray-900">
+              <NavLink to="/products" className="text-gray-700 font-semibold hover:text-gray-900">
                 Shop
               </NavLink>
               <NavLink to="#" className="text-gray-700 font-semibold hover:text-gray-900">
-                Planet & People
-              </NavLink>
-              <NavLink to="#" className="text-gray-700 font-semibold hover:text-gray-900">
-                Software
+                Category
               </NavLink>
               <NavLink to="#" className="text-gray-700 font-semibold hover:text-gray-900">
                 Deals
+              </NavLink>
+              <NavLink to="#" className="text-gray-700 font-semibold hover:text-gray-900">
+                Software
               </NavLink>
             </div>
             {/* Searchbar and Icons */}
@@ -76,12 +76,12 @@ export const ProductHeader = () => {
                 <Input type="text" placeholder="Search..." className="h-7 w-50 border-none bg-transparent focus:outline-none" />
                 <Search size={18} className="text-gray-600" />
               </div>
-              <Heart size={20} className="text-gray-600" />
+              <Heart size={20} className="cursor-pointer text-gray-600 hover:text-gray-900" />
               <NavLink to="/login">
-                <User size={20} className="text-gray-600" />
+                <User size={20} className="text-gray-600 hover:text-gray-900" />
               </NavLink>
               <NavLink to="/cart">
-                <ShoppingCart size={20} className="text-gray-600" />
+                <ShoppingCart size={20} className="text-gray-600 hover:text-gray-900" />
               </NavLink>
             </div>
           </div>
@@ -117,7 +117,7 @@ export const ProductHeader = () => {
 
         {/* Sidebar Menu  */}
         <div
-          className={`fixed top-0 right-0 h-full w-90 bg-gray-50 z-50 shadow-xl transition-transform duration-300 ease-in-out ${menuOpen ? 'translate-x-0' : 'translate-x-full'
+          className={`fixed top-0 right-0 h-full w-auto md:w-96 bg-gray-50 z-50 shadow-xl transition-transform duration-300 ease-in-out ${menuOpen ? 'translate-x-0' : 'translate-x-full'
             }`}
         >
           <div className="absolute top-0 left-0 h-full w-1 bg-violet-500" />
@@ -149,21 +149,11 @@ export const ProductHeader = () => {
                   </li>
                   <li className="py-1.5">
                     <NavLink to="#">
-                      Interest
-                    </NavLink>
-                  </li>
-                  <li className="py-1.5">
-                    <NavLink to="#">
-                      Planet & People
-                    </NavLink>
-                  </li>
-                  <li className="py-1.5">
-                    <NavLink to="#">
                       Software
                     </NavLink>
                   </li>
                   <li className="py-1.5">
-                    <NavLink to="#">
+                    <NavLink to="/products">
                       Deals
                     </NavLink>
                   </li>
