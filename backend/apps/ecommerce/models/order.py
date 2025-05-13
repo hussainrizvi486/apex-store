@@ -1,6 +1,9 @@
+from uuid import uuid4
 from django.db import models
+from django.utils import timezone
 from .product import Product, ProductVariant, BaseModel, PriceList
 from .customer import Customer
+from .main import Address
 
 
 class OrderStatus(models.TextChoices):
@@ -11,11 +14,39 @@ class OrderStatus(models.TextChoices):
 
 
 class Order(BaseModel):
-    order_id = models.CharField(max_length=255, unique=True)
+
+    def generate_order_id(self):
+        """
+        Generate a unique order ID with the following format:
+        YYYYMMDD-HHMMSS-RR-XXXX-YYYY
+        - YYYYMMDD: Current date
+        - HHMMSS: Current time (hour-minute-second)
+        - RR: Region code
+        - XXXX: Random unique identifier
+        - YYYY: Last 4 digits of customer ID
+        """
+        # Get current datetime
+        now = timezone.now()
+        date_part = now.strftime("%Y%m%d")
+        time_part = now.strftime("%H%M%S")
+        customer_suffix = (
+            str(self.customer.id)[-4:].zfill(4) if self.customer else str(uuid4())[:4]
+        )
+
+        # Generate a unique random part
+        unique_part = str(uuid4())[:4]
+        order_id = f"{date_part}-{time_part}-{unique_part}-{customer_suffix}"
+
+        return order_id
+
+    order_id = models.CharField(
+        max_length=255, unique=True, editable=False, default=generate_order_id
+    )
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     total_qty = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     order_date = models.DateTimeField(auto_now_add=True)
+    delivery_address = models.ForeignKey(Address, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.order_id
@@ -40,7 +71,6 @@ class OrderItem(BaseModel):
     price_list = models.ForeignKey(
         PriceList, on_delete=models.CASCADE, related_name="order_items"
     )
-
 
     def __str__(self):
         return f"{self.product.product_name} - {self.quantity} {self.uom}"

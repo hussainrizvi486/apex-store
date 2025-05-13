@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.contrib.auth import get_user_model
 
 
 class BaseModel(models.Model):
@@ -50,3 +51,36 @@ class PriceList(BaseModel):
 
     def __str__(self):
         return f"{self.name} ({self.currency.code})"
+
+
+class Address(models.Model):
+    user = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, related_name="addresses"
+    )
+    address_title = models.CharField(max_length=255)
+    address_line1 = models.CharField(max_length=255)
+    address_line2 = models.CharField(max_length=255)
+    address_type = models.CharField(
+        max_length=100,
+        choices=[
+            ("home", "Home"),
+            ("office", "Office"),
+            ("personal", "Personal"),
+            ("billing", "Billing"),
+            ("shipping", "Shipping"),
+            ("warehouse", "Warehouse"),
+            ("store", "Store"),
+            ("shop", "Shop"),
+            ("other", "Other"),
+        ],
+        default="home",
+    )
+
+    country = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+
+    postal_code = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.address_title
