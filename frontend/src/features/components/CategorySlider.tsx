@@ -14,7 +14,7 @@ export const CategorySlider = () => {
   ];
 
   const categoryImage =
-    'https://resource.logitech.com/w_464,ar_1,c_pad,q_auto,f_auto,dpr_2.0/d_transparent.gif/content/dam/logitech/en/homepage/delorean-hp/hero-product-banner/hero-combo-touch-for-ipad-keyboard-case-desktop.png';
+    'https://cubeonline.pk/cdn/shop/files/00-600x600_153f55f8-a560-4368-8c30-fe53b85551ee.png?v=1723801084';
 
   return (
     <div className="py-6">

@@ -4,7 +4,7 @@ import { ProductMain } from '@features/components/ProductMain'
 import { CategorySlider } from '@features/components/CategorySlider'
 import { ProductGridCard } from '@features/components/ProductGridCard'
 
-const Index = () => {
+const landingPage = () => {
   return (
     <>
       <div className='max-w-7xl mx-auto'>
@@ -18,4 +18,4 @@ const Index = () => {
 }
 
 
-export default Index;
+export default landingPage;
