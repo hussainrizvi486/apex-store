@@ -1,3 +1,13 @@
 export const getAuthState = () => {
-    return localStorage.getItem("tokens") ? JSON.parse(localStorage.getItem("tokens") || "") : null;
-}
+    const tokens = localStorage.getItem("tokens") ? JSON.parse(localStorage.getItem("tokens")) : null;
+
+    if (!tokens) {
+        return null;
+    }
+
+    return {
+        ...tokens,
+        isAuthenticated: true
+    };
+
+};

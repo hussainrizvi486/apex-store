@@ -37,7 +37,6 @@ const authAPI = axios.create({
 // Request interceptor
 authAPI.interceptors.request.use((config) => {
     const tokens = getAuthState();
-    console.log("tokens", tokens);
     if (tokens?.access) {
         config.headers["Authorization"] = `Bearer ${tokens.access}`;
     }
@@ -85,7 +84,6 @@ const registerUser = async (body: { email: string; password: string }) => {
 
 async function refreshAccessTokenFn(dispatch?: Dispatch): Promise<LoginResponse | null> {
     const tokens = getAuthState();
-    // console.log("tokens ref", tokens)
 
     if (!tokens?.refresh_token) {
         // localStorage.removeItem("tokens");
@@ -94,7 +92,7 @@ async function refreshAccessTokenFn(dispatch?: Dispatch): Promise<LoginResponse 
     }
 
     try {
-        const response = await authAPI.post<LoginResponse>('/auth/api/v1/refresh', {
+        const response = await authAPI.post<LoginResponse>('/auth/api/v1/login/refresh', {
             refresh_token: tokens.refresh_token
         });
         const { data } = response;
