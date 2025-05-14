@@ -91,6 +91,49 @@ export const CartPage = () => {
                             </Button>
                           </div>
                         </div>
+                  <div className="flex flex-col sm:flex-row items-center justify-between border-b border-gray-200 pb-6">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                      <img
+                        src={ImgURL}
+                        alt="Product 1"
+                        className="h-24 w-24 rounded-md object-cover"
+                      />
+                      <div className='max-w-[250px] mx-4'>
+                        <h3 className="text-md md:text-lg font-semibold text-gray-900">Logitech MX Master 3S</h3>
+                        <p className="text-gray-500 text-xs md:text-sm">Performance Wireless Mouse</p>
+                        <p className="text-gray-700 font-semibold mt-2">$119.99</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-4 md:mt-0">
+                      <div className="flex items-center rounded-3xl border border-gray-300">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-400 rounded-s-2xl hover:bg-gray-100 bg-transparent cursor-pointer"
+                        >
+                          -
+                        </Button>
+                        <Input
+                          className="w-8 text-center rounded-none border-l-0 border-r-0"
+                          placeholder='1'
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-400 rounded-e-2xl hover:bg-gray-100 bg-transparent cursor-pointer"
+                        >
+                          +
+                        </Button>
+                      </div>
+                      <div className='flex items-center'>
+                        <Button variant="ghost" size="sm" className="text-gray-700 hover:text-red-500 flex items-center gap-1 cursor-pointer">
+                          <Trash2 size={20} />
+                          <span className="hidden sm:hidden md:inline lg:hidden">Remove</span>
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-gray-700 hover:text-blue-500 flex items-center gap-1 cursor-pointer">
+                          <Heart size={20} />
+                          <span className="hidden sm:hidden md:inline lg:hidden">Move to Wishlist</span>
+                        </Button>
                       </div>
                     ))
                   ) : (
