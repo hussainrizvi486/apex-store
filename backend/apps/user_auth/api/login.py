@@ -37,7 +37,7 @@ class LoginAPI(APIView):
                     "refresh": str(token_object),
                 }
                 return Response(
-                    data={"data": tokens, "message": "Login success"},
+                    data=tokens,
                     status=status.HTTP_200_OK,
                 )
 
