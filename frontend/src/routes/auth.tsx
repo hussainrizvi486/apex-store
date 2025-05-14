@@ -1,8 +1,8 @@
 import { useAuth } from "@features/auth/hooks";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import React from "react";
 
-export const AuthRoutes: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthRoutes: React.FC = () => {
     const { isAuthenticated /*, isLoading */ } = useAuth();
 
     console.log("isAuthenticated", isAuthenticated);
@@ -14,5 +14,5 @@ export const AuthRoutes: React.FC<{ children: React.ReactNode }> = ({ children }
         return <Navigate to="/login" replace />;
     }
 
-    return <>{children}</>;
+    return <Outlet />;
 };

@@ -17,14 +17,12 @@ const HomePage = React.lazy(() => import("@features/product/pages/landingPage"))
 function Application() {
   return (
     <Router>
-      <AuthRoutes>
-        <Routes>
-          {/* Add any authorized routes here if needed */}
-          <Route path="/cart" element={<CartPage />} />
-        </Routes>
 
-      </AuthRoutes>
       <Routes>
+        <Route element={<AuthRoutes />}>
+          <Route path="/cart" element={<CartPage />} />
+        </Route>
+
         <Route path="/" element={<HomePage />} />
 
         <Route path="/products" element={<MoreProductsPage />} />
