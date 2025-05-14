@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from apps.ecommerce.models.cart import Cart, CartItem, Product, ProductVariant, Customer
+from apps.ecommerce.models.cart import Cart, CartItem, Product,  Customer
 from apps.ecommerce.serializer.cart import (
     CartSerializer,
     CartItemSerializer,
@@ -39,13 +39,8 @@ class CartViewSet(viewsets.ModelViewSet):
         data = serializer.validated_data
 
         product = get_object_or_404(Product, id=data["product_id"])
-        variant = None
-        if data.get("variant_id"):
-            variant = get_object_or_404(ProductVariant, id=data["variant_id"])
-
         cart.add_item(
             product=product,
-            variant=variant,
             quantity=serializer.validated_data["quantity"],
             price=serializer.validated_data["price"],
         )

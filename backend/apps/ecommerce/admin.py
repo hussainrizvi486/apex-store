@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Category, Currency, PriceList
 from .models.cart import Customer, Cart, CartItem
-from .models.product import Product, ProductVariant, ProductImage, ProductPrice
+from .models.product import Product, ProductImage, ProductPrice, VariantAttribute
 from django.utils.html import format_html
 
 
@@ -25,18 +25,11 @@ class ProductImageInline(admin.TabularInline):
         return "No Image"
 
 
-class ProductVariantInline(admin.TabularInline):
-    model = ProductVariant
-    extra = 1
-    fields = ("name", "sku", "stock_quantity", "is_default")
-
-
 class ProductPriceInline(admin.TabularInline):
     model = ProductPrice
     extra = 1
     fields = (
         "price_list",
-        "variant",
         "price",
         "discount_price",
         "valid_from",
@@ -44,12 +37,24 @@ class ProductPriceInline(admin.TabularInline):
     )
 
 
+class VariantAttributeInline(admin.TabularInline):
+    model = VariantAttribute
+    extra = 1
+    fields = ("attribute", "value")
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("product_name", "category", "thumbnail", "created_at")
+    list_display = (
+        "product_name",
+        "category",
+        "product_type",
+        "thumbnail",
+        "created_at",
+    )
     list_filter = ("category", "created_at")
     search_fields = ("product_name", "description")
-    inlines = [ProductImageInline, ProductVariantInline, ProductPriceInline]
+    inlines = [VariantAttributeInline, ProductImageInline, ProductPriceInline]
 
     def thumbnail(self, obj):
         if obj.cover_image:
@@ -57,26 +62,25 @@ class ProductAdmin(admin.ModelAdmin):
         return "No Image"
 
 
-
 class CartItemInline(admin.TabularInline):
     model = CartItem
     extra = 0
-    fields = ('product', 'variant', 'quantity', 'price', 'amount')
-    readonly_fields = ('amount',)
+    fields = ("product", "quantity", "price", "amount")
+    readonly_fields = ("amount",)
 
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('customer', 'grand_total', 'total_qty', 'created_at', 'updated_at')
-    list_filter = ('created_at', 'updated_at')
-    search_fields = ('customer__email',)
+    list_display = ("customer", "grand_total", "total_qty", "created_at", "updated_at")
+    list_filter = ("created_at", "updated_at")
+    search_fields = ("customer__email",)
     inlines = [CartItemInline]
-    readonly_fields = ('grand_total', 'total_qty')
+    readonly_fields = ("grand_total", "total_qty")
 
 
 @admin.register(CartItem)
 class CartItemAdmin(admin.ModelAdmin):
-    list_display = ('cart', 'product', 'variant', 'quantity', 'price', 'amount')
-    list_filter = ('cart__customer',)
-    search_fields = ('product__product_name', 'cart__customer__email')
-    readonly_fields = ('amount',)
+    list_display = ("cart", "product", "quantity", "price", "amount")
+    list_filter = ("cart__customer",)
+    search_fields = ("product__product_name", "cart__customer__email")
+    readonly_fields = ("amount",)

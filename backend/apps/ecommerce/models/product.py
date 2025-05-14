@@ -8,12 +8,31 @@ from django.conf import settings
 from . import BaseModel, Category, PriceList
 
 
+class ProductTypeChoices(models.TextChoices):
+    TEMPLATE = "template", "Template"
+    PRODUCT = "product", "Product"
+    VARIANT = "variant", "Variant"
+
+
 class Product(BaseModel):
-    product_name = models.TextField(max_length=255)
-    cover_image = models.ImageField(upload_to="products/")
-    description = models.TextField()
+    template = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        related_name="variants",
+        blank=True,
+        null=True,
+    )
+    product_type = models.CharField(
+        max_length=50,
+        choices=ProductTypeChoices.choices,
+        default=ProductTypeChoices.PRODUCT,
+    )
+    product_name = models.TextField()
+    description = models.TextField(blank=True, null=True)
+    cover_image = models.ImageField(upload_to="products/", blank=True, null=True)
+    unit_of_measurement = models.CharField(max_length=50, blank=True, null=True)
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, null=True, related_name="products"
+        Category, on_delete=models.SET_NULL, related_name="products", null=True
     )
 
     def __str__(self):
@@ -22,9 +41,23 @@ class Product(BaseModel):
     @property
     def current_price(self):
         """Return the current valid price"""
+
+        if not hasattr(self, "prices"):
+            return 0
+
         now = timezone.now()
         price = self.prices.filter(valid_from__lte=now, valid_till__gt=now).first()
         return price
+
+    @property
+    def images(self):
+        """Return the images for the product"""
+        if not hasattr(self, "images"):
+            return []
+
+        return (
+            self.images.all().order_by("display_order").values_list("image", flat=True)
+        )
 
 
 class ProductImage(BaseModel):
@@ -38,45 +71,23 @@ class ProductImage(BaseModel):
         return f"{self.product.product_name} - Image {self.display_order}"
 
 
-class ProductVariant(BaseModel):
-    """Added model for product variants"""
-
-    product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="variants"
-    )
-    sku = models.CharField(max_length=100, unique=True)
-    name = models.CharField(max_length=255)
-    stock_quantity = models.PositiveIntegerField(default=0)
-    is_default = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.product.product_name} - {self.name}"
-
-
 class VariantAttribute(BaseModel):
-    variant = models.ForeignKey(
-        ProductVariant, on_delete=models.CASCADE, related_name="attributes"
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="variant_attributes"
     )
-    attribute_name = models.CharField(max_length=50)
-    attribute_value = models.CharField(max_length=50)
+    attribute = models.CharField(max_length=50)
+    value = models.CharField(max_length=50)
 
-    class Meta:
-        unique_together = ["variant", "attribute_name"]
+    # class Meta:
+    #     unique_together = ["product", "attribute"]
 
     def __str__(self):
-        return f"{self.variant.sku} - {self.attribute_name}: {self.attribute_value}"
+        return f"{self.product.product_name} - {self.attribute}: {self.value}"
 
 
 class ProductPrice(BaseModel):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="prices"
-    )
-    variant = models.ForeignKey(
-        ProductVariant,
-        on_delete=models.CASCADE,
-        related_name="prices",
-        null=True,
-        blank=True,
     )
     price_list = models.ForeignKey(
         PriceList, on_delete=models.CASCADE, related_name="item_prices"

@@ -1,1 +1,1 @@
-from .main import get_products
+from .main import get_products, get_product_detail

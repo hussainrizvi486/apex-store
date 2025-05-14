@@ -1,7 +1,7 @@
 from uuid import uuid4
 from django.db import models
 from django.utils import timezone
-from .product import Product, ProductVariant, BaseModel, PriceList
+from .product import Product, BaseModel, PriceList
 from .customer import Customer
 from .main import Address
 
@@ -62,7 +62,6 @@ class Order(BaseModel):
 
 class OrderItem(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     price = models.DecimalField(max_digits=10, decimal_places=2)

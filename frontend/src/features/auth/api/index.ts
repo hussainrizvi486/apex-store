@@ -6,6 +6,8 @@ import { API_URL } from "@api";
 import { getAuthState } from "@features/auth";
 
 
+
+
 interface LoginBody {
     email: string;
     password: string;
@@ -30,6 +32,7 @@ const authAPI = axios.create({
     },
     // withCredentials: true,
 });
+
 
 // Request interceptor
 authAPI.interceptors.request.use((config) => {
