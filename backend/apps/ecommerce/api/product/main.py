@@ -2,7 +2,7 @@ from django.db.models import Subquery, OuterRef, Q, Prefetch
 from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
+from django.db import connection
 
 from apps.ecommerce.models.product import (
     Product,
@@ -21,7 +21,10 @@ def get_products(request):
         product_type=ProductTypeChoices.TEMPLATE
     ).annotate(price=PRODUCT_PRICE_SUBQUERY)[:20]
 
-    serializer = ProductListSerializer(products_queryset, many=True)
+    serializer = ProductListSerializer(
+        products_queryset, many=True, context={"request": request}
+    )
+    # print(products_queryset.query)
     products = serializer.data
     return Response({"products": products})
 
@@ -36,7 +39,7 @@ def get_product_detail(request):
     try:
         product = Product.objects.get(id=product_id)
     except Product.DoesNotExist:
-        return Response({"error": "Product not found"}, status=404)
+        return Response({"error": "invalid product id"}, status=404)
 
-    serializer = ProductSerializer(product)
+    serializer = ProductSerializer(product, context={"request": request})
     return Response({"product": serializer.data})

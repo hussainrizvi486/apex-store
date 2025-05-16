@@ -12,7 +12,7 @@ import { AuthRoutes } from "./routes/auth"
 
 
 const LoginPage = React.lazy(() => import("@features/auth/pages/login"))
-const HomePage = React.lazy(() => import("@features/product/pages/landingPage"));
+const HomePage = React.lazy(() => import("@features/product/pages/home/index"));
 
 function Application() {
   return (

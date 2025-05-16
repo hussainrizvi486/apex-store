@@ -78,9 +78,6 @@ class VariantAttribute(BaseModel):
     attribute = models.CharField(max_length=50)
     value = models.CharField(max_length=50)
 
-    # class Meta:
-    #     unique_together = ["product", "attribute"]
-
     def __str__(self):
         return f"{self.product.product_name} - {self.attribute}: {self.value}"
 
@@ -104,7 +101,7 @@ class ProductPrice(BaseModel):
     )
 
     valid_from = models.DateTimeField(default=timezone.now)
-    valid_till = models.DateTimeField()
+    valid_till = models.DateTimeField(null=True, blank=True)
 
     def is_valid(self):
         now = timezone.now()

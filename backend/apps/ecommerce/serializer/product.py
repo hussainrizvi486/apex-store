@@ -28,7 +28,18 @@ class ProductSerializer(serializers.ModelSerializer):
 class ProductListSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False, read_only=True)
     price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    cover_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = ["id", "product_name", "category", "price", "cover_image"]
+
+    def get_cover_image(self, obj: Product):
+        if not obj.cover_image:
+            return None
+
+        request = self.context.get("request")
+        if request is None:
+            return obj.cover_image.url
+
+        return request.build_absolute_uri(obj.cover_image.url)

@@ -30,13 +30,11 @@ const INPUT_CLASS_TYPE = {
 }
 
 
-function getValue(input: InputProps, value: any) {
+// function getValue(input: InputProps, value: any) {
 
-
-}
+// }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className = "", ...props }, ref) => {
-
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
         const value = e.target.value;

@@ -113,9 +113,9 @@ export const ProductGridCard = () => {
                 <div>
                   <p className="text-sm font-semibold text-gray-900 mb-2">{product.price}</p>
                   <button className="text-xs text-gray-700 hover:text-gray-900 flex items-center gap-1.5 hover:bg-violet-200 rounded-full px-2 py-1 cursor-pointer transition-colors">
-                      <NavLink to="/cart">
-                        {product.buttonText}
-                      </NavLink>
+                    <NavLink to="/cart">
+                      {product.buttonText}
+                    </NavLink>
                     <ShoppingCart size={16} />
                   </button>
                 </div>

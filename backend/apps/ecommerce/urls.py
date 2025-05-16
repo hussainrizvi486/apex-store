@@ -2,12 +2,14 @@ from django.urls import path
 from .api.product import get_products, get_product_detail
 from .api.customer.cart import CartViewSet
 from .api.category import CategoryViewSet
-from rest_framework.routers import DefaultRouter
+
+# from rest_framework.routers import DefaultRouter
 
 
 urlpatterns = [
     path("api/get/product/list", get_products, name="get_products"),
     path("api/get/product/detail", get_product_detail, name="get_product_detail"),
+    # path("api/get/product/reviews", get_product_detail, name="get_product_detail"),
     path(
         "api/get/categories/list",
         CategoryViewSet.as_view({"get": "list"}),

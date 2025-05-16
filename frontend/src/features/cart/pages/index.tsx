@@ -7,6 +7,9 @@ import { ProductHeader } from '@features/components/ProductHeader';
 import { useQuery } from '@tanstack/react-query';
 import { getCart } from '../api';
 import { useAuth } from '@features/auth/hooks';
+import { CounterButton } from '@components/ui/counter-button';
+import { decimal, formatCurrency } from '@utils/index';
+import { Header } from '@components/layouts';
 
 
 export const CartPage = () => {
@@ -22,7 +25,6 @@ export const CartPage = () => {
   if (cartQuery.isLoading) {
     return (
       <>
-        <ProductHeader />
         <div className="max-w-7xl mx-auto p-4 flex justify-center bg-gray-50">
           <div className="text-center py-16">Loading your cart...</div>
         </div>
@@ -32,65 +34,22 @@ export const CartPage = () => {
 
   return (
     <>
-      <ProductHeader />
+      <Header />
       <div className="max-w-7xl mx-auto p-4 flex justify-center bg-gray-50">
         <main className="mx-auto p-4 md:p-8 w-full">
+          <div className='mb-2'>
+            <h2 className="text-2xl ">Cart</h2>
+          </div>
+
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="w-full lg:w-2/3">
-              <div className="bg-white rounded-lg shadow-sm">
-                <h1 className="text-2xl font-semibold text-gray-900 text-center pt-6 p-2 ">Your Cart</h1>
-                <p className="text-gray-600 text-sm text-center mb-2 p-4 md:p-3 border-b border-gray-200">Review your items below</p>
-
-                <div className="space-y-6 px-4 md:px-8">
-                  {cart.items.length > 0 ? (
-                    cart.items.map((item) => (
-                      <div key={item.id} className="flex flex-col sm:flex-row items-center justify-between border-b border-gray-200 pb-6">
-                        <div className="flex items-center gap-4 w-full sm:w-auto">
-                          <img
-                            src={item.product.cover_image}
-                            alt={item.product.product_name}
-                            className="h-24 w-24 rounded-md object-cover"
-                          />
-                          <div className='max-w-[250px] mx-4'>
-                            <h3 className="text-md md:text-lg font-semibold text-gray-900">{item.product.product_name}</h3>
-                            <p className="text-gray-500 text-xs md:text-sm">{item.product.description.substring(0, 60)}...</p>
-                            <p className="text-gray-700 font-semibold mt-2">${parseFloat(item.price).toFixed(2)}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 mt-4 md:mt-0">
-                          <div className="flex items-center rounded-3xl border border-gray-300">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-gray-400 rounded-s-2xl hover:bg-gray-100 bg-transparent cursor-pointer"
-                            >
-                              -
-                            </Button>
-                            <Input
-                              className="w-8 text-center rounded-none border-l-0 border-r-0"
-                              value={parseFloat(item.quantity)}
-                              readOnly
-                            />
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-gray-400 rounded-e-2xl hover:bg-gray-100 bg-transparent cursor-pointer"
-                            >
-                              +
-                            </Button>
-                          </div>
-                          <div className='flex items-center'>
-                            <Button variant="ghost" size="sm" className="text-gray-700 hover:text-red-500 flex items-center gap-1 cursor-pointer">
-                              <Trash2 size={20} />
-                              <span className="sm:hidden md:inline lg:hidden">Remove</span>
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-gray-700 hover:text-blue-500 flex items-center gap-1 cursor-pointer">
-                              <Heart size={20} />
-                              <span className="sm:hidden md:inline lg:hidden">Move to Wishlist</span>
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
+              <div className="rounded-lg">
+                <div>
+                  {cart?.items.length > 0 ? (
+                    cart?.items.map((data) => (
+                      <>
+                        <CartItem data={data} />
+                      </>
                     ))
                   ) : (
                     <div className="text-center py-8">
@@ -98,60 +57,9 @@ export const CartPage = () => {
                     </div>
                   )}
 
-                  {/* Static product example - uncomment if needed or remove if not used */}
-                  {/* <div className="flex flex-col sm:flex-row items-center justify-between border-b border-gray-200 pb-6">
-            <div className="flex items-center gap-4 w-full sm:w-auto">
-              <img
-                src={ImgURL}
-                alt="Product 1"
-                className="h-24 w-24 rounded-md object-cover"
-              />
-              <div className='max-w-[250px] mx-4'>
-                <h3 className="text-md md:text-lg font-semibold text-gray-900">Logitech MX Master 3S</h3>
-                <p className="text-gray-500 text-xs md:text-sm">Performance Wireless Mouse</p>
-                <p className="text-gray-700 font-semibold mt-2">$119.99</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 mt-4 md:mt-0">
-              <div className="flex items-center rounded-3xl border border-gray-300">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-400 rounded-s-2xl hover:bg-gray-100 bg-transparent cursor-pointer"
-                >
-                  -
-                </Button>
-                <Input
-                  className="w-8 text-center rounded-none border-l-0 border-r-0"
-                  placeholder='1'
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-400 rounded-e-2xl hover:bg-gray-100 bg-transparent cursor-pointer"
-                >
-                  +
-                </Button>
-              </div>
-              <div className='flex items-center'>
-                <Button variant="ghost" size="sm" className="text-gray-700 hover:text-red-500 flex items-center gap-1 cursor-pointer">
-                  <Trash2 size={20} />
-                  <span className="hidden sm:hidden md:inline lg:hidden">Remove</span>
-                </Button>
-                <Button variant="ghost" size="sm" className="text-gray-700 hover:text-blue-500 flex items-center gap-1 cursor-pointer">
-                  <Heart size={20} />
-                  <span className="hidden sm:hidden md:inline lg:hidden">Move to Wishlist</span>
-                </Button>
-              </div>
-            </div>
-          </div> */}
                 </div>
               </div>
-              <div className="text-center text-sm mt-4 hidden lg:block">
-                <NavLink to="/" className="text-blue-500 hover:underline">
-                  Continue Shopping
-                </NavLink>
-              </div>
+
             </div>
 
             <div className="w-full lg:w-[35%]">
@@ -173,6 +81,7 @@ export const CartPage = () => {
                     <Input placeholder="Enter promo code" className="w-full" />
                   </div>
                 )}
+
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-700">Subtotal</span>
@@ -249,178 +158,35 @@ export const CartPage = () => {
 };
 
 
-export const CartItemsList = ({ items = [] }) => {
+const CartItem = ({ data }) => {
+  const { product } = data;
   return (
-    <div className="bg-white rounded-lg shadow-sm">
-      <h1 className="text-2xl font-semibold text-gray-900 text-center pt-6 p-2">Your Cart</h1>
-      <p className="text-gray-600 text-sm text-center mb-2 p-4 md:p-3 border-b border-gray-200">
-        Review your items below
-      </p>
-      <div className="space-y-6 px-4 md:px-8">
-        {items.length > 0 ? (
-          items.map((item) => (
-            <CartItem key={item.id} item={item} />
-          ))
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-500">Your cart is empty</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+    <div key={data.id} className="flex flex-col sm:flex-row justify-between bg-white border border-gray-300 p-3 rounded-md">
+      <div className="flex gap-2 w-full sm:w-auto">
 
-
-export const QuantitySelector = ({ quantity, itemId }) => {
-  const [currentQuantity, setCurrentQuantity] = useState(quantity);
-
-  const handleDecrement = () => {
-    if (currentQuantity > 1) {
-      const newQuantity = currentQuantity - 1;
-      setCurrentQuantity(newQuantity);
-      // Here you would call an API to update the cart
-      console.log('Update quantity', itemId, newQuantity);
-    }
-  };
-
-  const handleIncrement = () => {
-    const newQuantity = currentQuantity + 1;
-    setCurrentQuantity(newQuantity);
-    // Here you would call an API to update the cart
-    console.log('Update quantity', itemId, newQuantity);
-  };
-
-  return (
-    <div className="flex items-center rounded-3xl border border-gray-300">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="text-gray-400 rounded-s-2xl hover:bg-gray-100 bg-transparent cursor-pointer"
-        onClick={handleDecrement}
-      >
-        -
-      </Button>
-      <Input
-        className="w-8 text-center rounded-none border-l-0 border-r-0"
-        value={currentQuantity}
-        readOnly
-      />
-      <Button
-        variant="ghost"
-        size="icon"
-        className="text-gray-400 rounded-e-2xl hover:bg-gray-100 bg-transparent cursor-pointer"
-        onClick={handleIncrement}
-      >
-        +
-      </Button>
-    </div>
-  );
-};
-
-export const CartItem = ({ item }) => {
-  const handleRemoveItem = () => {
-    // Implement remove functionality
-    console.log('Remove item', item.id);
-  };
-
-  const handleMoveToWishlist = () => {
-    // Implement move to wishlist functionality
-    console.log('Move to wishlist', item.id);
-  };
-
-  return (
-    <div className="flex flex-col sm:flex-row items-center justify-between border-b border-gray-200 pb-6">
-      <div className="flex items-center gap-4 w-full sm:w-auto">
-        <img
-          src={item.product.cover_image}
-          alt={item.product.product_name}
-          className="h-24 w-24 rounded-md object-cover"
-        />
-        <div className="max-w-[250px] mx-4">
-          <h3 className="text-md md:text-lg font-semibold text-gray-900">
-            {item.product.product_name}
-          </h3>
-          <p className="text-gray-500 text-xs md:text-sm">
-            {item.product.description.substring(0, 60)}...
-          </p>
-          <p className="text-gray-700 font-semibold mt-2">
-            ${parseFloat(item.price).toFixed(2)}
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 mt-4 md:mt-0">
-        <QuantitySelector quantity={parseFloat(item.quantity)} itemId={item.id} />
-        <div className="flex items-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-700 hover:text-red-500 flex items-center gap-1 cursor-pointer"
-            onClick={handleRemoveItem}
-          >
-            <Trash2 size={20} />
-            <span className="sm:hidden md:inline lg:hidden">Remove</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-700 hover:text-blue-500 flex items-center gap-1 cursor-pointer"
-            onClick={handleMoveToWishlist}
-          >
-            <Heart size={20} />
-            <span className="sm:hidden md:inline lg:hidden">Move to Wishlist</span>
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-
-export const PromoCodeSection = () => {
-  const [isPromoOpen, setIsPromoOpen] = useState(false);
-  const [promoCode, setPromoCode] = useState('');
-
-  const handleApplyPromo = () => {
-    if (promoCode.trim()) {
-      // Here you would call an API to apply the promo code
-      console.log('Apply promo code', promoCode);
-    }
-  };
-
-  return (
-    <>
-      <div className="flex justify-between items-center mb-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-blue-500 hover:text-blue-700"
-          onClick={() => setIsPromoOpen(!isPromoOpen)}
-        >
-          <span>{isPromoOpen ? 'Hide' : 'Enter'} your promo code</span>
-          <ChevronDown
-            className={`h-4 w-4 ml-1 transition-transform ${isPromoOpen ? 'rotate-180' : ''}`}
+        <div className='border border-gray-200 overflow-hidden shrink-0'>
+          <img
+            src={product.cover_image}
+            alt={product.product_name}
+            className="h-24 w-24 rounded-md object-contain"
           />
-        </Button>
+        </div>
+
+        <div className='flex-auto'>
+          <div className="text-sm font-medium line-clamp-2">{product.product_name}</div>
+          <div className="text-gray-700 font-semibold mt-2">{formatCurrency(data.price)}</div>
+        </div>
       </div>
 
-      {isPromoOpen && (
-        <div className="mb-4 flex gap-2">
-          <Input
-            placeholder="Enter promo code"
-            className="w-full"
-            value={promoCode}
-            onChange={(e) => setPromoCode(e.target.value)}
-          />
-          <Button
-            size="sm"
-            className="whitespace-nowrap"
-            onClick={handleApplyPromo}
-          >
-            Apply
-          </Button>
+
+      <div className='shrink-0'>
+        <div className='flex justify-end mb-4'>
+          <button className='cursor-pointer'>
+            <Trash2 className='size-6 stroke-red-700' />
+          </button>
         </div>
-      )}
-    </>
-  );
-};
+        <CounterButton />
+      </div>
+    </div >
+  )
+}
