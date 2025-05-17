@@ -86,7 +86,7 @@ async function refreshAccessTokenFn(dispatch?: Dispatch): Promise<LoginResponse 
     const tokens = getAuthState();
 
     if (!tokens?.refresh_token) {
-        // localStorage.removeItem("tokens");
+        localStorage.removeItem("tokens");
         dispatch?.(logoutUser());
         return null;
     }
@@ -96,6 +96,7 @@ async function refreshAccessTokenFn(dispatch?: Dispatch): Promise<LoginResponse 
             refresh_token: tokens.refresh_token
         });
         const { data } = response;
+        
         localStorage.setItem("tokens", JSON.stringify(data));
         dispatch?.(loginUserAction(data));
         return data;

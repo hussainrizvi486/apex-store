@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getCart } from '../api';
 import { useAuth } from '@features/auth/hooks';
 import { CounterButton } from '@components/ui/counter-button';
-import { decimal, formatCurrency } from '@utils/index';
+import { decimal, formatCurrency, integer } from '@utils/index';
 import { Header } from '@components/layouts';
 
 
@@ -52,6 +52,7 @@ export const CartPage = () => {
                       </>
                     ))
                   ) : (
+
                     <div className="text-center py-8">
                       <p className="text-gray-500">Your cart is empty</p>
                     </div>
@@ -65,46 +66,23 @@ export const CartPage = () => {
             <div className="w-full lg:w-[35%]">
               <div className="bg-white rounded-lg shadow-sm p-4">
                 <div className="flex justify-between items-center mb-4 pt-2">
-                  <h2 className="text-lg font-semibold">Summary ({cart.total_qty || 0})</h2>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-blue-500 hover:text-blue-700"
-                    onClick={() => setIsPromoOpen(!isPromoOpen)}
-                  >
-                    <span>{isPromoOpen ? 'Hide' : 'Enter'} your promo code</span>
-                    <ChevronDown className={`h-4 w-4 ml-1 transition-transform ${isPromoOpen ? 'rotate-180' : ''}`} />
-                  </Button>
+                  <div className="text-lg font-semibold">Summary ({integer(cart.total_qty) || 0})</div>
                 </div>
-                {isPromoOpen && (
-                  <div className="mb-4">
-                    <Input placeholder="Enter promo code" className="w-full" />
-                  </div>
-                )}
 
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-700">Subtotal</span>
                     <span className="text-gray-900 font-medium">${parseFloat(cart.grand_total).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">Estimated Shipping</span>
-                    <span className="text-gray-500">Free - Standard</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">Estimated Tax</span>
-                    <span className="text-gray-900">-</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">Total Savings</span>
-                    <span className="text-gray-500">$0.00</span>
-                  </div>
+
                 </div>
                 <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between items-center">
                   <h3 className="text-xl font-bold">Total</h3>
                   <span className="text-xl font-bold">${parseFloat(cart.grand_total).toFixed(2)}</span>
                 </div>
-                <div className="mt-4 space-y-2">
+
+
+                {/* <div className="mt-4 space-y-2">
                   <Button className="w-full bg-yellow-400 text-gray-900 py-3 rounded-md flex items-center justify-center">
                     <Lock className="mr-2 h-4 w-4" />
                     Klarna.
@@ -113,21 +91,9 @@ export const CartPage = () => {
                   <Button className="w-full text-white py-3 rounded-md flex items-center justify-center">
                     CONTINUE TO CHECKOUT
                   </Button>
-                </div>
-                <div className="mt-6 text-center">
-                  <h4 className="text-sm font-medium">We accept</h4>
-                  <div className="flex justify-center gap-2 mt-2">
-                    <div className="h-6 w-6 bg-gray-500 rounded-sm"></div>
-                    <div className="h-6 w-6 bg-blue-500 rounded-sm"></div>
-                    <div className="h-6 w-6 bg-black rounded-sm"></div>
-                    <div className="h-6 w-6 bg-yellow-500 rounded-sm"></div>
-                    <div className="h-6 w-6 bg-gray-500 rounded-sm"></div>
-                    <div className="h-6 w-6 bg-blue-700 rounded-sm"></div>
-                    <div className="h-6 w-6 bg-gray-800 rounded-sm"></div>
-                    <div className="h-6 w-6 bg-red-600 rounded-sm"></div>
-                    <div className="h-6 w-6 bg-blue-600 rounded-sm"></div>
-                  </div>
-                </div>
+                </div> */}
+
+                {/* 
                 <div className="mt-6 pt-4 border-t border-gray-200 text-center text-xs text-gray-500 flex flex-col items-center gap-1">
                   <div className='flex items-center gap-1'>
                     <Lock className="h-3 w-3" />
@@ -147,7 +113,7 @@ export const CartPage = () => {
                       <NavLink to="#" className="underline text-blue-500">Chat with an expert</NavLink>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
