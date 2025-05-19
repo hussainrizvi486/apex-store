@@ -35,7 +35,6 @@ const INPUT_CLASS_TYPE = {
 // }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className = "", ...props }, ref) => {
-
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
         const value = e.target.value;
         props.onChange?.(value);
@@ -56,7 +55,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className = "", 
             onChange={handleChange}
             onBlur={handleBlur}
             className={cn(
-                "h-10 w-full px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground [&>span]:line-clamp-1", className
+                "w-full px-2 py-1 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground [&>span]:line-clamp-1", className
             )}
         />
     )

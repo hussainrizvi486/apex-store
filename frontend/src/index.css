@@ -33,7 +33,7 @@ html {
     /* light yellow for contrast */
     --color-destructive: oklch(0.55 0.22 30);
     /* toned-down red-orange */
-    --color-input: oklch(0.94 0.005 275);
+    --color-input: oklch(0.88 0 none);
     /* slightly off-white input bg */
     --color-ring: oklch(0.65 0.18 263);
     /* visible bluish ring */
