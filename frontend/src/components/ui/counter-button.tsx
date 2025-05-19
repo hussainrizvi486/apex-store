@@ -38,7 +38,7 @@ export const CounterButton: React.FC<CounterProps> = ({ count, onChange }) => {
                     className="text-sm text-center h-full outline-none px-2 w-10"
                     type="number"
                     onChange={(e) => setValue(integer(e.target.value))}
-                    defaultValue={20}
+                    defaultValue={count}
                 />
 
                 <button

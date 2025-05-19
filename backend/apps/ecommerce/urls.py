@@ -2,6 +2,7 @@ from django.urls import path
 from .api.product import get_products, get_product_detail
 from .api.customer.cart import CartViewSet
 from .api.category import CategoryViewSet
+from .api.queries import urlpatterns as queries_urls
 
 # from rest_framework.routers import DefaultRouter
 
@@ -35,3 +36,6 @@ urlpatterns = [
         name="update-cart",
     ),
 ]
+
+
+urlpatterns += queries_urls

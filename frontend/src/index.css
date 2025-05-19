@@ -20,6 +20,7 @@ html {
 
 @theme {
     --color-background: oklch(1 0 0);
+    --color-sidebar: oklch(1 0 0);
     /* pure white */
     --color-foreground: oklch(0.2 0.01 285);
     /* near-black text */
