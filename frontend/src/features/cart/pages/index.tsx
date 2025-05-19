@@ -1,27 +1,17 @@
-import React, { useState } from 'react';
-import { Button } from '@components/ui/button';
-import { Input } from '@components/ui/input';
-import { NavLink } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, Trash2, Heart, Lock } from 'lucide-react';
-import { ProductHeader } from '@features/components/ProductHeader';
-import { useQuery } from '@tanstack/react-query';
-import { getCart } from '../api';
-import { useAuth } from '@features/auth/hooks';
+import { useCartItems, CartItemType } from '../api';
 import { CounterButton } from '@components/ui/counter-button';
 import { decimal, formatCurrency, integer } from '@utils/index';
 import { Header } from '@components/layouts';
+import { Button } from '@components/ui/button';
 
 
 export const CartPage = () => {
-  const cartQuery = useQuery({
-    queryKey: ['get_cart'],
-    queryFn: getCart,
-  });
+  const cartQuery = useCartItems();
 
-  const cart = cartQuery.data || { items: [], grand_total: "0.00", total_qty: "0" };
-  const [isPromoOpen, setIsPromoOpen] = useState(false);
 
-  // Show loading state while cart data is being fetched
+  console.log(cartQuery.data)
   if (cartQuery.isLoading) {
     return (
       <>
@@ -45,8 +35,8 @@ export const CartPage = () => {
             <div className="w-full lg:w-2/3">
               <div className="rounded-lg">
                 <div>
-                  {cart?.items.length > 0 ? (
-                    cart?.items.map((data) => (
+                  {cartQuery.data?.items.length > 0 ? (
+                    cartQuery.data?.items.map((data) => (
                       <>
                         <CartItem data={data} />
                       </>
@@ -66,54 +56,33 @@ export const CartPage = () => {
             <div className="w-full lg:w-[35%]">
               <div className="bg-white rounded-lg shadow-sm p-4">
                 <div className="flex justify-between items-center mb-4 pt-2">
-                  <div className="text-lg font-semibold">Summary ({integer(cart.total_qty) || 0})</div>
+                  <div className="text-lg font-semibold">Summary ({integer(cartQuery?.data?.total_qty) || 0})</div>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">Subtotal</span>
-                    <span className="text-gray-900 font-medium">${parseFloat(cart.grand_total).toFixed(2)}</span>
+                  <div className="flex justify-between items-center">
+                    <div >Subtotal</div>
+                    <div >${parseFloat(cartQuery?.data?.grand_total).toFixed(2)}</div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div >Total Items</div>
+                    <div >{integer(cartQuery?.data?.items?.length) || 0}</div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div >Total Quantity</div>
+                    <div >{integer(cartQuery?.data?.total_qty) || 0}</div>
                   </div>
 
                 </div>
                 <div className="border-t border-gray-200 pt-4 mt-4 flex justify-between items-center">
-                  <h3 className="text-xl font-bold">Total</h3>
-                  <span className="text-xl font-bold">${parseFloat(cart.grand_total).toFixed(2)}</span>
+                  <h3 className="text-base font-semibold">Total</h3>
+                  <span className="text-base font-semibold">${parseFloat(cartQuery.data.grand_total).toFixed(2)}</span>
                 </div>
 
+                <Button className='w-full mt-2'>
+                  Checkout
+                </Button>
 
-                {/* <div className="mt-4 space-y-2">
-                  <Button className="w-full bg-yellow-400 text-gray-900 py-3 rounded-md flex items-center justify-center">
-                    <Lock className="mr-2 h-4 w-4" />
-                    Klarna.
-                  </Button>
-                  <div className="text-center text-sm text-gray-600">or</div>
-                  <Button className="w-full text-white py-3 rounded-md flex items-center justify-center">
-                    CONTINUE TO CHECKOUT
-                  </Button>
-                </div> */}
-
-                {/* 
-                <div className="mt-6 pt-4 border-t border-gray-200 text-center text-xs text-gray-500 flex flex-col items-center gap-1">
-                  <div className='flex items-center gap-1'>
-                    <Lock className="h-3 w-3" />
-                    <span>Money-Back Guarantee</span>
-                  </div>
-                  <span>With easy returns</span>
-                  <div className='flex items-center gap-1'>
-                    <Lock className="h-3 w-3" />
-                    <span>Secure Checkout</span>
-                  </div>
-                  <span>Shopping is always safe and secure</span>
-                  <div className="mt-4">
-                    <h4 className="font-medium">Need help?</h4>
-                    <div className='flex items-center gap-1'>
-                      <NavLink to="#" className="underline text-blue-500">Read checkout FAQ</NavLink>
-                      or
-                      <NavLink to="#" className="underline text-blue-500">Chat with an expert</NavLink>
-                    </div>
-                  </div>
-                </div> */}
               </div>
             </div>
           </div>
@@ -151,7 +120,7 @@ const CartItem = ({ data }) => {
             <Trash2 className='size-6 stroke-red-700' />
           </button>
         </div>
-        <CounterButton />
+        <CounterButton count={integer(data.quantity || 1)} />
       </div>
     </div >
   )
