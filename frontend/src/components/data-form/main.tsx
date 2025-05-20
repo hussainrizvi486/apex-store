@@ -3,8 +3,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm, Controller } from "react-hook-form";
 import { DataFormProps, BaseField } from "./index";
-import { Input } from "@components/ui/input";
 import { DFInput } from "./components/field";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@components/ui/select";
+
+
 
 const getSchema = (fields: BaseField[]) => {
     const schemaMap: Record<string, z.ZodTypeAny> = {};
@@ -70,8 +72,30 @@ const DataForm: React.FC<DataFormProps> = (props) => {
         defaultValues: {},
     })
 
+    const onSubmit = () => {
+        console.log("formState", formObject.getValues());
+    }
+
+
     return (
         <FormProvider {...formObject}>
+            <Select>
+                <SelectTrigger >
+                    <SelectValue placeholder="Select a fruit" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectGroup>
+                        <SelectLabel>Fruits</SelectLabel>
+                        <SelectItem value="apple">Apple</SelectItem>
+                        <SelectItem value="banana">Banana</SelectItem>
+                        <SelectItem value="blueberry">Blueberry</SelectItem>
+                        <SelectItem value="grapes">Grapes</SelectItem>
+                        <SelectItem value="pineapple">Pineapple</SelectItem>
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+
+
             <div>
                 <div className="text-lg">DataForm</div>
             </div>
@@ -86,9 +110,12 @@ const DataForm: React.FC<DataFormProps> = (props) => {
                                 <DFInput label={field.label} name={field.name} type={field.type} options={field.options} />
                             )}
                         />
-
                     )
                 })}
+            </div>
+
+            <div>
+                <button className="bg-primary text-primary-foreground px-2 py-1 " onClick={onSubmit}>Save</button>
             </div>
         </FormProvider>
     )

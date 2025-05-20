@@ -3,7 +3,7 @@ import { decimal, cn } from "@utils/index";
 
 
 type InputType = "text" | "number" | "float" | "number";
-
+type InputValue = string | number | undefined;
 interface InputProps {
     name?: string
     placeholder?: string
@@ -12,13 +12,14 @@ interface InputProps {
     required?: boolean
     type?: InputType
     precision?: number,
-    onChange?: (value: any) => void
-    onBlur?: (value: any) => void
+    onChange?: (value: string) => void
+    onBlur?: (value: string) => void
 }
 
+const formatValue = (value: string) => {
+    return value.replace(/[^0-9.]/g, "");
+}
 
-// function getValue(input: InputProps, value: any) {
-// }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className = "", ...props }, ref) => {
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -31,6 +32,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className = "", 
         props.onBlur?.(e.target.value);
     }
 
+    console.log(formatValue(props.value || ""));
+
     return (
         <input
             {...props}
@@ -39,11 +42,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className = "", 
             name={props.name}
             placeholder={props.placeholder}
             defaultValue={props.value}
-
             onChange={handleChange}
             onBlur={handleBlur}
             className={cn(
-                "h-10 w-full px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground [&>span]:line-clamp-1", className
+                "w-full px-2 py-1 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground [&>span]:line-clamp-1", className
             )}
         />
     )

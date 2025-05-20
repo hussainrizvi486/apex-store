@@ -1,26 +1,42 @@
 import { Input } from "@components/ui/input";
 import { Checkbox } from "@components/ui/checkbox";
-import { BaseField } from "../index";
+import { BaseField, FieldValue } from "../index";
 import { AutoComplete } from "@components/ui/autocomplete";
+import { useFormContext } from "react-hook-form";
+import { cn } from "@utils/index";
+
+interface FieldProps extends BaseField {
+    onChange?: (value: FieldValue) => void;
+    onBlur?: () => FieldValue;
+    value?: FieldValue;
+    ref?: React.Ref<any>;
+}
 
 
+const Label = (props: { field: FieldProps; className?: string }) => {
+    const { field } = props;
+    return <label className={cn("text-xs", props.className || "")} htmlFor={field.name}>{field.label} {field.required && <span className="text-red-500 ml-1">*</span>}</label>;
 
-const Field: React.FC<BaseField> = (props) => {
+}
+
+const Field: React.FC<FieldProps> = (props) => {
+    const { formState: { errors } } = useFormContext();
     const { type } = props;
+    const errorMessage = errors[props.name]?.message as string;
 
+    console.log(errorMessage);
     if (type === "checkbox") {
         return (
             <div className="flex items-center">
-                <Checkbox name={props.name} id={props.name} /> <label className="text-xs ml-2" htmlFor={props.name}>{props.label}</label>
+                <Checkbox name={props.name} id={props.name} /> <Label field={props} className="ml-2" />
             </div>
         )
     }
 
     if (type == "autocomplete") {
-        console.log(props.options)
         return (
             <div className="mb-1">
-                <label className="text-xs">{props.label}</label>
+                <Label field={props} className="ml-2" />
                 <AutoComplete options={props.options} />
             </div>
         )
@@ -29,7 +45,7 @@ const Field: React.FC<BaseField> = (props) => {
     return (
         <div>
             <div className="mb-1">
-                <label className="text-xs">{props.label}</label>
+                <Label field={props} className="ml-2" />
             </div>
 
             <Input
@@ -46,9 +62,6 @@ const DFInput: React.FC<BaseField> = (props) => {
     return (
         <div className="mb-4">
             <Field {...props} />
-
-
-
         </div>
 
     )
