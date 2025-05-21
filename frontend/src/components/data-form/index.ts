@@ -60,11 +60,13 @@ export interface BaseField<T extends FieldType = FieldType> {
     type: T;
     required?: boolean;
     disabled?: boolean;
+    sectionBreak: boolean;
+    columnBreak: boolean;
     hidden?: boolean;
     placeholder?: string;
     description?: string;
     onChange?: (value: T) => void;
-    validators?: FieldValidator<T>[];
+    validators?: FieldValidator<T>;
     defaultValue?: FieldValue,
 }
 
@@ -119,3 +121,9 @@ export interface DataFormProps {
 
 
 
+
+
+export interface DFInputProps {
+    field: BaseField;
+    setValue: (params: { value: FieldValue; key: string }) => void;
+}

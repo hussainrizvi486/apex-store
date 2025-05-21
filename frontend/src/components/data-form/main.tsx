@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm, Controller } from "react-hook-form";
-import { DataFormProps, BaseField } from "./index";
+import { DataFormProps, BaseField, FieldValue } from "./index";
 import { DFInput } from "./components/field";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@components/ui/select";
+import { Column, Section } from "./components/layout";
+import { Button } from "@components/ui/button";
+import { fields } from "./test";
 
 
 
@@ -63,62 +63,122 @@ const getSchema = (fields: BaseField[]) => {
     return z.object(schemaMap);
 }
 
-const DataForm: React.FC<DataFormProps> = (props) => {
-    const formSchema = React.useMemo(() => getSchema(props.fields), [props.fields]);
+const getFormState = (fields: BaseField[]) => {
+    let state = {};
 
-    const formObject = useForm({
-        resolver: zodResolver(formSchema),
-        mode: "onBlur",
-        defaultValues: {},
+    fields.forEach((field) => {
+        const key = field.name;
+        state[key] = {
+            value: field.defaultValue || undefined,
+            error: "",
+            hasError: false,
+        }
     })
 
-    const onSubmit = () => {
-        console.log("formState", formObject.getValues());
+    return state
+}
+const DataForm: React.FC<DataFormProps> = (props) => {
+    // const formSchema = React.useMemo(() => getSchema(props.fields), [props.fields]);
+    const [formState, setFormState] = useState(getFormState(props.fields));
+
+
+
+    const setFieldValue = (params: { key: string, value: FieldValue }) => {
+        setFormState((prevState) => ({
+            ...prevState,
+            [params.key]: {
+                ...prevState[params.key],
+                value: params.value,
+            }
+        }))
+    }
+
+    console.log("formState", formState)
+    function getFormValues() {
+        const values = {};
+        Object.keys(formState).forEach((key) => {
+            values[key] = formState[key].value;
+        })
+
+        return values;
     }
 
 
+    const onSubmit = () => {
+        console.log("formState", getFormValues());
+    }
+
+    const makeFormLayout = () => {
+        let layout = [];
+        const { fields } = props;
+        fields.filter(val => val.sectionBreak).forEach((i) => {
+
+            let section = { label: i.label };
+            let start = fields.findIndex((v) => v.name == i.name);
+
+
+            if (start == undefined) {
+                return;
+            }
+
+            // console.log(start)
+
+            let columnIndex = 0;
+            let columns: BaseField[][] = [[]];
+
+            for (let i = start + 1; i < fields.length; i++) {
+                const element = fields[i];
+                if (element.sectionBreak) {
+                    break;
+                }
+
+                if (element.columnBreak == true) {
+                    columnIndex += 1;
+                    columns.push([])
+                    continue;
+                }
+                else {
+                    console.log(columnIndex, columns);
+                    columns[columnIndex].push(element);
+                }
+
+            }
+            section.columns = columns.filter(v => v.length > 0);
+            layout.push(section)
+        });
+
+        return layout;
+    }
+
+    const formLayout = makeFormLayout()
     return (
-        <FormProvider {...formObject}>
-            <Select>
-                <SelectTrigger >
-                    <SelectValue placeholder="Select a fruit" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectGroup>
-                        <SelectLabel>Fruits</SelectLabel>
-                        <SelectItem value="apple">Apple</SelectItem>
-                        <SelectItem value="banana">Banana</SelectItem>
-                        <SelectItem value="blueberry">Blueberry</SelectItem>
-                        <SelectItem value="grapes">Grapes</SelectItem>
-                        <SelectItem value="pineapple">Pineapple</SelectItem>
-                    </SelectGroup>
-                </SelectContent>
-            </Select>
-
+        <div>
 
             <div>
-                <div className="text-lg">DataForm</div>
-            </div>
+                {formLayout.map((section, i) => {
+                    return (<Section key={i} label={section.label}>
+                        {
+                            section.columns?.map((column) => {
+                                return (
+                                    <Column columnsLength={section.columns.length} key={i}>
+                                        {column.map((field, index) => {
+                                            return (
+                                                <DFInput field={field} key={index} setValue={setFieldValue} />
+                                            )
+                                        })}
+                                    </Column>
+                                )
+                            })
+                        }
 
-            <div>
-                {props.fields.map((field, index) => {
-                    return (
-                        <Controller key={index}
-                            name={field.name}
-                            control={formObject.control}
-                            render={() => (
-                                <DFInput label={field.label} name={field.name} type={field.type} options={field.options} />
-                            )}
-                        />
-                    )
+                    </Section>)
                 })}
             </div>
-
             <div>
-                <button className="bg-primary text-primary-foreground px-2 py-1 " onClick={onSubmit}>Save</button>
+                <Button onClick={onSubmit}>Save</Button>
             </div>
-        </FormProvider>
+        </div>
     )
 }
 
-export { DataForm };
+export { DataForm }; 
