@@ -25,7 +25,6 @@ const Label = (props: { field: FieldProps; className?: string }) => {
 const Field: React.FC<FieldProps> = (props) => {
     const { type } = props;
 
-
     function handleChange(value: FieldValue) {
         props?.onChange?.(value);
     }
@@ -38,7 +37,7 @@ const Field: React.FC<FieldProps> = (props) => {
         return (
             <div className="flex items-center">
                 <Checkbox name={props.name} id={props.name}
-                onCheckedChange={handleChange}
+                    onCheckedChange={handleChange}
                 /> <Label field={props} className="ml-2 text-sm" />
             </div>
         )
