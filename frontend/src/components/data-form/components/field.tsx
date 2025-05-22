@@ -38,7 +38,7 @@ const Field: React.FC<FieldProps> = (props) => {
         return (
             <div className="flex items-center">
                 <Checkbox name={props.name} id={props.name}
-                onCheckedChange={handleChange}
+                    onCheckedChange={handleChange}
                 /> <Label field={props} className="ml-2 text-sm" />
             </div>
         )
@@ -101,8 +101,10 @@ const DFInput: React.FC<DFInputProps> = (props) => {
     }
 
     return (
-        <div className="mb-4">
-            <Field {...field} onChange={onChange} />
+        <div className="mb-2 h-16">
+            <div>
+                <Field {...field} onChange={onChange} />
+            </div>
         </div>
     )
 }

@@ -61,7 +61,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={cn(buttonVariants({ variant, size, fullWidth, className }))}
+        className={cn(buttonVariants({ variant, size, fullWidth, className }), "hover:cursor-pointer active:ring-1 ring-offset-2 active:ring-primary")}
         disabled={isLoading || disabled}
         {...props}
       >

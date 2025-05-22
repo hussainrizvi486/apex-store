@@ -2,7 +2,7 @@ import React from "react";
 import { decimal, cn } from "@utils/index";
 
 
-type InputType = "text" | "number" | "float" | "number";
+type InputType = "text" | "number" | "float" | "number" | "email";
 type InputValue = string | number | undefined;
 interface InputProps {
     name?: string
