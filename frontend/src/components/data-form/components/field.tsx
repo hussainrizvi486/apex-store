@@ -100,8 +100,10 @@ const DFInput: React.FC<DFInputProps> = (props) => {
     }
 
     return (
-        <div className="mb-4">
-            <Field {...field} onChange={onChange} />
+        <div className="mb-2 h-16">
+            <div>
+                <Field {...field} onChange={onChange} />
+            </div>
         </div>
     )
 }

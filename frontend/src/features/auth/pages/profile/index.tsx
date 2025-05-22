@@ -1,12 +1,14 @@
 import { Header } from '@components/layouts';
+import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
+import { Tabs, TabsTrigger, TabsList, TabsContent } from '@components/ui/tabs';
 import React, { useCallback, useState } from 'react';
 
 
 export interface ProfileType {
     username?: string;
-    firstName?: string;
-    lastName?: string;
+    first_name?: string;
+    last_name?: string;
     email?: string;
     phone?: string;
     profilePicture?: string;
@@ -59,18 +61,70 @@ const sampleAddresses: AddressType[] = [
 ];
 
 const ProfilePage: React.FC = () => {
+
     const user: ProfileType = {
         username: 'John Doe',
         email: 'johndoe@example.com',
         phone: '+1234567890',
     };
 
+
     const [activeTab, setActiveTab] = useState('Address Book');
+    return (
+        <>
+            <Header />
+            <div className='mx-auto max-w-6xl'>
+                <div className='py-4'>
+                    <Tabs defaultValue="profile">
+                        <TabsList className='py-6 w-full'>
+                            <TabsTrigger value='profile'>Your Account</TabsTrigger>
+                            <TabsTrigger value='address'>Address Book</TabsTrigger>
+                            <TabsTrigger value='orders'>My Orders</TabsTrigger>
+                            <TabsTrigger value='reviews'>My Reviews</TabsTrigger>
+                            <TabsTrigger value='wishlist'>Wishlist</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value='profile'>
+                            <ProfileTab />
+                        </TabsContent>
+
+                        <TabsContent value='address'>
+                            <div>Address</div>
+                        </TabsContent>
+
+                        <TabsContent value='orders'>
+                            <OrdersTab />
+                        </TabsContent>
+                        <TabsContent value='reviews'>
+                            <div>Reviews</div>
+                        </TabsContent>
+                        <TabsContent value='wishlist'>
+                            <div>wishlist</div>
+                        </TabsContent>
+
+                    </Tabs>
+                </div>
+            </div>
+        </>
+    )
 
     return (
         <div>
             <Header />
             <div className='mx-auto max-w-6xl'>
+                <Tabs defaultValue="profile">
+                    <TabsList >
+                        <TabsTrigger value='profile'>Your Account</TabsTrigger>
+                        <TabsTrigger value='address'>Address Book</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value='profile'>
+                        <div>
+
+                        </div>
+                    </TabsContent>
+
+                </Tabs>
                 <div className='p-4'>
                     <div>
                         <div className='text-lg font-medium'>Hi. {user.username}</div>
@@ -305,7 +359,19 @@ const AddressForm: React.FC<{
     );
 };
 
-const ProfileForm: React.FC<{ data: ProfileType }> = ({ data }) => {
+
+const ProfileTab: React.FC = () => {
+    const user: ProfileType = {
+        first_name: 'John',
+        last_name: 'Doe',
+        username: 'John Doe',
+        email: 'johndoe@example.com',
+        phone: '+1234567890',
+    };
+
+    const data = user;
+
+
     const [profile, setProfile] = useState<ProfileType>({
         // firstName: '',
         // lastName: '',
@@ -315,108 +381,72 @@ const ProfileForm: React.FC<{ data: ProfileType }> = ({ data }) => {
         ...data,
     });
 
-    const [imagePreview, setImagePreview] = useState<string>(DEFAULT_PROFILE_IMAGE);
-    const [isSaved, setIsSaved] = useState(false);
-
-
-    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setProfile((prev) => ({ ...prev, [name]: value }));
-        setIsSaved(false);
-    }, []);
-
-    const handleImageChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const imageUrl = reader.result as string;
-                setProfile((prev) => ({ ...prev, image: imageUrl }));
-                setImagePreview(imageUrl);
-            };
-            reader.readAsDataURL(file);
-            setIsSaved(false);
-        }
-    }, []);
-
-    const handleSubmit = () => {
-        // API call or local update logic
-        console.log('Submitting profile:', profile);
-        setIsSaved(true);
-    };
 
     return (
         <div >
             <div className="mb-6">
+                <div></div>
+            </div>
+
+            <div className='flex justify-between items-start border-b border-gray-300 mb-6'>
+                <div className="mb-6 flex flex-col items-center">
+                    <label htmlFor="imageUpload" className="cursor-pointer">
+                        <img src={user.profilePicture || DEFAULT_PROFILE_IMAGE} alt="Profile"
+                            className="w-20 h-20 rounded-full object-cover mb-2 hover:opacity-80 transition" />
+                    </label>
+                    <input id="imageUpload" type="file" accept="image/*" className="hidden" />
+                    <span className="text-base cursor-pointer font-semibold">{profile.first_name} {profile.last_name}</span>
+                </div>
+
+
+                <div>
+                    <Button >
+                        Edit Profile
+                    </Button>
+                </div>
+            </div>
+
+            <div className='mb-4'>
                 <h2 className="text-xl font-semibold">Your Account</h2>
                 <p className="text-sm text-gray-500">Manage your profile information.</p>
             </div>
-
-            <div className='flex justify-between items-center'>
-                <div className="mb-6 flex flex-col items-center">
-                    <label htmlFor="imageUpload" className="cursor-pointer">
-                        <img
-                            src={imagePreview}
-                            alt="Profile"
-                            className="w-20 h-20 rounded-full object-cover mb-2 hover:opacity-80 transition"
-                        />
-                    </label>
-                    <input
-                        id="imageUpload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                    />
-                    <span className="text-sm underline cursor-pointer">{profile.firstName} {profile.lastName}</span>
-                </div>
-
-                <div>
-                    <button onClick={handleSubmit} className="bg-primary text-white px-4 py-2 rounded-md text-sm">
-                        {isSaved ? 'Saved ✓' : 'Save Changes'}
-                    </button>
-                </div>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label className="block text-sm mb-1">First Name</label>
-                    <Input
-                        name="firstName"
-                        value={profile.firstName}
-                        onChange={handleInputChange}
-                        placeholder="Enter first name"
-                    />
+                    <Input name="firstName" value={profile.first_name} />
                 </div>
                 <div>
                     <label className="block text-sm mb-1">Last Name</label>
-                    <Input
-                        name="lastName"
-                        value={profile.lastName}
-                        onChange={handleInputChange}
-                        placeholder="Enter last name"
-                    />
+                    <Input name="lastName" value={profile.last_name} />
                 </div>
                 <div>
                     <label className="block text-sm mb-1">Username</label>
-                    <Input
-                        name="username"
-                        value={profile.username}
-                        onChange={handleInputChange}
-                        placeholder="Enter username"
-                    />
+                    <Input name="username" value={profile.username} />
                 </div>
                 <div>
                     <label className="block text-sm mb-1">Email</label>
-                    <Input
-                        name="email"
-                        type="email"
-                        value={profile.email}
-                        onChange={handleInputChange}
-                        placeholder="Enter email address"
-                    />
+                    <Input name="email" type="email" value={profile.email} />
                 </div>
             </div>
         </div>
-    );
+    )
+
+}
+
+
+function DataTable() {
+    return (
+        <dcdiv></div>
+    )
+
+}
+const OrdersTab: React.FC = () => {
+    return (
+        <div>
+            My Orders
+            <div>
+                <DataTable />
+            </div>
+        </div>
+    )
 }

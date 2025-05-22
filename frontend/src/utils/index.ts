@@ -1,10 +1,11 @@
+// /home/frappe/frappe-bench/apps/basma/basma/www
 import { twMerge } from 'tailwind-merge'
 import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
 
 
-function cn(...args: (string)[]): string {
+function cn(...args: (string | null | undefined)[]): string {
     return twMerge(args.filter(String).join(" "));
 }
 
