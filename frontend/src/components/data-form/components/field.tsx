@@ -1,4 +1,3 @@
-import { useFormContext } from "react-hook-form";
 import { cn } from "@utils/index";
 import { Input } from "@components/ui/input";
 import { Checkbox } from "@components/ui/checkbox";
@@ -11,7 +10,7 @@ interface FieldProps extends BaseField {
     onChange?: (value: FieldValue) => void;
     onBlur?: () => FieldValue;
     value?: FieldValue;
-    ref?: React.Ref<any>;
+    ref?: React.Ref<HTMLElement>;
     control: object;
 }
 

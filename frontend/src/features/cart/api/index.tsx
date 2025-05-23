@@ -16,6 +16,7 @@ export interface CartItemType {
     price: string;
     amount: string;
 }
+
 export const useCartItems = () => {
     return useQuery<{ items: CartItemType[], total_qty: string, grand_total: string }>({
         queryKey: ["cart", "items"],
@@ -46,7 +47,7 @@ export const useUpdateCartItem = () => {
             return data;
         },
         onSuccess: () => {
-            
+
         }
     });
 };

@@ -93,7 +93,6 @@ const DataForm: React.FC<DataFormProps> = (props) => {
         }))
     }
 
-    console.log("formState", formState)
     function getFormValues() {
         const values = {};
         Object.keys(formState).forEach((key) => {
@@ -111,8 +110,8 @@ const DataForm: React.FC<DataFormProps> = (props) => {
     const makeFormLayout = () => {
         let layout = [];
         const { fields } = props;
-        fields.filter(val => val.sectionBreak).forEach((i) => {
 
+        fields.filter(val => val.sectionBreak).forEach((i) => {
             let section = { label: i.label };
             let start = fields.findIndex((v) => v.name == i.name);
 
@@ -120,8 +119,6 @@ const DataForm: React.FC<DataFormProps> = (props) => {
             if (start == undefined) {
                 return;
             }
-
-            // console.log(start)
 
             let columnIndex = 0;
             let columns: BaseField[][] = [[]];
@@ -147,6 +144,7 @@ const DataForm: React.FC<DataFormProps> = (props) => {
             layout.push(section)
         });
 
+        console.log("layout", layout);
         return layout;
     }
 

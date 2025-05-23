@@ -15,7 +15,7 @@ const LoginPage = React.lazy(() => import("@features/auth/pages/login"))
 const HomePage = React.lazy(() => import("@features/product/pages/home/index"));
 const CreateProductPage = React.lazy(() => import("@features/product/pages/form/create"));
 const NotFound = React.lazy(() => import("./pages/404"));
-const ProfilePage = React.lazy(() => import("./features/auth/pages/profile/index"));
+const ProfilePage = React.lazy(() => import("./features/auth/pages/profile"));
 
 function Application() {
   return (

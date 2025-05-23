@@ -13,7 +13,7 @@ import {
 import React from "react";
 
 const Index = () => {
-    const [fields, setFields] = React.useState("Product");
+    const [fields, setFields] = React.useState();
 
     return (
         <div className="max-w-6xl mx-auto p-4">
@@ -42,7 +42,7 @@ const Index = () => {
 
             {fields && (
                 <div>
-                    <DataForm fields={fieldsObject["Product"]} />
+                    <DataForm fields={fieldsObject["Customer"]} />
                 </div>
             )}
         </div>

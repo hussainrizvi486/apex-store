@@ -209,38 +209,40 @@ export const DataForm: React.FC<DataFormProps> = ({
             <FormProvider {...formMethods}>
                 <form onSubmit={handleSubmit(processSubmit)}>
                     {fields.map((section, sectionIndex) => (
-                        <Section key={`section-${sectionIndex}`} label={section.label}>                            <div className={`grid grid-cols-1 md:grid-cols-${section.columns?.length || 1} gap-4`}>
-                            {section.columns?.map((columns, columnIndex) => (
-                                <Column key={`column-${sectionIndex}-${columnIndex}`} columnsLength={section.columns?.length || 1}>
-                                    {columns.map((field) => {
-                                        const fieldValue = values ? values[field.name] : undefined;
-                                        return (
-                                            <div key={`field-${field.name}`} className="mb-4">
-                                                <Controller
-                                                    name={field.name}
-                                                    control={control}
-                                                    defaultValue={fieldValue}
-                                                    render={({ field: { onChange, value } }) => (
-                                                        <FormField
-                                                            field={{
-                                                                ...field,
-                                                                value: value !== undefined ? value : fieldValue,
-                                                                onChange: (newValue) => onChange(newValue)
-                                                            }}
-                                                            onChange={(newValue) => onChange(newValue)}
-                                                            state={{
-                                                                hasError: !!errors[field.name],
-                                                                error: errors[field.name]?.message as string
-                                                            }}
-                                                        />
-                                                    )}
-                                                />
-                                            </div>
-                                        );
-                                    })}
-                                </Column>
-                            ))}
-                        </div>
+                        <Section key={`section-${sectionIndex}`} label={section.label}>
+
+                            <div className={`grid grid-cols-1 md:grid-cols-${section.columns?.length || 1} gap-4`}>
+                                {section.columns?.map((columns, columnIndex) => (
+                                    <Column key={`column-${sectionIndex}-${columnIndex}`} columnsLength={section.columns?.length || 1}>
+                                        {columns.map((field) => {
+                                            const fieldValue = values ? values[field.name] : undefined;
+                                            return (
+                                                <div key={`field-${field.name}`} className="mb-4">
+                                                    <Controller
+                                                        name={field.name}
+                                                        control={control}
+                                                        defaultValue={fieldValue}
+                                                        render={({ field: { onChange, value } }) => (
+                                                            <FormField
+                                                                field={{
+                                                                    ...field,
+                                                                    value: value !== undefined ? value : fieldValue,
+                                                                    onChange: (newValue) => onChange(newValue)
+                                                                }}
+                                                                onChange={(newValue) => onChange(newValue)}
+                                                                state={{
+                                                                    hasError: !!errors[field.name],
+                                                                    error: errors[field.name]?.message as string
+                                                                }}
+                                                            />
+                                                        )}
+                                                    />
+                                                </div>
+                                            );
+                                        })}
+                                    </Column>
+                                ))}
+                            </div>
                         </Section>
                     ))}                    <div className="flex justify-end mt-6 gap-4">
                         <Button
