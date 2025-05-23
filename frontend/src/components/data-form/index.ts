@@ -110,7 +110,7 @@ export interface DataFormProps {
 
 export interface DFInputProps {
     field: BaseField;
-    setValue?: (params: { value: FieldValue; key: string }) => void;
+    setValue: (params: { value: FieldValue; key: string }) => void;
 }
 
 

@@ -28,6 +28,7 @@ const addressFormField = [
     { label: "Address Line 2", name: "address_line_2", type: "text" },
     { label: "City", name: "city", type: "text" },
     { label: "State", name: "state", type: "text" },
+    { label: "", columnBreak: true },
     { label: "Country", name: "country", type: "text" },
     { label: "Postal Code", name: "postal_code", type: "text" },
     { label: "Email", name: "email", type: "email" },
@@ -41,7 +42,7 @@ const AddAddress = () => {
                 <Button>Create</Button>
             </DialogTrigger>
 
-            <DialogContent>
+            <DialogContent className='w-full max-w-full '>
                 <div>
                     <DataForm fields={addressFormField} />
                 </div>
@@ -176,14 +177,8 @@ const ProfileTab: React.FC = () => {
     const data = user;
 
 
-    const [profile, setProfile] = useState<ProfileType>({
-        // firstName: '',
-        // lastName: '',
-        // username: '',
-        // email: '',
-        // profilePicture: DEFAULT_PROFILE_IMAGE,
-        ...data,
-    });
+    const [profile, setProfile] = useState<ProfileType>(data);
+
 
 
     return (
@@ -237,13 +232,210 @@ const ProfileTab: React.FC = () => {
 
 }
 
-
-function DataTable() {
-    return (
-        <div></div>
-    )
+interface Order {
+    id: string;
+    product: string;
+    status: 'pending' | 'completed' | 'cancelled' | 'processing';
+    total: number;
+    date: string;
 }
 
+const DataTable: React.FC = () => {
+    // Sample data
+    const orders: Order[] = [
+        {
+            id: 'ORD-001',
+            product: 'Wireless Headphones',
+            status: 'completed',
+            total: 99.99,
+            date: '2024-05-20'
+        },
+        {
+            id: 'ORD-002',
+            product: 'Smart Watch',
+            status: 'processing',
+            total: 249.99,
+            date: '2024-05-21'
+        },
+        {
+            id: 'ORD-003',
+            product: 'Laptop Stand',
+            status: 'pending',
+            total: 45.00,
+            date: '2024-05-22'
+        },
+        {
+            id: 'ORD-004',
+            product: 'USB-C Cable',
+            status: 'cancelled',
+            total: 19.99,
+            date: '2024-05-23'
+        },
+        {
+            id: 'ORD-005',
+            product: 'Mechanical Keyboard',
+            status: 'completed',
+            total: 129.99,
+            date: '2024-05-24'
+        }
+    ];
+
+    const DataTableRow: React.FC<{ children: React.ReactNode; isHeader?: boolean }> = ({
+        children,
+        isHeader = false
+    }) => {
+        return (
+            <tr className={`${isHeader ? 'bg-gray-50' : 'hover:bg-gray-50'} transition-colors duration-200`}>
+                {children}
+            </tr>
+        );
+    };
+
+    const DataTableCell: React.FC<{
+        children: React.ReactNode;
+        isHeader?: boolean;
+        className?: string;
+    }> = ({ children, isHeader = false, className = '' }) => {
+        const baseClasses = "px-6 py-4 text-left";
+        const headerClasses = "font-semibold text-gray-900 bg-gray-50";
+        const cellClasses = "text-gray-700";
+
+        if (isHeader) {
+            return (
+                <th className={`${baseClasses} ${headerClasses} ${className}`}>
+                    {children}
+                </th>
+            );
+        }
+
+        return (
+            <td className={`${baseClasses} ${cellClasses} ${className}`}>
+                {children}
+            </td>
+        );
+    };
+
+    const StatusBadge: React.FC<{ status: Order['status'] }> = ({ status }) => {
+        const getStatusStyles = (status: Order['status']) => {
+            switch (status) {
+                case 'completed':
+                    return 'bg-green-100 text-green-800 border-green-200';
+                case 'processing':
+                    return 'bg-blue-100 text-blue-800 border-blue-200';
+                case 'pending':
+                    return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                case 'cancelled':
+                    return 'bg-red-100 text-red-800 border-red-200';
+                default:
+                    return 'bg-gray-100 text-gray-800 border-gray-200';
+            }
+        };
+
+        return (
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyles(status)}`}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+            </span>
+        );
+    };
+
+    const formatCurrency = (amount: number): string => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(amount);
+    };
+
+    const formatDate = (dateString: string): string => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
+    return (
+        <div className="w-full max-w-6xl mx-auto p-6">
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">Orders</h1>
+                <p className="text-gray-600">Manage and track your recent orders</p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <DataTableRow isHeader>
+                                <DataTableCell isHeader>Order ID</DataTableCell>
+                                <DataTableCell isHeader>Product</DataTableCell>
+                                <DataTableCell isHeader>Status</DataTableCell>
+                                <DataTableCell isHeader className="text-right">Total</DataTableCell>
+                                <DataTableCell isHeader>Date</DataTableCell>
+                            </DataTableRow>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {orders.map((order) => (
+                                <DataTableRow key={order.id}>
+                                    <DataTableCell>
+                                        <span className="font-mono text-sm font-medium text-gray-900">
+                                            {order.id}
+                                        </span>
+                                    </DataTableCell>
+                                    <DataTableCell>
+                                        <div className="font-medium text-gray-900">
+                                            {order.product}
+                                        </div>
+                                    </DataTableCell>
+                                    <DataTableCell>
+                                        <StatusBadge status={order.status} />
+                                    </DataTableCell>
+                                    <DataTableCell className="text-right">
+                                        <span className="font-semibold text-gray-900">
+                                            {formatCurrency(order.total)}
+                                        </span>
+                                    </DataTableCell>
+                                    <DataTableCell>
+                                        <span className="text-gray-600">
+                                            {formatDate(order.date)}
+                                        </span>
+                                    </DataTableCell>
+                                </DataTableRow>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Empty state - shown when no data */}
+                {orders.length === 0 && (
+                    <div className="text-center py-12">
+                        <div className="text-gray-400 mb-2">
+                            <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <h3 className="text-sm font-medium text-gray-900 mb-1">No orders found</h3>
+                        <p className="text-sm text-gray-500">Get started by creating your first order.</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Pagination - for future enhancement */}
+            <div className="mt-6 flex items-center justify-between">
+                <div className="text-sm text-gray-700">
+                    Showing <span className="font-medium">1</span> to <span className="font-medium">{orders.length}</span> of{' '}
+                    <span className="font-medium">{orders.length}</span> results
+                </div>
+                <div className="flex space-x-2">
+                    <button className="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        Previous
+                    </button>
+                    <button className="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const OrdersTab: React.FC = () => {
     return (

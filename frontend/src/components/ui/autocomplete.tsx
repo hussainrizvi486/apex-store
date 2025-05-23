@@ -21,7 +21,6 @@ interface AutoCompleteProps {
 }
 
 export const AutoComplete: React.FC<AutoCompleteProps> = (props) => {
-
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<Option[]>(props.options || []);
     const [open, setOpen] = useState(true);
@@ -30,7 +29,13 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props) => {
 
 
     const handleSelect = (option: Option) => {
-        setSelected(option);
+        if (option.value === selected?.value) {
+            setSelected(null);
+        }
+        else {
+            setSelected(option);
+        }
+
         props.onChange?.(option);
         setOpen(false);
     };
@@ -53,18 +58,17 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props) => {
     }, [query]);
 
     return (
-        <div className="">
+        <div >
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <button
-                        className={cn('w-full border border-input py-1.5 px-2 rounded text-sm text-left text-gray-600')}
+                        className={cn('w-full border border-input py-1.5 px-2 rounded text-sm text-left text-gray-600 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2', props.className)}
                         aria-expanded={open}
                     >
                         <div className='flex items-center justify-between gap-2'>
                             <div className='text-sm truncate'>
                                 {selected ? selected.label : props.placeholder || "Select an option"}
                             </div>
-
                             <ChevronsUpDown className='size-4' />
                         </div>
                     </button>

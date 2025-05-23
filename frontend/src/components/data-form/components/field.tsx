@@ -10,7 +10,7 @@ import { useDFContext } from "../context";
 
 interface FieldProps extends TypeField {
     onChange?: (value: FieldValue) => FieldValue;
-    state?: FieldState,
+    state?: FieldState | null,
     onBlur?: (value: FieldValue) => FieldValue;
     value?: FieldValue;
     ref?: React.Ref<HTMLElement>;
@@ -19,7 +19,7 @@ interface FieldProps extends TypeField {
 
 const Label = (props: { field: FieldProps; className?: string }) => {
     const { field } = props;
-    return <label className={cn("text-xs", props.className || "")} htmlFor={field.name}>{field.label} {field.required && <span className="text-red-500 ml-1">*</span>}</label>;
+    return <label className={cn("text-xs block", props.className || "")} htmlFor={field.name}>{field.label} {field.required && <span className="text-red-500 ml-1">*</span>}</label>;
 }
 
 const Field: React.FC<FieldProps> = (props) => {
@@ -38,12 +38,15 @@ const Field: React.FC<FieldProps> = (props) => {
     }
 
 
-
+    console.log(state?.hasError);
     useEffect(() => {
         if (state?.hasError) {
             setClassName("ring ring-offset-3 ring-destructive");
         }
-    }, [state])
+        else {
+            setClassName("");
+        }
+    }, [state, state?.hasError])
 
 
     if (type === "checkbox") {
@@ -83,7 +86,8 @@ const Field: React.FC<FieldProps> = (props) => {
     if (type == "autocomplete") {
         return (
             <div className="mb-1">
-                <Label field={props} />
+
+                <Label field={props} className="mb-2" />
                 <AutoComplete options={props.options} onChange={handleChange} className={className} />
             </div>
         )
@@ -116,11 +120,11 @@ const DFInput: React.FC<DFInputProps> = (props) => {
     }
 
     const context = useDFContext();
-
+    const state = context.formState?.[fieldName];
     return (
-        <div className="mb-4">
+        <div className="mb-4 max-w-[576px]">
             <div>
-                <Field {...props.field} onChange={onChange} state={context.formState[fieldName]} />
+                <Field {...props.field} onChange={onChange} state={state} />
             </div>
         </div>
     )

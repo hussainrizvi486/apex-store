@@ -32,6 +32,7 @@ export const fieldsObject = {
             name: "skills",
             label: "Skills",
             type: "autocomplete",
+            required: true,
             options: [
                 { label: "React", value: "react" },
                 { label: "TypeScript", value: "typescript" },

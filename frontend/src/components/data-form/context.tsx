@@ -1,23 +1,21 @@
 import React, { createContext, useContext, useState } from "react";
-import { FieldValue, TypeField, FormState } from "./index";
+import { FieldValue, TypeField, FormState, FormValues } from "./index";
 
 
 interface DFContextType {
-    formState: Record<string, { value: FieldValue; error: string; hasError: boolean }>;
-    updateFormState: React.Dispatch<React.SetStateAction<Record<string, { value: FieldValue; error: string; hasError: boolean }>>>;
-    setFieldValue: (params: { key: string; value: FieldValue }) => void;
-    getFormState: (fields: TypeField[]) => Record<string, { value: FieldValue; error: string; hasError: boolean }>;
+    formState?: FormState;
+    fields: TypeField[];
+    getFields: () => TypeField[];
+    getValues?: () => FormValues;
+    updateFormState?: React.Dispatch<React.SetStateAction<Record<string, { value: FieldValue; error: string; hasError: boolean }>>>;
+    setFieldValue?: (params: { key: string; value: FieldValue }) => void;
+    getFormState?: (fields: TypeField[]) => Record<string, { value: FieldValue; error: string; hasError: boolean }>;
 }
 
-const DFContext = createContext<DFContextType>({
-    formState: {},
-    updateFormState: () => { },
-    setFieldValue: () => { },
-    getFormState: () => ({}),
-});
+const DFContext = createContext<DFContextType>({ fields: [], getFields: () => [], getFormState: () => ({}) });
 
-const DFContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const getFormState = (fields: TypeField[]): FormState => {
+const DFContextProvider: React.FC<{ children: React.ReactNode, fields: TypeField[] }> = ({ children, fields }) => {
+    const getFormState = (): FormState => {
         const state: FormState = {};
         fields.forEach((field) => {
             const key = field.name;
@@ -42,10 +40,35 @@ const DFContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         }));
     };
 
+    const getValues = (): FormValues => {
+        const values: FormValues = {};
+        fields.forEach((f) => {
+            if (!f.sectionBreak && !f.columnBreak) {
+                values[f.name] = null;
+            }
+        })
+
+
+        console.table(values);
+        Object.keys(formState).forEach((key) => {
+            if (Object.keys(values).includes(key)) {
+                const value = formState[key]?.value;
+                values[key] = value;
+            }
+        });
+        return values;
+    }
+
+
+    const getFields = () => {
+        return fields.filter(v => !v.sectionBreak && !v.columnBreak);
+    }
     return (
         <DFContext.Provider
             value={{
-                formState,
+                formState: formState,
+                getFields: getFields,
+                getValues: getValues,
                 updateFormState: setFormState,
                 setFieldValue,
                 getFormState,
