@@ -1,4 +1,3 @@
-
 /**
  * Represents an option for select/multiselect/autocomplete fields
  */
@@ -65,65 +64,72 @@ export interface BaseField<T extends FieldType = FieldType> {
     hidden?: boolean;
     placeholder?: string;
     description?: string;
+    options: TypeOption[]
+    getOptions?: (value: T) => Promise<TypeOption[]>;
+    currency?: string;
+    precision?: number;
     onChange?: (value: T) => void;
     validators?: FieldValidator<T>;
     defaultValue?: FieldValue,
 }
 
-
-/**
- * Number input field interface
- */
-export interface NumberField extends BaseField<"number" | "float" | "currency"> {
-    min?: number;
-    max?: number;
-    step?: number;
+export interface TypeField<T extends FieldType = FieldType> {
+    label: string;
+    name: string;
+    type: T;
+    required?: boolean;
+    disabled?: boolean;
+    sectionBreak: boolean;
+    columnBreak: boolean;
+    hidden?: boolean;
+    placeholder?: string;
+    description?: string;
+    options: TypeOption[]
+    getOptions?: (value: T) => Promise<TypeOption[]>;
     currency?: string;
     precision?: number;
+    onChange?: (value: T) => void;
+    validators?: FieldValidator<T>;
+    defaultValue?: FieldValue,
+    fields?: TypeField[]
 }
-
-export interface SelcetField extends BaseField<"number" | "float" | "currency"> {
-    min?: number;
-    max?: number;
-    step?: number;
-    currency?: string;
-    precision?: number;
-}
-
-
 
 /** Form values type */
 
-type FormValues = Record<string, FieldValue>
+export type FormValues = Record<string, FieldValue>
 
 export interface DataFormProps {
     fields: BaseField<FieldType>[];
     values?: FormValues;
     onChange?: (data: FormValues) => void;
+    onSubmit?: (data: FormValues) => void;
     onValue?: (data: FormValues) => void;
     onReset?: () => void;
 }
 
-// export interface Field {
-//     label: string,
-//     name: string,
-//     type: FieldType,
-//     options?: Array<{ label: string; value: string }>,
-//     onChange?: (value: FieldValue) => void,
-//     required?: boolean,
-//     placeholder?: string,
-//     getOptions?: () => Promise<TypeOption[]>,
-//     validator?: (value: FieldValue) => boolean,
-//     renderOption?: () => React.ReactNode,
-//     value?: FieldValue,
-//     fields?: Field[],
-// }
-
-
-
-
 
 export interface DFInputProps {
     field: BaseField;
-    setValue: (params: { value: FieldValue; key: string }) => void;
+    setValue?: (params: { value: FieldValue; key: string }) => void;
 }
+
+
+export interface TypeDFSection {
+    label?: string
+    name?: string
+    columns?: TypeField[][]
+    sectionBreak: boolean
+}
+
+export interface FieldState {
+    value?: FieldValue;
+    error?: string;
+    hasError?: boolean;
+    isLoading?: boolean
+}
+
+/**
+ * Represents the layout of the data form as an array of sections
+ */
+export type TypeDFLayout = Array<TypeDFSection>;
+export type FormState = Record<string, FieldValue>

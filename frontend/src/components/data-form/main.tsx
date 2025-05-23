@@ -1,70 +1,122 @@
-import React, { useState } from "react";
+import React, { createContext, useState } from "react";
 import { z } from "zod";
-import { DataFormProps, BaseField, FieldValue } from "./index";
+import { DataFormProps, BaseField, FieldValue, TypeField, TypeDFLayout, TypeDFSection, FormValues } from "./index";
 import { DFInput } from "./components/field";
 import { Column, Section } from "./components/layout";
 import { Button } from "@components/ui/button";
-import { fields } from "./test";
+import { DFContextProvider, useDFContext } from "./context";
+import { integer } from "@utils/index";
 
+class DFFormObject {
+    fields: TypeField[];
+    formLayout: TypeDFLayout;
 
-
-const getSchema = (fields: BaseField[]) => {
-    const schemaMap: Record<string, z.ZodTypeAny> = {};
-    for (const field of fields) {
-        let fieldSchema: z.ZodTypeAny = z.unknown();
-
-        if ([
-            "text",
-            "textarea",
-            "texteditor",
-        ].includes(field.type)) {
-            fieldSchema = z.string().trim();
-        }
-        else if (field.type == "checkbox") {
-            fieldSchema = z.boolean();
-        }
-        else if (field.type == "table") {
-            fieldSchema = z.array(z.record(z.string(), z.any())).optional();
-        }
-
-        else if (["select", "multiselect", "autocomplete"].includes(field.type)) {
-            fieldSchema = z.union([
-                z.string(),
-                z.object({
-                    label: z.string(),
-                    value: z.string(),
-                }),
-            ]);
-        }
-
-        if (field.required) {
-            if (field.type === "checkbox") {
-                fieldSchema = z.literal(true, {
-                    errorMap: () => ({ message: `${field.label} is required` }),
-                });
-            } else if (field.type === "table") {
-                // For tables, require at least one entry if table is required
-                fieldSchema = z.array(z.record(z.string(), z.any()))
-                    .min(1, { message: `At least one ${field.label} is required` });
-            } else {
-                fieldSchema = fieldSchema.refine(val => val !== undefined && val !== null && val !== "", {
-                    message: `${field.label} is required`,
-                });
-            }
-        }
-
-        else {
-            fieldSchema = fieldSchema.optional();
-        }
-
-
-        schemaMap[field.name] = fieldSchema;
+    constructor(fields: TypeField[]) {
+        this.fields = fields;
+        this.formLayout = this.buildLayout();
     }
-    return z.object(schemaMap);
+
+
+    buildSections() {
+        const sections: TypeDFSection[] = this.fields.filter(field => field.sectionBreak);
+
+        if (!sections.length) {
+            sections.push({ label: '', sectionBreak: true });
+        }
+        return sections;
+    }
+
+    buildLayout() {
+        let layout: TypeDFLayout = [];
+        const sections = this.buildSections();
+
+        sections.forEach(section => {
+            let startIndex = this.fields.findIndex(v => v.name === section.name);
+
+            let columnIndex = 0;
+            let columns: TypeField[][] = [[]];
+
+            for (let i = startIndex + 1; i < this.fields.length; i++) {
+                const field = this.fields[i];
+
+                if (field.sectionBreak) break;
+
+                if (field.columnBreak === true) {
+                    columnIndex += 1;
+                    columns.push([]);
+                } else {
+                    columns[columnIndex].push(field);
+                }
+            }
+
+            layout.push({
+                label: section.label,
+                name: section.name,
+                columns: columns,
+            });
+        });
+
+        return layout;
+    }
 }
 
-const getFormState = (fields: BaseField[]) => {
-    let state = {};
+// const getSchema = (fields: BaseField[]) => {
+//     const schemaMap: Record<string, z.ZodTypeAny> = {};
+//     for (const field of fields) {
+//         let fieldSchema: z.ZodTypeAny = z.unknown();
+
+//         if ([
+//             "text",
+//             "textarea",
+//             "texteditor",
+//         ].includes(field.type)) {
+//             fieldSchema = z.string().trim();
+//         }
+//         else if (field.type == "checkbox") {
+//             fieldSchema = z.boolean();
+//         }
+//         else if (field.type == "table") {
+//             fieldSchema = z.array(z.record(z.string(), z.any())).optional();
+//         }
+
+//         else if (["select", "multiselect", "autocomplete"].includes(field.type)) {
+//             fieldSchema = z.union([
+//                 z.string(),
+//                 z.object({
+//                     label: z.string(),
+//                     value: z.string(),
+//                 }),
+//             ]);
+//         }
+
+//         if (field.required) {
+//             if (field.type === "checkbox") {
+//                 fieldSchema = z.literal(true, {
+//                     errorMap: () => ({ message: `${field.label} is required` }),
+//                 });
+//             } else if (field.type === "table") {
+//                 // For tables, require at least one entry if table is required
+//                 fieldSchema = z.array(z.record(z.string(), z.any()))
+//                     .min(1, { message: `At least one ${field.label} is required` });
+//             } else {
+//                 fieldSchema = fieldSchema.refine(val => val !== undefined && val !== null && val !== "", {
+//                     message: `${field.label} is required`,
+//                 });
+//             }
+//         }
+
+//         else {
+//             fieldSchema = fieldSchema.optional();
+//         }
+
+
+//         schemaMap[field.name] = fieldSchema;
+//     }
+//     return z.object(schemaMap);
+// }
+
+const getFormState = (fields: TypeField[]) => {
+    let state: Record<string, FieldValue> = {};
 
     fields.forEach((field) => {
         const key = field.name;
@@ -74,109 +126,52 @@ const getFormState = (fields: BaseField[]) => {
             hasError: false,
         }
     })
-
     return state
 }
+
+
+
 const DataForm: React.FC<DataFormProps> = (props) => {
-    // const formSchema = React.useMemo(() => getSchema(props.fields), [props.fields]);
-    const [formState, setFormState] = useState(getFormState(props.fields));
-
-
-
-    const setFieldValue = (params: { key: string, value: FieldValue }) => {
-        setFormState((prevState) => ({
-            ...prevState,
-            [params.key]: {
-                ...prevState[params.key],
-                value: params.value,
-            }
-        }))
+    if (!props.fields) {
+        return <div className="text-sm">No fields available</div>;
     }
+    return (
+        <DFContextProvider
+        >
+            <DataFormContent {...props} />
+        </DFContextProvider>
+    );
+};
 
-    function getFormValues() {
-        const values = {};
-        Object.keys(formState).forEach((key) => {
-            values[key] = formState[key].value;
-        })
-
-        return values;
-    }
-
-
-    const onSubmit = () => {
-        console.log("formState", getFormValues());
-    }
-
-    const makeFormLayout = () => {
-        let layout = [];
-        const { fields } = props;
-
-        fields.filter(val => val.sectionBreak).forEach((i) => {
-            let section = { label: i.label };
-            let start = fields.findIndex((v) => v.name == i.name);
+const DataFormContent: React.FC<DataFormProps> = (props) => {
+    const context = useDFContext();
+    const formObject = React.useMemo(() => new DFFormObject(props.fields), [props.fields]);
+    const formLayout = formObject.formLayout;
 
 
-            if (start == undefined) {
-                return;
-            }
+    const handleSubmit = (values: FormValues) => {
+        props.onSubmit?.(values)
+    };
 
-            let columnIndex = 0;
-            let columns: BaseField[][] = [[]];
-
-            for (let i = start + 1; i < fields.length; i++) {
-                const element = fields[i];
-                if (element.sectionBreak) {
-                    break;
-                }
-
-                if (element.columnBreak == true) {
-                    columnIndex += 1;
-                    columns.push([])
-                    continue;
-                }
-                else {
-                    console.log(columnIndex, columns);
-                    columns[columnIndex].push(element);
-                }
-
-            }
-            section.columns = columns.filter(v => v.length > 0);
-            layout.push(section)
-        });
-
-        console.log("layout", layout);
-        return layout;
-    }
-
-    const formLayout = makeFormLayout()
     return (
         <div>
-
+            {formLayout.map((section, i) => (
+                <Section key={i} label={section.label || ""}>
+                    {section.columns?.map((column, columnIndex) => (
+                        <Column columnsLength={integer(section.columns?.length)} key={columnIndex}>
+                            {column.map((field, fieldIndex) => (
+                                <DFInput field={field} key={fieldIndex} />
+                            ))}
+                        </Column>
+                    ))}
+                </Section>
+            ))}
             <div>
-                {formLayout.map((section, i) => {
-                    return (<Section key={i} label={section.label}>
-                        {
-                            section.columns?.map((column) => {
-                                return (
-                                    <Column columnsLength={section.columns.length} key={i}>
-                                        {column.map((field, index) => {
-                                            return (
-                                                <DFInput field={field} key={index} setValue={setFieldValue} />
-                                            )
-                                        })}
-                                    </Column>
-                                )
-                            })
-                        }
-
-                    </Section>)
-                })}
-            </div>
-            <div>
-                <Button onClick={onSubmit}>Save</Button>
+                <Button>Save</Button>
             </div>
         </div>
-    )
-}
+    );
+};
+
 
 export { DataForm }; 

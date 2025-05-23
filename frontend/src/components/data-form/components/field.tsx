@@ -3,26 +3,31 @@ import { Input } from "@components/ui/input";
 import { Checkbox } from "@components/ui/checkbox";
 import { AutoComplete } from "@components/ui/autocomplete";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
-import { BaseField, DFInputProps, FieldValue } from "../index";
+import { DFInputProps, FieldValue, TypeField, FieldState } from "../index";
+import { useEffect, useState } from "react";
+import { useDFContext } from "../context";
 
 
-interface FieldProps extends BaseField {
-    onChange?: (value: FieldValue) => void;
-    onBlur?: () => FieldValue;
+interface FieldProps extends TypeField {
+    onChange?: (value: FieldValue) => FieldValue;
+    state?: FieldState,
+    onBlur?: (value: FieldValue) => FieldValue;
     value?: FieldValue;
     ref?: React.Ref<HTMLElement>;
-    control: object;
 }
 
 
 const Label = (props: { field: FieldProps; className?: string }) => {
     const { field } = props;
     return <label className={cn("text-xs", props.className || "")} htmlFor={field.name}>{field.label} {field.required && <span className="text-red-500 ml-1">*</span>}</label>;
-
 }
 
 const Field: React.FC<FieldProps> = (props) => {
-    const { type } = props;
+    const { state, type } = props;
+    const [className, setClassName] = useState<string>("");
+
+
+
 
     function handleChange(value: FieldValue) {
         props?.onChange?.(value);
@@ -32,12 +37,22 @@ const Field: React.FC<FieldProps> = (props) => {
         props?.onBlur?.(value);
     }
 
+
+
+    useEffect(() => {
+        if (state?.hasError) {
+            setClassName("ring ring-offset-3 ring-destructive");
+        }
+    }, [state])
+
+
     if (type === "checkbox") {
         return (
-            <div className="flex items-center">
+            <div className="flex items-center ">
                 <Checkbox name={props.name} id={props.name}
                     onCheckedChange={handleChange}
-                /> <Label field={props} className="ml-2 text-sm" />
+                    className={className}
+                /> <Label field={props} className="ml-2 text-sm " />
             </div>
         )
     }
@@ -48,8 +63,8 @@ const Field: React.FC<FieldProps> = (props) => {
                 <div className="mb-1">
                     <Label field={props} className="mb-2" />
                 </div>
-                <Select onValueChange={handleChange} >
-                    <SelectTrigger >
+                <Select onValueChange={handleChange}  >
+                    <SelectTrigger className={className}>
                         <SelectValue placeholder={props.placeholder || "Select"} />
                     </SelectTrigger>
                     <SelectContent>
@@ -69,10 +84,11 @@ const Field: React.FC<FieldProps> = (props) => {
         return (
             <div className="mb-1">
                 <Label field={props} />
-                <AutoComplete options={props.options} onChange={handleChange} />
+                <AutoComplete options={props.options} onChange={handleChange} className={className} />
             </div>
         )
     }
+
 
     return (
         <div>
@@ -81,27 +97,30 @@ const Field: React.FC<FieldProps> = (props) => {
             </div>
 
             <Input
+                className={className}
                 name={props.name}
-                type={props.type}
+                type={"text"}
                 onChange={handleChange}
                 onBlur={handleBlur}
             />
         </div>
     )
-
-
 }
-const DFInput: React.FC<DFInputProps> = (props) => {
-    const { field, setValue } = props
 
+
+const DFInput: React.FC<DFInputProps> = (props) => {
+    const fieldName = props.field.name;
     const onChange = (value: FieldValue) => {
-        setValue({ value, key: field.name });
+        props.setValue?.({ value, key: fieldName });
+        return value;
     }
 
+    const context = useDFContext();
+
     return (
-        <div className="mb-2 h-16">
+        <div className="mb-4">
             <div>
-                <Field {...field} onChange={onChange} />
+                <Field {...props.field} onChange={onChange} state={context.formState[fieldName]} />
             </div>
         </div>
     )

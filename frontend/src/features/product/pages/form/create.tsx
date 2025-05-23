@@ -40,11 +40,11 @@ const Index = () => {
                 </Select>
             </div>
 
-            {fields && (
-                <div>
-                    <DataForm fields={fieldsObject["Customer"]} />
-                </div>
-            )}
+            {/* {fields && ( */}
+            <div>
+                <DataForm fields={fields} />
+            </div>
+            {/* )} */}
         </div>
     );
 };

@@ -2,8 +2,14 @@ import React from "react";
 import { decimal, cn } from "@utils/index";
 
 
-type InputType = "text" | "number" | "float" | "number" | "email";
-type InputValue = string | number | undefined;
+
+type InputType = "text"
+    | "number"
+    | "float"
+    | "currency"
+    | "date"
+    | "email";
+
 interface InputProps {
     name?: string
     placeholder?: string
@@ -16,9 +22,9 @@ interface InputProps {
     onBlur?: (value: string) => void
 }
 
-const formatValue = (value: string) => {
-    return value.replace(/[^0-9.]/g, "");
-}
+// const formatValue = (value: string) => {
+//     return value.replace(/[^0-9.]/g, "");
+// }
 
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className = "", ...props }, ref) => {
