@@ -96,7 +96,7 @@ export const CartPage = () => {
 const CartItem = ({ data }) => {
   const { product } = data;
   return (
-    <div key={data.id} className="flex flex-col sm:flex-row justify-between bg-white border border-gray-300 p-3 rounded-md">
+    <div key={data.id} className="flex flex-col sm:flex-row justify-between bg-white border border-gray-300 p-3 rounded-md mb-2">
       <div className="flex gap-2 w-full sm:w-auto">
 
         <div className='border border-gray-200 overflow-hidden shrink-0'>

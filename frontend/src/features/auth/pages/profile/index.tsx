@@ -7,6 +7,11 @@ import React, { useState } from 'react';
 import { getAddressQuery, AddressType } from "../../api/address"
 import { Dialog, DialogContent, DialogTrigger } from '@components/ui/dialog';
 import { DataForm } from '@components/data-form/main';
+import { cn } from '@utils/index';
+import { DataTable } from '@components/data-table';
+import { ColumnDef } from '@tanstack/react-table';
+import { ChevronDown } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 
 
 export interface ProfileType {
@@ -89,7 +94,7 @@ const ProfilePage: React.FC = () => {
             <Header />
             <div className='mx-auto max-w-6xl'>
                 <div className='py-4'>
-                    <Tabs defaultValue="profile">
+                    <Tabs defaultValue="orders">
                         <TabsList className='py-6 w-full'>
                             <TabsTrigger value='profile'>Your Account</TabsTrigger>
                             <TabsTrigger value='address'>Address Book</TabsTrigger>
@@ -232,217 +237,212 @@ const ProfileTab: React.FC = () => {
 
 }
 
-interface Order {
-    id: string;
-    product: string;
-    status: 'pending' | 'completed' | 'cancelled' | 'processing';
-    total: number;
+interface TypeOrder {
+    order: string;
     date: string;
+    customer: string;
+    channel: string;
+    total: string;
+    paymentstatus: string;
+    fulfillmentstatus: string;
+    items: string;
+    deliverystatus: string;
+    deliverymethod: string;
+    tags: string;
 }
 
-const DataTable: React.FC = () => {
-    // Sample data
-    const orders: Order[] = [
-        {
-            id: 'ORD-001',
-            product: 'Wireless Headphones',
-            status: 'completed',
-            total: 99.99,
-            date: '2024-05-20'
-        },
-        {
-            id: 'ORD-002',
-            product: 'Smart Watch',
-            status: 'processing',
-            total: 249.99,
-            date: '2024-05-21'
-        },
-        {
-            id: 'ORD-003',
-            product: 'Laptop Stand',
-            status: 'pending',
-            total: 45.00,
-            date: '2024-05-22'
-        },
-        {
-            id: 'ORD-004',
-            product: 'USB-C Cable',
-            status: 'cancelled',
-            total: 19.99,
-            date: '2024-05-23'
-        },
-        {
-            id: 'ORD-005',
-            product: 'Mechanical Keyboard',
-            status: 'completed',
-            total: 129.99,
-            date: '2024-05-24'
-        }
-    ];
 
-    const DataTableRow: React.FC<{ children: React.ReactNode; isHeader?: boolean }> = ({
-        children,
-        isHeader = false
-    }) => {
-        return (
-            <tr className={`${isHeader ? 'bg-gray-50' : 'hover:bg-gray-50'} transition-colors duration-200`}>
-                {children}
-            </tr>
-        );
-    };
+const TempColumns: ColumnDef<TypeOrder>[] = [
+    {
+        accessorKey: 'order',
+        header: 'Order',
 
-    const DataTableCell: React.FC<{
-        children: React.ReactNode;
-        isHeader?: boolean;
-        className?: string;
-    }> = ({ children, isHeader = false, className = '' }) => {
-        const baseClasses = "px-6 py-4 text-left";
-        const headerClasses = "font-semibold text-gray-900 bg-gray-50";
-        const cellClasses = "text-gray-700";
+    },
+    {
+        accessorKey: 'date',
+        header: 'Date',
+    },
+    {
+        accessorKey: 'customer',
+        header: 'Customer',
 
-        if (isHeader) {
+    },
+
+    {
+        accessorKey: 'total',
+        header: 'Total',
+        meta: {
+            align: 'right'
+        },
+    },
+    {
+        accessorKey: 'paymentstatus',
+        header: 'Payment Status',
+    },
+
+    {
+        accessorKey: 'items',
+        header: 'Items',
+        cell: ({ row }) => {
             return (
-                <th className={`${baseClasses} ${headerClasses} ${className}`}>
-                    {children}
-                </th>
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <div className='hover:[&_svg]:block flex items-center text-sm gap-1 w-[65px] cursor-pointer'>
+                            <div>{row.original.items}</div>
+                            <div><ChevronDown className='size-4 hidden' /></div>
+                        </div>
+                    </PopoverTrigger>
+
+                    <PopoverContent>
+                        <div className='w-[200px]'>
+                            <div className='text-sm  mb-4'>Items</div>
+                            <div className="flex items-center gap-1">
+                                <div className='shrink-0'><img src="https://m.media-amazon.com/images/I/61Q56A7UfNL._AC_SL1500_.jpg" className='h-8 w-8  rounded-full' /></div>
+                                <div className='text-xs whitespace-nowrap overflow-hidden text-ellipsis'>Gaming Mechanical keyboards Asus</div>
+                            </div>
+                        </div>
+                    </PopoverContent>
+                </Popover >
             );
         }
+    },
 
-        return (
-            <td className={`${baseClasses} ${cellClasses} ${className}`}>
-                {children}
-            </td>
-        );
-    };
+    {
 
-    const StatusBadge: React.FC<{ status: Order['status'] }> = ({ status }) => {
-        const getStatusStyles = (status: Order['status']) => {
-            switch (status) {
-                case 'completed':
-                    return 'bg-green-100 text-green-800 border-green-200';
-                case 'processing':
-                    return 'bg-blue-100 text-blue-800 border-blue-200';
-                case 'pending':
-                    return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-                case 'cancelled':
-                    return 'bg-red-100 text-red-800 border-red-200';
-                default:
-                    return 'bg-gray-100 text-gray-800 border-gray-200';
-            }
-        };
+        accessorKey: 'deliverystatus',
+        header: 'Delivery Status',
+    }
+]
 
-        return (
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyles(status)}`}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-            </span>
-        );
-    };
+let orderData: TypeOrder[] = [
+    {
+        "order": "#1013",
+        "date": "Today at 12:09",
+        "customer": "Code Soft Test Customer",
+        "channel": "",
+        "total": "CHF 112.00",
+        "paymentstatus": "Paid",
+        "fulfillmentstatus": "Unfulfilled",
+        "items": "2 items",
+        "deliverystatus": "",
+        "deliverymethod": "Shipping",
+        "tags": ""
+    },
+    {
+        "order": "#1012",
+        "date": "Today at 12:03",
+        "customer": "Code Soft Test Customer",
+        "channel": "",
+        "total": "CHF 112.00",
+        "paymentstatus": "Paid",
+        "fulfillmentstatus": "Unfulfilled",
+        "items": "2 items",
+        "deliverystatus": "Pending",
+        "deliverymethod": "Shipping",
+        "tags": ""
+    },
+    {
+        "order": "#1011",
+        "date": "Today at 11:59",
+        "customer": "Code Soft Test Customer",
+        "channel": "",
+        "total": "CHF 111.00",
+        "paymentstatus": "Paid",
+        "fulfillmentstatus": "Unfulfilled",
+        "items": "1 item",
+        "deliverystatus": "",
+        "deliverymethod": "Shipping",
+        "tags": ""
+    },
+    {
+        "order": "#1010",
+        "date": "Yesterday at 18:39",
+        "customer": "Code Soft Test Customer",
+        "channel": "",
+        "total": "CHF 111.00",
+        "paymentstatus": "Paid",
+        "fulfillmentstatus": "Unfulfilled",
+        "items": "1 item",
+        "deliverystatus": "",
+        "deliverymethod": "Shipping",
+        "tags": ""
+    },
+    {
+        "order": "#1009",
+        "date": "Yesterday at 12:22",
+        "customer": "Code Soft Test Customer",
+        "channel": "",
+        "total": "CHF 111.00",
+        "paymentstatus": "Paid",
+        "fulfillmentstatus": "Unfulfilled",
+        "items": "1 item",
+        "deliverystatus": "",
+        "deliverymethod": "Shipping",
+        "tags": ""
+    },
+    {
+        "order": "#1008",
+        "date": "Yesterday at 9:53",
+        "customer": "Stephan Kueng 456",
+        "channel": "Online Store",
+        "total": "CHF 1.00",
+        "paymentstatus": "Paid",
+        "fulfillmentstatus": "Unfulfilled",
+        "items": "1 item",
+        "deliverystatus": "",
+        "deliverymethod": "Standardversand",
+        "tags": ""
+    },
+    {
+        "order": "#1007",
+        "date": "Thursday at 17:35",
+        "customer": "Test Codes",
+        "channel": "",
+        "total": "CHF 2.00",
+        "paymentstatus": "Paid",
+        "fulfillmentstatus": "Unfulfilled",
+        "items": "2 items",
+        "deliverystatus": "",
+        "deliverymethod": "Shipping",
+        "tags": ""
+    },
+    {
+        "order": "#1006",
+        "date": "Thursday at 17:30",
+        "customer": "Test Codes",
+        "channel": "",
+        "total": "CHF 2.00",
+        "paymentstatus": "Paid",
+        "fulfillmentstatus": "Unfulfilled",
+        "items": "2 items",
+        "deliverystatus": "",
+        "deliverymethod": "Shipping",
+        "tags": ""
+    },
+    {
+        "order": "#1005",
+        "date": "Thursday at 17:26",
+        "customer": "Alina Küng",
+        "channel": "",
+        "total": "CHF 1.00",
+        "paymentstatus": "Paid",
+        "fulfillmentstatus": "Unfulfilled",
+        "items": "1 item",
+        "deliverystatus": "",
+        "deliverymethod": "Shipping",
+        "tags": ""
+    }
+]
 
-    const formatCurrency = (amount: number): string => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(amount);
-    };
 
-    const formatDate = (dateString: string): string => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    };
 
-    return (
-        <div className="w-full max-w-6xl mx-auto p-6">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Orders</h1>
-                <p className="text-gray-600">Manage and track your recent orders</p>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <DataTableRow isHeader>
-                                <DataTableCell isHeader>Order ID</DataTableCell>
-                                <DataTableCell isHeader>Product</DataTableCell>
-                                <DataTableCell isHeader>Status</DataTableCell>
-                                <DataTableCell isHeader className="text-right">Total</DataTableCell>
-                                <DataTableCell isHeader>Date</DataTableCell>
-                            </DataTableRow>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {orders.map((order) => (
-                                <DataTableRow key={order.id}>
-                                    <DataTableCell>
-                                        <span className="font-mono text-sm font-medium text-gray-900">
-                                            {order.id}
-                                        </span>
-                                    </DataTableCell>
-                                    <DataTableCell>
-                                        <div className="font-medium text-gray-900">
-                                            {order.product}
-                                        </div>
-                                    </DataTableCell>
-                                    <DataTableCell>
-                                        <StatusBadge status={order.status} />
-                                    </DataTableCell>
-                                    <DataTableCell className="text-right">
-                                        <span className="font-semibold text-gray-900">
-                                            {formatCurrency(order.total)}
-                                        </span>
-                                    </DataTableCell>
-                                    <DataTableCell>
-                                        <span className="text-gray-600">
-                                            {formatDate(order.date)}
-                                        </span>
-                                    </DataTableCell>
-                                </DataTableRow>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Empty state - shown when no data */}
-                {orders.length === 0 && (
-                    <div className="text-center py-12">
-                        <div className="text-gray-400 mb-2">
-                            <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <h3 className="text-sm font-medium text-gray-900 mb-1">No orders found</h3>
-                        <p className="text-sm text-gray-500">Get started by creating your first order.</p>
-                    </div>
-                )}
-            </div>
-
-            {/* Pagination - for future enhancement */}
-            <div className="mt-6 flex items-center justify-between">
-                <div className="text-sm text-gray-700">
-                    Showing <span className="font-medium">1</span> to <span className="font-medium">{orders.length}</span> of{' '}
-                    <span className="font-medium">{orders.length}</span> results
-                </div>
-                <div className="flex space-x-2">
-                    <button className="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                        Previous
-                    </button>
-                    <button className="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                        Next
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
 
 const OrdersTab: React.FC = () => {
     return (
         <div>
-            My Orders
+            <div className='text-sm my-4'>My Orders</div>
             <div>
-                <DataTable />
+                {/* <DataTable columns={TempColumns} data={orderData} /> */}
             </div>
         </div>
     )
