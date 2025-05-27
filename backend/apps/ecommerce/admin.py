@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Category, Currency, PriceList
 from .models.cart import Customer, Cart, CartItem
+from .models.order import Order, OrderItem
 from .models.product import Product, ProductImage, ProductPrice, VariantAttribute
 from django.utils.html import format_html
 
@@ -76,6 +77,15 @@ class CartAdmin(admin.ModelAdmin):
     search_fields = ("customer__email",)
     inlines = [CartItemInline]
     readonly_fields = ("grand_total", "total_qty")
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    inlines = [OrderItemInline]
 
 
 @admin.register(CartItem)

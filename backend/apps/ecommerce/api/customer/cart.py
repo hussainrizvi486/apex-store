@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from apps.ecommerce.models.cart import Cart, CartItem, Product,  Customer
+from apps.ecommerce.models.cart import Cart, CartItem, Product, Customer
 from apps.ecommerce.serializer.cart import (
     CartSerializer,
     CartItemSerializer,
@@ -62,7 +62,7 @@ class CartViewSet(viewsets.ModelViewSet):
 
         cart = self.get_object()
         data = serializer.validated_data
-        action = data.get("action")
+        action = data.get("action")  # noqa: F811
 
         filters = {
             "product__id": data["product_id"],
@@ -91,4 +91,3 @@ class CartViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK,
         )
-    

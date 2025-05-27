@@ -17,6 +17,9 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+    def is_new(self):
+        return self.id is None
+
 
 class Currency(BaseModel):
     code = models.CharField(max_length=3, unique=True)

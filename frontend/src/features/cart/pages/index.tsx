@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, Trash2, Heart, Lock } from 'lucide-react';
-import { useCartItems, CartItemType } from '../api';
+import { useCartItems, CartItemType, useUpdateCartItem } from '../api';
 import { CounterButton } from '@components/ui/counter-button';
 import { decimal, formatCurrency, integer } from '@utils/index';
 import { Header } from '@components/layouts';
@@ -10,8 +10,7 @@ import { Button } from '@components/ui/button';
 export const CartPage = () => {
   const cartQuery = useCartItems();
 
-
-  console.log(cartQuery.data)
+  const mutation = useUpdateCartItem();
   if (cartQuery.isLoading) {
     return (
       <>

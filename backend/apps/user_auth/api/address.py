@@ -15,7 +15,9 @@ class AddressView(viewsets.ViewSet):
         return Response(serializer.data)
 
     def create(self, *args, **kwargs):
-        serializer = AddressSerializer(data=self.request.data)
+        data = self.request.data
+        data["user"] = self.request.user.id
+        serializer = AddressSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save(user=self.request.user)
 

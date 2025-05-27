@@ -14,7 +14,6 @@ class OrderStatus(models.TextChoices):
 
 
 class Order(BaseModel):
-
     def generate_order_id(self):
         """
         Generate a unique order ID with the following format:
@@ -39,24 +38,27 @@ class Order(BaseModel):
 
         return order_id
 
-    order_id = models.CharField(
-        max_length=255, unique=True, editable=False, default=generate_order_id
-    )
+    order_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     total_qty = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     order_date = models.DateTimeField(auto_now_add=True)
-    delivery_address = models.ForeignKey(Address, on_delete=models.SET_NULL)
+    delivery_address = models.ForeignKey(
+        Address, on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     def __str__(self):
-        return self.order_id
+        return str(self.customer)
 
     def calculate_total(self):
         self.total_amount = sum(item.amount for item in self.items.all())
         self.total_qty = sum(item.quantity for item in self.items.all())
 
     def save(self, *args, **kwargs):
-        self.calculate_total()
+        if not self.is_new():
+            self.calculate_total()
+            return
+
         super().save(*args, **kwargs)
 
 

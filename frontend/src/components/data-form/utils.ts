@@ -13,7 +13,6 @@ class DFFormObject {
 
     buildSections() {
         const sections: TypeDFSection[] = this.fields.filter(field => field.sectionBreak);
-
         if (!sections.length) {
             sections.push({ label: '', sectionBreak: true });
         }
@@ -22,33 +21,55 @@ class DFFormObject {
 
     buildLayout() {
         const layout: TypeDFLayout = [];
-        const sections = this.buildSections();
+        const sections = this.fields.filter(field => field.sectionBreak);
+        console.log("Form Sections", sections)
 
-        sections.forEach(section => {
-            const startIndex = this.fields.findIndex(v => v.name === section.name);
+        if (!sections?.length) {
+            const section: TypeDFSection = { label: '', name: 'default', sectionBreak: true };
             const columns: TypeField[][] = [[]];
             let columnIndex = 0;
 
-            for (let i = startIndex + 1; i < this.fields.length; i++) {
-                const field = this.fields[i];
-
-                if (field.sectionBreak) break;
-
-                if (field.columnBreak === true) {
+            this.fields.forEach(field => {
+                if (field.columnBreak) {
                     columnIndex += 1;
                     columns.push([]);
-                } else {
+                }
+                else {
                     columns[columnIndex].push(field);
                 }
-            }
+            })
 
-            layout.push({
-                label: section.label,
-                name: section.name,
-                columns: columns,
+            section.columns = columns;
+            layout.push(section);
+        }
+        else {
+
+            sections.forEach(section => {
+                const startIndex = this.fields.findIndex(v => v.name === section.name);
+                const columns: TypeField[][] = [[]];
+                let columnIndex = 0;
+
+                for (let i = startIndex + 1; i < this.fields.length; i++) {
+                    const field = this.fields[i];
+
+                    if (field.sectionBreak) break;
+
+                    if (field.columnBreak === true) {
+                        columnIndex += 1;
+                        columns.push([]);
+                    } else {
+                        columns[columnIndex].push(field);
+                    }
+                }
+
+                layout.push({
+                    label: section.label,
+                    name: section.name,
+                    columns: columns,
+                });
             });
-        });
-
+        }
+        console.log("Form Layout", layout);
         return layout;
     }
 
@@ -59,7 +80,7 @@ class DFFormObject {
     validateForm(values: FormValues) {
         const errors: FormValues = {};
         console.log(this.getInputFields())
-        
+
         this.getInputFields().forEach((field) => {
             const key = field.name;
             const value = values[key];

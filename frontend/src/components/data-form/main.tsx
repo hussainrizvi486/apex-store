@@ -34,6 +34,7 @@ const DataFormContent: React.FC<DataFormProps> = (props) => {
 
         console.log("Form Values", values);
         const errors = formObject.validateForm(values);
+        console.log("Form Errors", errors);
         if (!Object.keys(errors).length) {
             formContext.getFields()?.forEach((field) => {
                 formContext.updateFormState?.((prevState) => {
@@ -50,9 +51,8 @@ const DataFormContent: React.FC<DataFormProps> = (props) => {
 
             })
         }
-        console.log(errors)
 
-        // props.onSubmit?.(values)
+        props.onSubmit?.(values)
     };
 
     return (

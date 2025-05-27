@@ -9,6 +9,7 @@ import { RegisterPage } from "./features/auth/pages/register"
 import React from "react"
 import { AuthRoutes } from "./routes/auth"
 
+import { AddAddress } from "./features/auth/pages/profile/add-address"
 
 
 const LoginPage = React.lazy(() => import("@features/auth/pages/login"))
@@ -32,6 +33,7 @@ function Application() {
 
         <Route path="/products" element={<MoreProductsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/address/add" element={<AddAddress />} />
         <Route path="/product" element={<ProductPage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/login" element={<LoginPage />} />

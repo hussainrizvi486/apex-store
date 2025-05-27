@@ -5,13 +5,19 @@ import { Tabs, TabsTrigger, TabsList, TabsContent } from '@components/ui/tabs';
 import React, { useState } from 'react';
 
 import { getAddressQuery, AddressType } from "../../api/address"
-import { Dialog, DialogContent, DialogTrigger } from '@components/ui/dialog';
+import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@components/ui/dialog';
 import { DataForm } from '@components/data-form/main';
 import { cn } from '@utils/index';
 import { DataTable } from '@components/data-table';
 import { ColumnDef } from '@tanstack/react-table';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, X as CloseIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { authAPI } from '@features/auth/api';
+import moment from 'moment';
+import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
+import { Link } from 'react-router-dom';
 
 
 export interface ProfileType {
@@ -26,35 +32,14 @@ export interface ProfileType {
 const DEFAULT_PROFILE_IMAGE = 'https://cdn-icons-png.flaticon.com/512/6997/6997662.png';
 
 
-const addressFormField = [
 
-    { label: "Title", name: "title", type: "text" },
-    { label: "Address Line 1", name: "address_line_1", type: "text" },
-    { label: "Address Line 2", name: "address_line_2", type: "text" },
-    { label: "City", name: "city", type: "text" },
-    { label: "State", name: "state", type: "text" },
-    { label: "", columnBreak: true },
-    { label: "Country", name: "country", type: "text" },
-    { label: "Postal Code", name: "postal_code", type: "text" },
-    { label: "Email", name: "email", type: "email" },
-    { label: "Phone Number", name: "phone_number", type: "text" },
-]
 
 const AddAddress = () => {
     return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <Button>Create</Button>
-            </DialogTrigger>
-
-            <DialogContent className='w-full max-w-full '>
-                <div>
-                    <DataForm fields={addressFormField} />
-                </div>
-            </DialogContent>
-        </Dialog>
-    )
-}
+        <>
+        </>
+    );
+};
 
 const AddressTab = () => {
     const { data } = getAddressQuery();
@@ -64,9 +49,10 @@ const AddressTab = () => {
             <div className='mb-4' >
                 <div className='flex justify-between items-center my-2'>
                     <div className="text-xl font-semibold">Address Book</div>
+
                     <div>
 
-                        <AddAddress />
+                        <Link to={"/profile/address/add"}><Button>Add Address</Button></Link>
 
                     </div>
                 </div>
@@ -109,7 +95,6 @@ const ProfilePage: React.FC = () => {
 
                         <TabsContent value='address'>
                             <AddressTab />
-
                         </TabsContent>
 
                         <TabsContent value='orders'>
@@ -237,213 +222,71 @@ const ProfileTab: React.FC = () => {
 
 }
 
-interface TypeOrder {
-    order: string;
-    date: string;
-    customer: string;
-    channel: string;
-    total: string;
-    paymentstatus: string;
-    fulfillmentstatus: string;
-    items: string;
-    deliverystatus: string;
-    deliverymethod: string;
-    tags: string;
-}
-
-
-const TempColumns: ColumnDef<TypeOrder>[] = [
-    {
-        accessorKey: 'order',
-        header: 'Order',
-
-    },
-    {
-        accessorKey: 'date',
-        header: 'Date',
-    },
-    {
-        accessorKey: 'customer',
-        header: 'Customer',
-
-    },
-
-    {
-        accessorKey: 'total',
-        header: 'Total',
-        meta: {
-            align: 'right'
-        },
-    },
-    {
-        accessorKey: 'paymentstatus',
-        header: 'Payment Status',
-    },
-
-    {
-        accessorKey: 'items',
-        header: 'Items',
-        cell: ({ row }) => {
-            return (
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <div className='hover:[&_svg]:block flex items-center text-sm gap-1 w-[65px] cursor-pointer'>
-                            <div>{row.original.items}</div>
-                            <div><ChevronDown className='size-4 hidden' /></div>
-                        </div>
-                    </PopoverTrigger>
-
-                    <PopoverContent>
-                        <div className='w-[200px]'>
-                            <div className='text-sm  mb-4'>Items</div>
-                            <div className="flex items-center gap-1">
-                                <div className='shrink-0'><img src="https://m.media-amazon.com/images/I/61Q56A7UfNL._AC_SL1500_.jpg" className='h-8 w-8  rounded-full' /></div>
-                                <div className='text-xs whitespace-nowrap overflow-hidden text-ellipsis'>Gaming Mechanical keyboards Asus</div>
-                            </div>
-                        </div>
-                    </PopoverContent>
-                </Popover >
-            );
+const useOrdersQuery = () => {
+    return useQuery({
+        queryKey: ['orders'],
+        queryFn: async () => {
+            const response = await authAPI.get("/api/customer/orders/list");
+            return response.data;
         }
-    },
-
-    {
-
-        accessorKey: 'deliverystatus',
-        header: 'Delivery Status',
-    }
-]
-
-let orderData: TypeOrder[] = [
-    {
-        "order": "#1013",
-        "date": "Today at 12:09",
-        "customer": "Code Soft Test Customer",
-        "channel": "",
-        "total": "CHF 112.00",
-        "paymentstatus": "Paid",
-        "fulfillmentstatus": "Unfulfilled",
-        "items": "2 items",
-        "deliverystatus": "",
-        "deliverymethod": "Shipping",
-        "tags": ""
-    },
-    {
-        "order": "#1012",
-        "date": "Today at 12:03",
-        "customer": "Code Soft Test Customer",
-        "channel": "",
-        "total": "CHF 112.00",
-        "paymentstatus": "Paid",
-        "fulfillmentstatus": "Unfulfilled",
-        "items": "2 items",
-        "deliverystatus": "Pending",
-        "deliverymethod": "Shipping",
-        "tags": ""
-    },
-    {
-        "order": "#1011",
-        "date": "Today at 11:59",
-        "customer": "Code Soft Test Customer",
-        "channel": "",
-        "total": "CHF 111.00",
-        "paymentstatus": "Paid",
-        "fulfillmentstatus": "Unfulfilled",
-        "items": "1 item",
-        "deliverystatus": "",
-        "deliverymethod": "Shipping",
-        "tags": ""
-    },
-    {
-        "order": "#1010",
-        "date": "Yesterday at 18:39",
-        "customer": "Code Soft Test Customer",
-        "channel": "",
-        "total": "CHF 111.00",
-        "paymentstatus": "Paid",
-        "fulfillmentstatus": "Unfulfilled",
-        "items": "1 item",
-        "deliverystatus": "",
-        "deliverymethod": "Shipping",
-        "tags": ""
-    },
-    {
-        "order": "#1009",
-        "date": "Yesterday at 12:22",
-        "customer": "Code Soft Test Customer",
-        "channel": "",
-        "total": "CHF 111.00",
-        "paymentstatus": "Paid",
-        "fulfillmentstatus": "Unfulfilled",
-        "items": "1 item",
-        "deliverystatus": "",
-        "deliverymethod": "Shipping",
-        "tags": ""
-    },
-    {
-        "order": "#1008",
-        "date": "Yesterday at 9:53",
-        "customer": "Stephan Kueng 456",
-        "channel": "Online Store",
-        "total": "CHF 1.00",
-        "paymentstatus": "Paid",
-        "fulfillmentstatus": "Unfulfilled",
-        "items": "1 item",
-        "deliverystatus": "",
-        "deliverymethod": "Standardversand",
-        "tags": ""
-    },
-    {
-        "order": "#1007",
-        "date": "Thursday at 17:35",
-        "customer": "Test Codes",
-        "channel": "",
-        "total": "CHF 2.00",
-        "paymentstatus": "Paid",
-        "fulfillmentstatus": "Unfulfilled",
-        "items": "2 items",
-        "deliverystatus": "",
-        "deliverymethod": "Shipping",
-        "tags": ""
-    },
-    {
-        "order": "#1006",
-        "date": "Thursday at 17:30",
-        "customer": "Test Codes",
-        "channel": "",
-        "total": "CHF 2.00",
-        "paymentstatus": "Paid",
-        "fulfillmentstatus": "Unfulfilled",
-        "items": "2 items",
-        "deliverystatus": "",
-        "deliverymethod": "Shipping",
-        "tags": ""
-    },
-    {
-        "order": "#1005",
-        "date": "Thursday at 17:26",
-        "customer": "Alina Küng",
-        "channel": "",
-        "total": "CHF 1.00",
-        "paymentstatus": "Paid",
-        "fulfillmentstatus": "Unfulfilled",
-        "items": "1 item",
-        "deliverystatus": "",
-        "deliverymethod": "Shipping",
-        "tags": ""
-    }
-]
-
-
+    })
+}
 
 
 const OrdersTab: React.FC = () => {
+    const { data, isLoading, isError } = useOrdersQuery();
+
+    if (isLoading) return <div>Loading orders...</div>;
+    if (isError) return <div>Failed to load orders.</div>;
+
     return (
-        <div>
-            <div className='text-sm my-4'>My Orders</div>
-            <div>
-                {/* <DataTable columns={TempColumns} data={orderData} /> */}
-            </div>
+        <div className="p-4">
+            <h2 className="text-lg font-semibold mb-4">My Orders</h2>
+            {data && data.length > 0 ? (
+                data.map((order: any) => (
+                    <div
+                        key={order.id}
+                        className="border border-gray-200 rounded-xl p-4 mb-6 shadow-sm"
+                    >
+                        <div className="flex justify-between items-center mb-3">
+                            <div>
+                                <div className="text-sm text-gray-500">Order ID</div>
+                                <div className="font-medium">{order.order_id}</div>
+                            </div>
+                            <div className="text-sm text-gray-500">
+                                {moment(order.order_date).format('MMMM Do YYYY, h:mm:ss a')}
+                            </div>
+                        </div>
+                        <div className="mb-2 text-sm">
+                            <strong>Total Quantity:</strong> {order.total_qty} | <strong>Total Amount:</strong> ${order.total_amount}
+                        </div>
+                        <div className="mt-4">
+                            <h4 className="font-semibold mb-2 text-sm">Items</h4>
+                            <ul className="space-y-3">
+                                {order.items.map((item: any, idx: number) => (
+                                    <li
+                                        key={idx}
+                                        className="bg-gray-50 border border-gray-100 rounded-lg p-3"
+                                    >
+                                        <div className='flex items-center gap-3'>
+                                            <div className='shrink-0 shadow-md'>
+                                                <img src={item.product.cover_image} alt="" className='h-cover_image w-20' />
+                                            </div>
+                                            <div className="font-medium text-sm">{item.product.name}</div>
+
+                                        </div>
+                                        <div className="text-xs text-gray-600 mt-1">
+                                            Qty: {item.quantity} | Price: ${item.price} | Amount: ${item.amount}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <div className="text-gray-500 text-sm">You have no orders yet.</div>
+            )}
         </div>
-    )
-}
+    );
+};
