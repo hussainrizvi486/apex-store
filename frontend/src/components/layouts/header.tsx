@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { LogOut as LogOutIcon, Search as SearchIcon, ShoppingCart, UserRound } from "lucide-react";
 import { PopoverContent, Popover, PopoverTrigger } from "@components/ui/popover";
 import { useAuth } from "@features/auth/hooks";
-import React from "react";
+import React, { useCallback, useEffect } from "react";
+import { cn } from "@utils/index";
 
 const ProfileDropdown = () => {
     return (
@@ -98,16 +99,32 @@ export const Header = () => {
 
 
 const SearchBar = () => {
-    const [open, setOpen] = React.useState(false); // Changed to false initially
+    const params = new URLSearchParams(window.location.search);
+    const [open, setOpen] = React.useState(false);
+    const [query, setQuery] = React.useState(params.get("query") || "");
 
     const handleBlur = () => {
-        setTimeout(() => setOpen(false), 100);
+        setTimeout(() => setOpen(false), 200);
     }
 
     const handleFocus = () => {
         setOpen(true)
     }
 
+    const handleClose = () => {
+        setOpen(false);
+    }
+
+
+    useEffect(() => {
+        const url = new URL(window.location.href);
+        if (query) {
+            url.searchParams.set("query", query);
+        } else {
+            url.searchParams.delete("query");
+        }
+        window.history.replaceState({}, '', url.toString());
+    }, [query])
     const results = [
         { id: 1, query: "Gaming Mouse", },
         { id: 2, query: "New Arrivals", },
@@ -133,32 +150,120 @@ const SearchBar = () => {
 
     return (
         <div >
-            <div className="flex items-center border border-gray-300 rounded-full pl-3 pr-2 py-2 w-2xl focus-within:ring-2 focus-within:ring-primary transition-all duration-200 ring-offset-2">
+            <div className="flex items-center border border-gray-300 rounded-full pl-3 pr-2 py-0.5 w-2xl focus-within:ring-2 focus-within:ring-primary transition-all duration-200 ring-offset-2">
                 <input
                     type="text"
                     placeholder="Search for products, category, etc..."
                     className="w-full h-full outline-none text-sm"
                     onBlur={handleBlur}
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
                     onFocus={handleFocus}
                 />
-                <SearchIcon className="size-5" />
+                <div className="hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer">
+                    <SearchIcon className="size-5" />
+                </div>
             </div>
 
-            <SearchBarResults open={open} results={results} />
+            <SearchBarResults open={open} results={results}
+                setValue={(value) => setQuery(value)}
+                close={handleClose}
+            />
         </div>
     )
 }
-const SearchBarResults = (props) => {
+
+interface SearchBarResultsProps {
+    open: boolean;
+    results?: { id: number; query: string }[];
+    setValue?: (value: string) => void;
+    close?: () => void;
+}
+
+const SearchBarResults: React.FC<SearchBarResultsProps> = (props) => {
+    const [selectedIndex, setSelectedIndex] = React.useState(-1);
+
+
+    const handleClick = (value: string) => {
+        props.setValue?.(value);
+        props.close?.();
+    }
+
+
+    const handleSelection = useCallback(() => {
+        if (selectedIndex >= 0 && props.results?.[selectedIndex]) {
+            const selectedResult = props.results[selectedIndex];
+            props.setValue?.(selectedResult.query);
+            props.close?.();
+        }
+    }, [selectedIndex, props]);
+
+
+    const handleKeyDown = useCallback((e: KeyboardEvent) => {
+
+        if (!props.open || !props.results?.length) return;
+        console.log(e.key);
+        switch (e.key) {
+            case "ArrowDown":
+                e.preventDefault();
+                setSelectedIndex(prev =>
+                    prev < props.results!.length - 1 ? prev + 1 : prev
+                );
+                break;
+            case "ArrowUp":
+                e.preventDefault();
+                setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+                break;
+            case "Enter":
+                e.preventDefault();
+                handleSelection();
+                props.close?.();
+                break;
+            case "Escape":
+                e.preventDefault();
+                setSelectedIndex(-1);
+                break;
+        }
+
+    }, [props, handleSelection])
+
+
+    useEffect(() => {
+        if (!props.open) {
+            setSelectedIndex(-1);
+        }
+    }, [props.open, props.results]);
+
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleKeyDown)
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown)
+        }
+    }, [props.open, handleKeyDown])
+    console.log(selectedIndex)
     return (
         <>
             {props.open ? (
                 <div className="max-h-96 overflow-y-auto absolute z-10 bg-white w-2xl shadow-md mt-2 animate-in fade-in-0 slide-in-from-top-2 duration-200">
-                    {props?.results.map((result) => (
-                        <Link to={`/search/${result.query}`} key={result.id}>
-                            <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors text-sm">
-                                {result.query}
+                    {props?.results?.map((result, index) => (
+                        <div key={index} onClick={() => handleClick(result.query)}
+                        >
+                            <div className={cn("px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors text-sm flex gap-2 items-center ",
+                                index === selectedIndex
+                                    ? 'bg-slate-200 '
+                                    : 'hover:bg-gray-100'
+
+                            )}>
+                                <div className="shrink-0 p-1 rounded-full">
+                                    <SearchIcon className="size-4" />
+                                </div>
+                                <div className="flex-auto">
+                                    {result.query}
+                                </div>
                             </div>
-                        </Link>
+
+                        </div>
                     ))}
                 </div>
             ) : null}
