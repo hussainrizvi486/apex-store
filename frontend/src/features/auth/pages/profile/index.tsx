@@ -41,6 +41,28 @@ const AddAddress = () => {
     );
 };
 
+
+const EditProfile = () => {
+    return (
+        <>
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button>
+                        Edit Profile
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <Input />
+                    <Input />
+                    <Input />
+                    <Input />
+                </DialogContent>
+
+            </Dialog>
+
+        </>
+    )
+}
 const AddressTab = () => {
     const { data } = getAddressQuery();
 
@@ -189,9 +211,8 @@ const ProfileTab: React.FC = () => {
 
 
                 <div>
-                    <Button>
-                        Edit Profile
-                    </Button>
+                    <EditProfile />
+
                 </div>
             </div>
 
