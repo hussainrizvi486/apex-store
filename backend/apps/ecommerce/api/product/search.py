@@ -20,7 +20,7 @@ def search_products(request):
     - sort: Sort direction (e.g., 'price', '-price', 'name', '-name')
     - limit: Maximum number of products to return (default: 20)
     """
-    search_query = request.GET.get("q", "")
+    search_query = request.GET.get("query", "")
     category_id = request.GET.get("category")
     min_price = request.GET.get("min_price")
     max_price = request.GET.get("max_price")

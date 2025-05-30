@@ -5,7 +5,6 @@ import MoreProducts from '@features/components/moreProducts'
 const MoreProductsPage = () => {
     return (
         <div>
-            <ProductHeader/>
             <MoreProducts />
         </div>
     )
