@@ -38,7 +38,6 @@ const Field: React.FC<FieldProps> = (props) => {
     }
 
 
-    console.log(state?.hasError);
     useEffect(() => {
         if (state?.hasError) {
             setClassName("ring ring-offset-3 ring-destructive");

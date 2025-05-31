@@ -4,6 +4,9 @@ import { logoutUser, loginUser as loginUserAction } from '../slices';
 
 import { API_URL } from "@api";
 import { getAuthState } from "@features/auth";
+import { use } from 'react';
+import { useMatch } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 
 
 
@@ -30,7 +33,6 @@ const authAPI = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-    // withCredentials: true,
 });
 
 
@@ -96,7 +98,7 @@ async function refreshAccessTokenFn(dispatch?: Dispatch): Promise<LoginResponse 
             refresh_token: tokens.refresh_token
         });
         const { data } = response;
-        
+
         localStorage.setItem("tokens", JSON.stringify(data));
         dispatch?.(loginUserAction(data));
         return data;
@@ -107,4 +109,22 @@ async function refreshAccessTokenFn(dispatch?: Dispatch): Promise<LoginResponse 
     }
 }
 
+export const useLoginMutation = () => {
+    return useMutation({
+        mutationFn: loginUser,
+        mutationKey: ["login - user"],
+        
+        // onSuccess: (data, variables, context) => {
+        //     localStorage.setItem("tokens", JSON.stringify(data));
+        //     // Dispatch login action if needed
+        //     // dispatch(loginUserAction(data));
+        // },
+        // onError: (error, variables, context) => {
+        //     console.error("Login failed:", error);
+        // }
+    })
+}
+
 export { loginUser, registerUser, refreshAccessTokenFn, authAPI };
+
+

@@ -5,6 +5,7 @@ import { SearchFilters } from "./search-filter";
 import { Select, SelectItem, SelectTrigger, SelectContent, SelectValue } from "@components/ui/select";
 import { Spinner } from "@components/loaders/spinner";
 import { ProductCard } from "@features/product/components";
+import { useParams } from "react-router-dom";
 
 const useSearchProducts = (params: Record<string, string>) => {
     return useQuery({
@@ -22,6 +23,10 @@ const useSearchProducts = (params: Record<string, string>) => {
 }
 
 const Index = () => {
+    const params = new URLSearchParams(window.location.search);
+    console.log(params?.get("query"))
+
+
     const { data, isLoading } = useSearchProducts({ "query": "baby" });
 
     console.log(data)
@@ -76,7 +81,7 @@ const Loading = () => {
 }
 
 const NoResults = () => {
-    
+
     return (
         <div className="text-center py-5 text-sm">
             <div className="text-gray-800 text-lg font-medium mb-2">No results found</div>

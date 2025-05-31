@@ -32,9 +32,8 @@ const DataFormContent: React.FC<DataFormProps> = (props) => {
             return;
         }
 
-        console.log("Form Values", values);
         const errors = formObject.validateForm(values);
-        console.log("Form Errors", errors);
+
         if (!Object.keys(errors).length) {
             formContext.getFields()?.forEach((field) => {
                 formContext.updateFormState?.((prevState) => {

@@ -1,9 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogOut as LogOutIcon, Search as SearchIcon, ShoppingCart, UserRound } from "lucide-react";
 import { PopoverContent, Popover, PopoverTrigger } from "@components/ui/popover";
 import { useAuth } from "@features/auth/hooks";
 import React, { useCallback, useEffect } from "react";
 import { cn } from "@utils/index";
+import { useQuery } from "@tanstack/react-query";
+import { API_URL } from "@api/index";
+import axios from "axios";
 
 const ProfileDropdown = () => {
     return (
@@ -100,10 +103,25 @@ export const Header = () => {
 };
 
 
+const useSuggestionsQuery = (query: string) => {
+    return useQuery({
+        queryKey: ["search-suggestions", query],
+        queryFn: async () => {
+            let url = API_URL + "/search/suggestions";
+            if (query) {
+                url += `?query=${encodeURIComponent(query)}`;
+            }
+            const response = await axios.get(url);
+            return response.data;
+        },
+    })
+}
+
 const SearchBar = () => {
     const params = new URLSearchParams(window.location.search);
     const [open, setOpen] = React.useState(false);
     const [query, setQuery] = React.useState(params.get("query") || "");
+    const navigate = useNavigate();
 
     const handleBlur = () => {
         setTimeout(() => setOpen(false), 200);
@@ -119,7 +137,7 @@ const SearchBar = () => {
 
 
     const handleSearch = () => {
-
+        navigate("/search")
     }
 
     useEffect(() => {
@@ -131,28 +149,34 @@ const SearchBar = () => {
         }
         window.history.replaceState({}, '', url.toString());
     }, [query])
-    const results = [
-        { id: 1, query: "Gaming Mouse", },
-        { id: 2, query: "New Arrivals", },
-        { id: 3, query: "logitech keyboard and mouse gear", },
-        { id: 4, query: "Wireless Headphones", },
-        { id: 5, query: "MacBook Pro", },
-        { id: 6, query: "iPhone 15", },
-        { id: 7, query: "Gaming Chair", },
-        { id: 8, query: "4K Monitor", },
-        { id: 9, query: "Mechanical Keyboard", },
-        { id: 10, query: "Graphics Card", },
-        { id: 11, query: "Laptop Stand", },
-        { id: 12, query: "Bluetooth Speaker", },
-        { id: 13, query: "Smart Watch", },
-        { id: 14, query: "USB-C Cable", },
-        { id: 15, query: "External Hard Drive", },
-        { id: 16, query: "Webcam", },
-        { id: 17, query: "Tablet", },
-        { id: 18, query: "Wireless Mouse", },
-        { id: 19, query: "Desk Lamp", },
-        { id: 20, query: "Power Bank", },
-    ]
+
+
+
+
+    const { data: results, isLoading } = useSuggestionsQuery(query);
+
+    // const results = [
+    //     { query: "Gaming Mouse", },
+    //     { query: "New Arrivals", },
+    //     { query: "logitech keyboard and mouse gear", },
+    //     { query: "Wireless Headphones", },
+    //     { query: "MacBook Pro", },
+    //     { query: "iPhone 15", },
+    //     { query: "Gaming Chair", },
+    //     { query: "4K Monitor", },
+    //     { query: "Mechanical Keyboard", },
+    //     { query: "Graphics Card", },
+    //     { query: "Laptop Stand", },
+    //     { query: "Bluetooth Speaker", },
+    //     { query: "Smart Watch", },
+    //     { query: "USB-C Cable", },
+    //     { query: "External Hard Drive", },
+    //     { query: "Webcam", },
+    //     { query: "Tablet", },
+    //     { query: "Wireless Mouse", },
+    //     { query: "Desk Lamp", },
+    //     { query: "Power Bank", },
+    // ]
 
     return (
         <div >
@@ -163,17 +187,35 @@ const SearchBar = () => {
                     className="w-full h-full outline-none text-sm"
                     onBlur={handleBlur}
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={(event) => {
+                        const { value } = event.target;
+                        setQuery(value)
+                        if (value) {
+                            setOpen(true);
+                        }
+
+                    }}
                     onFocus={handleFocus}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            handleSearch();
+                        }
+                    }}
+
                 />
-                <div className="hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer">
+                <div className="hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer"
+                    onClick={handleSearch}>
                     <SearchIcon className="size-5" />
                 </div>
             </div>
 
-            <SearchBarResults open={open} results={results}
+            <SearchBarResults
+                open={open}
+                isLoading={isLoading}
+                results={results?.suggestions}
                 setValue={(value) => setQuery(value)}
                 close={handleClose}
+
             />
         </div>
     )
@@ -181,6 +223,7 @@ const SearchBar = () => {
 
 interface SearchBarResultsProps {
     open: boolean;
+    isLoading: boolean;
     results?: { id: number; query: string }[];
     setValue?: (value: string) => void;
     close?: () => void;
@@ -189,12 +232,10 @@ interface SearchBarResultsProps {
 const SearchBarResults: React.FC<SearchBarResultsProps> = (props) => {
     const [selectedIndex, setSelectedIndex] = React.useState(-1);
 
-
     const handleClick = (value: string) => {
         props.setValue?.(value);
         props.close?.();
     }
-
 
     const handleSelection = useCallback(() => {
         if (selectedIndex >= 0 && props.results?.[selectedIndex]) {
@@ -208,7 +249,7 @@ const SearchBarResults: React.FC<SearchBarResultsProps> = (props) => {
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
 
         if (!props.open || !props.results?.length) return;
-        console.log(e.key);
+
         switch (e.key) {
             case "ArrowDown":
                 e.preventDefault();
@@ -247,7 +288,8 @@ const SearchBarResults: React.FC<SearchBarResultsProps> = (props) => {
             window.removeEventListener("keydown", handleKeyDown)
         }
     }, [props.open, handleKeyDown])
-    console.log(selectedIndex)
+
+
     return (
         <>
             {props.open ? (
@@ -264,7 +306,7 @@ const SearchBarResults: React.FC<SearchBarResultsProps> = (props) => {
                                 <div className="shrink-0 p-1 rounded-full">
                                     <SearchIcon className="size-4" />
                                 </div>
-                                <div className="flex-auto">
+                                <div className="flex-auto whitespace-nowrap overflow-hidden text-ellipsis">
                                     {result.query}
                                 </div>
                             </div>

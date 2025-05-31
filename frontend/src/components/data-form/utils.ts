@@ -22,7 +22,6 @@ class DFFormObject {
     buildLayout() {
         const layout: TypeDFLayout = [];
         const sections = this.fields.filter(field => field.sectionBreak);
-        console.log("Form Sections", sections)
 
         if (!sections?.length) {
             const section: TypeDFSection = { label: '', name: 'default', sectionBreak: true };
@@ -69,7 +68,6 @@ class DFFormObject {
                 });
             });
         }
-        console.log("Form Layout", layout);
         return layout;
     }
 
@@ -79,13 +77,11 @@ class DFFormObject {
     }
     validateForm(values: FormValues) {
         const errors: FormValues = {};
-        console.log(this.getInputFields())
-
         this.getInputFields().forEach((field) => {
             const key = field.name;
             const value = values[key];
             if (field.required && !["number", "float", "currency"].includes(field.type)) {
-                console.log(field.required, field.type, value, field.label);
+                
                 if (!value || value == "" || value == undefined || value == null) {
                     errors[key] = `This field is required`;
                 }

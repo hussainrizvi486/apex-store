@@ -4,6 +4,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { getAuthState } from "@features/auth"
 
 export interface AuthState {
+    user: string,
     access_token?: string;
     refresh_token?: string;
     isAuthenticated: boolean;

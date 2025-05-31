@@ -1,10 +1,39 @@
 from django.db.models import Q
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from apps.ecommerce.models.product import Product, ProductTypeChoices
 from apps.ecommerce.serializer.product import ProductListSerializer
 from apps.ecommerce.queries import PRODUCT_PRICE_SUBQUERY
+
+# from django.core.cache import cache
+# from django.conf import settings
+# from django.core.cache.backends.base import DEFAULT_TIMEOUT
+
+
+# CACHE_TTL = getattr(settings, "CACHE_TTL", DEFAULT_TIMEOUT)
+
+
+class Suggestions(APIView):
+    def _default(self):
+        # if cache.get("product_suggestions"):
+        #     return Response({"suggestions": cache.get("product_suggestions")})
+
+        names = Product.objects.only("product_name").order_by("product_name")[:20]
+        suggestions = [
+            {"title": name.product_name, "query": name.product_name} for name in names
+        ]
+        # cache.set("product_suggestions", suggestions, timeout=CACHE_TTL)
+        return Response({"suggestions": suggestions})
+
+    def get(self, *args, **kwargs):
+        query = self.request.GET.get("query", "")
+        if not query:
+            return self._default()
+
+        return self._default()
+        ...
 
 
 @api_view(["GET"])
