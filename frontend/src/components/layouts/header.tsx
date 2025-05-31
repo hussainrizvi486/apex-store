@@ -45,7 +45,9 @@ export const Header = () => {
         <header className="border-b border-gray-200">
             <div className="flex justify-between items-center px-20 py-4">
                 <div className="flex items-center">
-                    <h1 className="text-2xl font-bold font-poppins"><span className="text-primary">APEX</span>Store</h1>
+                    <Link to="/">
+                        <h1 className="text-2xl font-bold font-poppins"><span className="text-primary">APEX</span>Store</h1>
+                    </Link>
                     <nav className="flex gap-6 ml-8 mt-1">
                         {navLinks.map(v => (
                             <Link className="text-sm font-medium font-poppins" to={v.url}>{v.label}</Link>
@@ -115,6 +117,10 @@ const SearchBar = () => {
         setOpen(false);
     }
 
+
+    const handleSearch = () => {
+
+    }
 
     useEffect(() => {
         const url = new URL(window.location.href);
