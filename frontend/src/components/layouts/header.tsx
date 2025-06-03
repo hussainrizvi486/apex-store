@@ -1,12 +1,24 @@
+import axios from "axios";
+import React, { useCallback, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { LogOut as LogOutIcon, Search as SearchIcon, ShoppingCart, UserRound } from "lucide-react";
+
 import { PopoverContent, Popover, PopoverTrigger } from "@components/ui/popover";
 import { useAuth } from "@features/auth/hooks";
-import React, { useCallback, useEffect } from "react";
 import { cn } from "@utils/index";
-import { useQuery } from "@tanstack/react-query";
 import { API_URL } from "@api/index";
-import axios from "axios";
+
+
+
+interface SearchBarResultsProps {
+    open: boolean;
+    isLoading: boolean;
+    results?: { id: number; query: string }[];
+    handleSearch: (value: string) => void;
+    close: () => void;
+}
+
 
 const ProfileDropdown = () => {
     return (
@@ -42,7 +54,11 @@ const navLinks = [
 ]
 
 export const Header = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, logout } = useAuth();
+
+    const handleLogout = () => {
+        logout();
+    };
 
     return (
         <header className="border-b border-gray-200">
@@ -52,13 +68,14 @@ export const Header = () => {
                         <h1 className="text-2xl font-bold font-poppins"><span className="text-primary">APEX</span>Store</h1>
                     </Link>
                     <nav className="flex gap-6 ml-8 mt-1">
-                        {navLinks.map(v => (
-                            <Link className="text-sm font-medium font-poppins" to={v.url}>{v.label}</Link>
+                        {navLinks.map((v, index) => (
+                            <Link key={index} className="text-sm font-medium font-poppins" to={v.url}>{v.label}</Link>
                         ))}
                     </nav>
                 </div>
 
                 <SearchBar />
+
                 <div>
                     <nav className="flex gap-4">
                         {
@@ -82,7 +99,12 @@ export const Header = () => {
                                                     <ProfileDropdown />
                                                 </div>
                                             </div>
-                                            <button className="text-sm flex gap-2 items-center hover:cursor-pointer hover:bg-gray-100 w-full p-2 transition-colors font-semibold outline-none"><LogOutIcon className="size-4 " /> Logout</button>
+                                            <button
+                                                onClick={handleLogout}
+                                                className="text-sm flex gap-2 items-center hover:cursor-pointer hover:bg-gray-100 w-full p-2 transition-colors font-semibold outline-none"
+                                            >
+                                                <LogOutIcon className="size-4" /> Logout
+                                            </button>
                                         </PopoverContent>
                                     </Popover>
                                 </>
@@ -94,14 +116,14 @@ export const Header = () => {
                                     <Link to="/login">
                                         <UserRound className="size-5" />
                                     </Link>
-                                </>}
+                                </>
+                        }
                     </nav>
                 </div>
             </div>
-        </header >
+        </header>
     );
 };
-
 
 const useSuggestionsQuery = (query: string) => {
     return useQuery({
@@ -114,72 +136,43 @@ const useSuggestionsQuery = (query: string) => {
             const response = await axios.get(url);
             return response.data;
         },
+        enabled: !!query,
     })
 }
 
 const SearchBar = () => {
     const params = new URLSearchParams(window.location.search);
-    const [open, setOpen] = React.useState(false);
-    const [query, setQuery] = React.useState(params.get("query") || "");
     const navigate = useNavigate();
 
+    const [open, setOpen] = React.useState(false);
+    const [query, setQuery] = React.useState(params.get("query") || "");
+
     const handleBlur = () => {
-        setTimeout(() => setOpen(false), 200);
+        setTimeout(() => setOpen(false), 150);
     }
 
     const handleFocus = () => {
-        setOpen(true)
+        if (query) {
+            setOpen(true);
+        }
     }
 
     const handleClose = () => {
         setOpen(false);
     }
 
-
-    const handleSearch = () => {
-        navigate("/search")
-    }
-
-    useEffect(() => {
-        const url = new URL(window.location.href);
-        if (query) {
-            url.searchParams.set("query", query);
-        } else {
-            url.searchParams.delete("query");
+    const handleSearch = (value?: string) => {
+        const finalQuery = value || query;
+        if (finalQuery.trim()) {
+            navigate(`/search?query=${encodeURIComponent(finalQuery.trim())}`);
+            setOpen(false);
         }
-        window.history.replaceState({}, '', url.toString());
-    }, [query])
-
-
-
+    }
 
     const { data: results, isLoading } = useSuggestionsQuery(query);
 
-    // const results = [
-    //     { query: "Gaming Mouse", },
-    //     { query: "New Arrivals", },
-    //     { query: "logitech keyboard and mouse gear", },
-    //     { query: "Wireless Headphones", },
-    //     { query: "MacBook Pro", },
-    //     { query: "iPhone 15", },
-    //     { query: "Gaming Chair", },
-    //     { query: "4K Monitor", },
-    //     { query: "Mechanical Keyboard", },
-    //     { query: "Graphics Card", },
-    //     { query: "Laptop Stand", },
-    //     { query: "Bluetooth Speaker", },
-    //     { query: "Smart Watch", },
-    //     { query: "USB-C Cable", },
-    //     { query: "External Hard Drive", },
-    //     { query: "Webcam", },
-    //     { query: "Tablet", },
-    //     { query: "Wireless Mouse", },
-    //     { query: "Desk Lamp", },
-    //     { query: "Power Bank", },
-    // ]
-
     return (
-        <div >
+        <div className="relative">
             <div className="flex items-center border border-gray-300 rounded-full pl-3 pr-2 py-0.5 w-2xl focus-within:ring-2 focus-within:ring-primary transition-all duration-200 ring-offset-2">
                 <input
                     type="text"
@@ -189,22 +182,25 @@ const SearchBar = () => {
                     value={query}
                     onChange={(event) => {
                         const { value } = event.target;
-                        setQuery(value)
+                        setQuery(value);
                         if (value) {
                             setOpen(true);
+                        } else {
+                            setOpen(false);
                         }
-
                     }}
                     onFocus={handleFocus}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
+                            e.preventDefault();
                             handleSearch();
                         }
                     }}
-
                 />
-                <div className="hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer"
-                    onClick={handleSearch}>
+                <div
+                    className="hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer"
+                    onClick={() => handleSearch(query)}
+                >
                     <SearchIcon className="size-5" />
                 </div>
             </div>
@@ -213,41 +209,31 @@ const SearchBar = () => {
                 open={open}
                 isLoading={isLoading}
                 results={results?.suggestions}
-                setValue={(value) => setQuery(value)}
+                handleSearch={handleSearch}
                 close={handleClose}
-
             />
         </div>
     )
 }
 
-interface SearchBarResultsProps {
-    open: boolean;
-    isLoading: boolean;
-    results?: { id: number; query: string }[];
-    setValue?: (value: string) => void;
-    close?: () => void;
-}
 
 const SearchBarResults: React.FC<SearchBarResultsProps> = (props) => {
     const [selectedIndex, setSelectedIndex] = React.useState(-1);
 
     const handleClick = (value: string) => {
-        props.setValue?.(value);
-        props.close?.();
+        props.handleSearch(value);
+        props.close();
     }
 
     const handleSelection = useCallback(() => {
         if (selectedIndex >= 0 && props.results?.[selectedIndex]) {
             const selectedResult = props.results[selectedIndex];
-            props.setValue?.(selectedResult.query);
+            props.handleSearch?.(selectedResult.query);
             props.close?.();
         }
     }, [selectedIndex, props]);
 
-
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
-
         if (!props.open || !props.results?.length) return;
 
         switch (e.key) {
@@ -264,57 +250,59 @@ const SearchBarResults: React.FC<SearchBarResultsProps> = (props) => {
             case "Enter":
                 e.preventDefault();
                 handleSelection();
-                props.close?.();
                 break;
             case "Escape":
                 e.preventDefault();
                 setSelectedIndex(-1);
+                props.close?.();
                 break;
         }
-
     }, [props, handleSelection])
-
 
     useEffect(() => {
         if (!props.open) {
             setSelectedIndex(-1);
         }
-    }, [props.open, props.results]);
-
+    }, [props.open]);
 
     useEffect(() => {
-        window.addEventListener("keydown", handleKeyDown)
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown)
+        if (props.open) {
+            window.addEventListener("keydown", handleKeyDown);
+            return () => {
+                window.removeEventListener("keydown", handleKeyDown);
+            }
         }
-    }, [props.open, handleKeyDown])
+    }, [props.open, handleKeyDown]);
 
+    if (!props.open) return null;
 
     return (
-        <>
-            {props.open ? (
-                <div className="max-h-96 overflow-y-auto absolute z-10 bg-white w-2xl shadow-md mt-2 animate-in fade-in-0 slide-in-from-top-2 duration-200">
-                    {props?.results?.map((result, index) => (
-                        <div key={index} onClick={() => handleClick(result.query)}
-                        >
-                            <div className={cn("px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors text-sm flex gap-2 items-center ",
-                                index === selectedIndex
-                                    ? 'bg-slate-200 '
-                                    : 'hover:bg-gray-100'
-
-                            )}>
-                                <div className="shrink-0 p-1 rounded-full">
-                                    <SearchIcon className="size-4" />
-                                </div>
-                                <div className="flex-auto whitespace-nowrap overflow-hidden text-ellipsis">
-                                    {result.query}
-                                </div>
-                            </div>
-
+        <div className="absolute top-full left-0 right-0 max-h-96 overflow-y-auto z-50 bg-white shadow-lg border border-gray-200 rounded-md mt-1 animate-in fade-in-0 slide-in-from-top-2 duration-200">
+            {props.isLoading ? (
+                <div className="px-4 py-2 text-sm text-gray-500">Loading...</div>
+            ) : props.results && props.results.length > 0 ? (
+                props.results.map((result, index) => (
+                    <div
+                        key={result.id}
+                        onClick={() => handleClick(result.query)}
+                        className={cn(
+                            "px-4 py-2 cursor-pointer transition-colors text-sm flex gap-2 items-center",
+                            index === selectedIndex
+                                ? 'bg-slate-200'
+                                : 'hover:bg-gray-100'
+                        )}
+                    >
+                        <div className="shrink-0 p-1 rounded-full">
+                            <SearchIcon className="size-4" />
                         </div>
-                    ))}
-                </div>
-            ) : null}
-        </>
-    )
+                        <div className="flex-auto whitespace-nowrap overflow-hidden text-ellipsis">
+                            {result.query}
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <div className="px-4 py-2 text-sm text-gray-500">No suggestions found</div>
+            )}
+        </div>
+    );
 }

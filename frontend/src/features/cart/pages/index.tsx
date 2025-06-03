@@ -10,7 +10,7 @@ import { Button } from '@components/ui/button';
 export const CartPage = () => {
   const cartQuery = useCartItems();
 
-  const e = useUpdateCartItem();
+  const mi = useUpdateCartItem();
   if (cartQuery.isLoading) {
     return (
       <>

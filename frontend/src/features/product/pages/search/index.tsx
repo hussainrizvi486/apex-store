@@ -5,17 +5,21 @@ import { SearchFilters } from "./search-filter";
 import { Select, SelectItem, SelectTrigger, SelectContent, SelectValue } from "@components/ui/select";
 import { Spinner } from "@components/loaders/spinner";
 import { ProductCard } from "@features/product/components";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 
-const useSearchProducts = (params: Record<string, string>) => {
+const useSearchProducts = (params: Record<string, string | null>) => {
     return useQuery({
         queryKey: ["search-products", params],
         queryFn: async () => {
-            if (!params || Object.keys(params).length === 0) {
-                return null;
+            let url = API_URL + "api/product/search";
+
+            const { query } = params;
+            if (query) {
+                url += `?query=${encodeURIComponent(query)}`;
             }
-            const queryString = new URLSearchParams(params).toString();
-            const response = await axios.get(`${API_URL}api/product/search?${queryString}`);
+
+            const response = await axios.get(url);
             return response.data;
         },
         enabled: !!params && Object.keys(params).length > 0,
@@ -23,13 +27,17 @@ const useSearchProducts = (params: Record<string, string>) => {
 }
 
 const Index = () => {
-    const params = new URLSearchParams(window.location.search);
-    console.log(params?.get("query"))
+    const [params] = useSearchParams();
+    const [query, setQuery] = useState(params.get("query"));
+
+    useEffect(() => {
+        setQuery(params.get("query") || "");
+    }, [params])
 
 
-    const { data, isLoading } = useSearchProducts({ "query": "baby" });
+    const { data, isLoading } = useSearchProducts({ "query": query });
 
-    console.log(data)
+
     return (
         <div className="max-w-7xl mx-auto">
             <div className="flex ">

@@ -1,6 +1,5 @@
 import { authAPI } from "@features/auth/api";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { use } from "react";
 
 
 
@@ -17,6 +16,22 @@ export interface CartItemType {
     amount: string;
 }
 
+
+
+
+
+
+
+export const useCartQur = () => {
+    return useQuery<{ items: CartItemType[], total_qty: string, grand_total: string }>({
+        queryKey: ["cart", "items"],
+        queryFn: async () => {
+            const { data } = await authAPI.get("/api/customer/cart");
+            return data;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
+};
 export const useCartItems = () => {
     return useQuery<{ items: CartItemType[], total_qty: string, grand_total: string }>({
         queryKey: ["cart", "items"],
@@ -24,15 +39,14 @@ export const useCartItems = () => {
             const { data } = await authAPI.get("/api/customer/cart");
             return data;
         },
-        staleTime: 5 * 60 * 1000, // optional: cache for 5 minutes
-        cacheTime: 10 * 60 * 1000 // optional: keep unused data for 10 minutes
+        staleTime: 5 * 60 * 1000,
     });
 };
 
 
 export const useAddCartItem = () => {
     return useMutation({
-        mutationFn: async (itemData: Record<string, any>) => {
+        mutationFn: async (itemData: Record<string, string>) => {
             const { data } = await authAPI.post("/api/customer/cart/add-item", itemData);
             return data;
         }
@@ -42,7 +56,7 @@ export const useAddCartItem = () => {
 
 export const useUpdateCartItem = () => {
     return useMutation({
-        mutationFn: async (updateData: Record<string, any>) => {
+        mutationFn: async (updateData: Record<string, string>) => {
             const { data } = await authAPI.post("/api/customer/cart/update", updateData);
             return data;
         },
