@@ -11,6 +11,7 @@ import { AuthRoutes } from "./routes/auth"
 
 import { AddAddress } from "./features/auth/pages/profile/add-address"
 import { Header } from "@components/layouts"
+import { AdminSidebarLayout } from "@features/admin/layouts/sidebar-layout"
 
 
 const LoginPage = React.lazy(() => import("@features/auth/pages/login.tsx"));
@@ -33,9 +34,12 @@ function Application() {
           <Route path="/cart" element={<CartPage />} />
         </Route>
         <Route path="/profile" element={<ProfilePage />} />
+        <Route element={<AdminSidebarLayout />}>
 
-        <Route path="/admin/product/create" element={<AdminProductCreate />} />
-        <Route path="/admin/product/list" element={<AdminProductList />} />
+          <Route path="/admin/product/create" element={<AdminProductCreate />} />
+          <Route path="/admin/product/list" element={<AdminProductList />} />
+        </Route>
+
         <Route path="*" element={<NotFound />} />
 
         <Route path="/profile/address/add" element={<AddAddress />} />

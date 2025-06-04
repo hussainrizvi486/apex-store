@@ -23,6 +23,7 @@ interface DataTableCellProps {
     children: React.ReactNode;
     isHeader?: boolean;
     className?: string;
+    width?: string | number;
 }
 
 // Sort Icon Component
@@ -85,6 +86,10 @@ const DataTable = <T,>({
     onRowSelectionChange,
     enableSorting = true
 }: DataTableProps<T>): React.ReactElement => {
+
+    if (!columns || columns.length === 0) {
+        return <></>
+    }
     const [rowSelection, setRowSelection] = React.useState({});
     const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -144,8 +149,8 @@ const DataTable = <T,>({
 
 
     return (
-        <div className={cn("rounded-md overflow-x-auto", className)}>
-            <table className="border-collapse table-fixed border border-gray-200 min-w-full">
+        <div className={cn("rounded-md", className)}>
+            <table className="border-collapse table-fixed border border-gray-200 w-full">
                 <thead>
                     {table.getHeaderGroups().map(headerGroup => (
                         <DataTableRow key={headerGroup.id} isHeader>
@@ -164,7 +169,7 @@ const DataTable = <T,>({
                                 }
 
                                 return (
-                                    <DataTableCell key={header.id} isHeader>
+                                    <DataTableCell key={header.id} isHeader width={header.column.columnDef.size}>
                                         {header.isPlaceholder ? null : (
                                             <div
                                                 className={cn(

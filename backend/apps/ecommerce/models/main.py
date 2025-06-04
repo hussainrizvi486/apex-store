@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from apps.user_auth.models.role import PermissionManager, PermissionMixin
 
 
-class BaseModel(models.Model):
+class BaseModel(models.Model, PermissionMixin):
     """
     Abstract base model that includes common fields for all models.
     """
