@@ -1,5 +1,6 @@
 from django.db.models import Subquery, OuterRef, Q, Prefetch
 from django.utils import timezone
+from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db import connection
@@ -43,3 +44,22 @@ def get_product_detail(request):
 
     serializer = ProductSerializer(product, context={"request": request})
     return Response({"product": serializer.data})
+
+
+class ProductistAPIView(APIView):
+    def get(self, *args, **kwargs):
+        products_queryset = Product.objects.for_user(user=self.request.user)
+        print(self.request.user)
+        # products_queryset = Product.objects.exclude(
+        #     product_type=ProductTypeChoices.TEMPLATE
+        # )
+        serializer = ProductListSerializer(
+            products_queryset, many=True, context={"request": self.request}
+        )
+
+        return Response(
+            {
+                "results": serializer.data,
+            }
+        )
+        ...

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-
+import { jwtDecode } from 'jwt-decode'
 import { getAuthState } from "@features/auth"
 
 export interface AuthState {
@@ -26,6 +26,7 @@ export const authSlice = createSlice({
         loginUser: (state, action: PayloadAction<{ access_token: string, refresh_token: string }>) => {
             state.access_token = action.payload.access_token
             state.refresh_token = action.payload.refresh_token
+            // state.user = jwtDecode(action.payload.access_token)
             localStorage.setItem('tokens', JSON.stringify(action.payload))
             state.isAuthenticated = true
         },

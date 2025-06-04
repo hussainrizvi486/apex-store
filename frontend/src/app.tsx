@@ -15,10 +15,14 @@ import { Header } from "@components/layouts"
 
 const LoginPage = React.lazy(() => import("@features/auth/pages/login.tsx"));
 const HomePage = React.lazy(() => import("@features/product/pages/home/index"));
-const CreateProductPage = React.lazy(() => import("@features/product/pages/form/create"));
+// const CreateProductPage = React.lazy(() => import("@features/product/pages/form/create"));
 const NotFound = React.lazy(() => import("./pages/404"));
 const ProfilePage = React.lazy(() => import("./features/auth/pages/profile/index"));
 const SearchPage = React.lazy(() => import("./features/product/pages/search/index"));
+
+const AdminProductList = React.lazy(() => import("./features/admin/pages/product/list"));
+const AdminProductCreate = React.lazy(() => import("./features/admin/pages/product/create"));
+
 
 function Application() {
   return (
@@ -30,12 +34,15 @@ function Application() {
         </Route>
         <Route path="/profile" element={<ProfilePage />} />
 
-        <Route path="/admin/product/create" element={<CreateProductPage />} />
+        <Route path="/admin/product/create" element={<AdminProductCreate />} />
+        <Route path="/admin/product/list" element={<AdminProductList />} />
         <Route path="*" element={<NotFound />} />
 
         <Route path="/profile/address/add" element={<AddAddress />} />
         <Route path="/product" element={<ProductPage />} />
         <Route path="/cart" element={<CartPage />} />
+
+        {/* <Route path="/admin/product/create" element={<AdminProductCreate />} /> */}
 
         <Route element={<>
           <Header />

@@ -33,6 +33,3 @@ class Address(BaseModel):
 
     def __str__(self):
         return f"{self.address_line_1}, {self.city}, {self.state}, {self.country}"
-
-
-class Permission(BaseModel): ...

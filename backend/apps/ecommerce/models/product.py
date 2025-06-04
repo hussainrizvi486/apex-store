@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.validators import MinValueValidator
 from django.conf import settings
-
+from apps.user_auth.models.role import PermissionQuerySet, PermissionManager
 from . import BaseModel, Category, PriceList
 
 
@@ -34,6 +34,8 @@ class Product(BaseModel):
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, related_name="products", null=True
     )
+
+    # objects = PermissionManager()
 
     def __str__(self):
         return self.product_name

@@ -32,6 +32,7 @@ export const useCartQur = () => {
         staleTime: 5 * 60 * 1000,
     });
 };
+
 export const useCartItems = () => {
     return useQuery<{ items: CartItemType[], total_qty: string, grand_total: string }>({
         queryKey: ["cart", "items"],

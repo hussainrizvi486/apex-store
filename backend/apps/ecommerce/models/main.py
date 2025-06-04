@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth import get_user_model
+from apps.user_auth.models.role import PermissionManager, PermissionMixin
 
 
 class BaseModel(models.Model):
@@ -13,6 +14,8 @@ class BaseModel(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = PermissionManager()
 
     class Meta:
         abstract = True

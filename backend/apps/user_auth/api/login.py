@@ -42,7 +42,7 @@ class LoginAPI(APIView):
                 )
 
         return Response(
-            data={"message": "Invaid user credentials"},
+            data={"message": "Invalid user credentials"},
             status=status.HTTP_401_UNAUTHORIZED,
         )
 

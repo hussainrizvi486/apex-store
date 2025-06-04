@@ -46,3 +46,15 @@ class User(AbstractUser):
 
     def __str__(self) -> str:
         return str(self.email)
+
+    def has_permission(self, permission, model):
+        user_roles = self.user_roles.all()
+        if not user_roles:
+            return False
+
+        for i in user_roles:
+            if i.role.has_permission(permission, model):
+                return True
+
+        return True
+        ...
