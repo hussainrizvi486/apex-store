@@ -13,7 +13,7 @@ const useAuth = () => {
     }
 
     const user = jwtDecode(authState.access_token);
-
+    console.warn(user)
     return { isAuthenticated, user, logout }
 }
 export { useAuth }

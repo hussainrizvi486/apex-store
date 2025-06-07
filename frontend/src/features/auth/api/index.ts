@@ -39,8 +39,8 @@ const authAPI = axios.create({
 // Request interceptor
 authAPI.interceptors.request.use((config) => {
     const tokens = getAuthState();
-    if (tokens?.access) {
-        config.headers["Authorization"] = `Bearer ${tokens.access}`;
+    if (tokens?.access_token) {
+        config.headers["Authorization"] = `Bearer ${tokens.access_token}`;
     }
     return config;
 });

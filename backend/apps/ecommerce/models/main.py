@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth import get_user_model
-from apps.user_auth.models.role import PermissionManager, PermissionMixin
+from apps.user_auth.permissions import PermissionManager, PermissionMixin
 
 
 class BaseModel(models.Model):

@@ -16,10 +16,11 @@ const useProductQuery = () => {
 
 
 const Index = () => {
-    const { data } = useProductQuery();
+
+    const { user } = useAuth();
+    console.log(user)
+    const { data, error } = useProductQuery();
     console.log(data)
-
-
 
     return (
         <div>

@@ -1,10 +1,6 @@
 from django.db import models
-
-from django.db import models
 from django.utils import timezone
 from django.core.validators import MinValueValidator
-from django.conf import settings
-from apps.user_auth.models.role import PermissionQuerySet, PermissionManager
 from . import BaseModel, Category, PriceList
 
 

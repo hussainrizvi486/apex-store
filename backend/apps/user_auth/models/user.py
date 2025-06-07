@@ -48,13 +48,15 @@ class User(AbstractUser):
         return str(self.email)
 
     def has_permission(self, permission, model):
-        user_roles = self.user_roles.all()
-        if not user_roles:
+        if self.is_superuser:
+            return True
+
+        user_roles = self.user_roles.filter(is_active=True)
+        if not user_roles.exists():
             return False
 
-        for i in user_roles:
-            if i.role.has_permission(permission, model):
+        for user_role in user_roles:
+            if user_role.role.has_permission(permission, model):
                 return True
 
-        return True
-        ...
+        return False

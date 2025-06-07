@@ -18,23 +18,35 @@ PERMISSION_TYPES = [
 
 class Role(BaseModel):
     name = models.CharField(max_length=100, unique=True)
-    is_active = models.BooleanField(default=True)
+    # is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
 
     def get_permissions(self):
         """Get all permissions for this role"""
-        for i in self.permissions.all():
-            print(f"Permission: {i.permission} for object: {i.object}")
         return self.permissions.all()
 
     def has_permission(self, permission, model):
-        print(self.get_permissions())
-        print(
-            f"Checking permission: {permission} for model: {model} in role: {self.name}"
-        )
-        return True
+        """Check if this role has a specific permission for a model"""
+        # if not self.is_active:
+        #     return False
+
+        if isinstance(model, str):
+            try:
+                content_type = ContentType.objects.get(model=model.lower())
+            except ContentType.DoesNotExist:
+                return False
+        else:
+            content_type = ContentType.objects.get_for_model(model)
+
+        # print("content_type")
+        # print(content_type)
+        permission_exists = self.permissions.filter(
+            object=content_type, permission=permission
+        ).exists()
+
+        return permission_exists
 
     class Meta:
         verbose_name = "Role"
@@ -60,7 +72,8 @@ class Permission(BaseModel):
     )
 
     def __str__(self):
-        return f"{self.role.name} - {self.permission}"
+        object_name = self.object.model if self.object else "All"
+        return f"{self.role.name} - {self.permission} - {object_name}"
 
     def clean(self):
         if self.permission:
@@ -97,50 +110,3 @@ class UserRole(BaseModel):
 
     def __str__(self):
         return f"{self.user.username} - {self.role.name}"
-
-
-class PermissionQuerySet(models.QuerySet):
-    def for_user(self, user: User):
-        """Filter queryset based on user permissions"""
-        if not user or not user.is_authenticated:
-            return self.none()
-
-        if user.is_superuser:
-            return self
-
-        if not user.has_permission("read", self.model.__name__):
-            return self.none()
-
-        return self
-
-
-class PermissionMixin:
-    """Mixin to add permission checking to models"""
-
-    def check_user_permission(self, user, action="read", raise_exception=True):
-        """Check if user has permission for this model instance"""
-        if not user or not user.is_authenticated:
-            if raise_exception:
-                raise PermissionDenied("Authentication required")
-            return False
-
-        if user.is_superuser:
-            return True
-
-        model_name = self.__class__.__name__.lower()
-        has_perm = user.has_permission(action, model_name)
-
-        if not has_perm and raise_exception:
-            raise PermissionDenied(
-                f"User does not have '{action}_{self.__class__.__name__.lower()}' permission"
-            )
-
-        return has_perm
-
-
-class PermissionManager(models.Manager):
-    def get_queryset(self):
-        return PermissionQuerySet(self.model, using=self._db)
-
-    def for_user(self, user, permission=None):
-        return self.get_queryset().for_user(user)
