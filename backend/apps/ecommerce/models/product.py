@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.core.validators import MinValueValidator
-from . import BaseModel, Category, PriceList
+from . import BaseModel, Category, PriceList, UOM
 
 
 class ProductTypeChoices(models.TextChoices):
@@ -26,12 +26,13 @@ class Product(BaseModel):
     product_name = models.TextField()
     description = models.TextField(blank=True, null=True)
     cover_image = models.ImageField(upload_to="products/", blank=True, null=True)
-    unit_of_measurement = models.CharField(max_length=50, blank=True, null=True)
+    # unit_of_measurement = models.CharField(max_length=50, blank=True, null=True)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, related_name="products", null=True
     )
-
-    # objects = PermissionManager()
+    uom = models.ForeignKey(
+        UOM, on_delete=models.SET_NULL, related_name="products", null=True, blank=True
+    )
 
     def __str__(self):
         return self.product_name

@@ -1,8 +1,14 @@
 import { API_URL } from "@api/index";
 import { DataTable } from "@components/data-table";
+import { SidebarLayout } from "@components/layouts";
+import { Button } from "@components/ui/button";
 import { authAPI } from "@features/auth/api";
 import { useAuth } from "@features/auth/hooks";
 import { useQuery } from "@tanstack/react-query";
+import { ColumnDef } from "@tanstack/react-table";
+import { Link } from "react-router-dom";
+
+
 
 const useProductQuery = () => {
     return useQuery({
@@ -15,18 +21,71 @@ const useProductQuery = () => {
 }
 
 
+interface Product {
+    product_name: string
+    id: string
+    cover_image: string
+    price: number
+    category: {
+        name: string
+        id: string
+    }
+}
 const Index = () => {
 
     const { user } = useAuth();
-    console.log(user)
     const { data, error } = useProductQuery();
-    console.log(data)
+
+
+    const columns: ColumnDef<Product>[] = [
+        {
+            header: 'Product',
+            cell: ({ row }) => {
+                const product = row.original;
+                return (<div className="flex items-center gap-2">
+                    <div className="h-12 w-12 shrink-0 rounded-sm border border-gray-200">
+                        <img src={product.cover_image} alt="" className="h-full w-full object-contain" />
+                    </div>
+                    <div className="line-clamp-3">{product.product_name}</div>
+                </div>)
+            }
+        },
+        {
+            accessorKey: 'status',
+            header: 'Status',
+        },
+        {
+            accessorKey: 'uom',
+            header: 'UOM',
+        },
+        {
+            header: "Category",
+            accessorFn: (row) => row.category.name,
+        }
+    ]
 
     return (
-        <div>
-            {/* <DataTable /> */}
-            <h1>List Product</h1>
-            <p>Product creation form will go here.</p>
+        <div >
+            <div className="flex items-center justify-between mb-4 p-3 bg-white shadow-sm rounded-md mt-4">
+                <div className="text-lg font-medium">Products</div>
+
+                <div >
+                    <Link to="/admin/product/create">
+                        <Button size="sm">
+                            Add Product
+                        </Button>
+                    </Link>
+                </div>
+            </div>
+
+
+            <div>
+                <DataTable
+                    data={data?.results || []}
+                    columns={columns}
+                />
+            </div>
+
         </div>
     );
 }

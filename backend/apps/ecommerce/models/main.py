@@ -1,10 +1,11 @@
 import uuid
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from apps.user_auth.permissions import PermissionManager, PermissionMixin
 
 
-class BaseModel(models.Model):
+class BaseModel(models.Model, PermissionMixin):
     """
     Abstract base model that includes common fields for all models.
     """
@@ -14,7 +15,6 @@ class BaseModel(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
     objects = PermissionManager()
 
     class Meta:
@@ -59,7 +59,7 @@ class PriceList(BaseModel):
         return f"{self.name} ({self.currency.code})"
 
 
-class Address(models.Model):
+class Address(BaseModel):
     user = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name="addresses"
     )
@@ -90,3 +90,10 @@ class Address(models.Model):
 
     def __str__(self):
         return self.address_title
+
+
+class UOM(BaseModel):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name

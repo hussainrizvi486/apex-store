@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Currency, PriceList
+from .models import Category, Currency, PriceList, UOM
 from .models.cart import Customer, Cart, CartItem
 from .models.order import Order, OrderItem
 from .models.product import Product, ProductImage, ProductPrice, VariantAttribute
@@ -12,6 +12,7 @@ admin.site.register(Customer)
 admin.site.register(Category)
 admin.site.register(Currency)
 admin.site.register(PriceList)
+admin.site.register(UOM)
 
 
 class ProductImageInline(admin.TabularInline):

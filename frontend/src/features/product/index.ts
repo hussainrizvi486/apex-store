@@ -16,7 +16,7 @@ export interface ProductType {
 
 export interface ProductDetailType extends ProductType {
     template?: string
-    unit_of_measurement?: string
+    uom?: string
     created_at: string,
     updated_at: string,
 }

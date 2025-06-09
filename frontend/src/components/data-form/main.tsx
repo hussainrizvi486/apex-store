@@ -1,13 +1,11 @@
 import React from "react";
-import { DataFormProps, FieldValue, TypeField, TypeDFLayout, TypeDFSection, FormValues } from "./index";
+import { DataFormProps } from "./index";
 import { DFInput } from "./components/field";
 import { Column, Section } from "./components/layout";
 import { Button } from "@components/ui/button";
 import { integer } from "@utils/index";
 import { DFFormObject } from "./utils";
 import { DFContextProvider, useDFContext } from "./context";
-
-
 
 const DataForm: React.FC<DataFormProps> = (props) => {
     if (!props.fields) {
@@ -19,6 +17,7 @@ const DataForm: React.FC<DataFormProps> = (props) => {
         </DFContextProvider>
     );
 };
+
 
 const DataFormContent: React.FC<DataFormProps> = (props) => {
     const formObject = React.useMemo(() => new DFFormObject(props.fields), [props.fields]);
@@ -47,10 +46,8 @@ const DataFormContent: React.FC<DataFormProps> = (props) => {
                 formContext.updateFormState?.((prevState) => {
                     return ({ ...prevState, [key]: { ...prevState[key], hasError: true, error: errors[key] } })
                 })
-
             })
         }
-
         props.onSubmit?.(values)
     };
 

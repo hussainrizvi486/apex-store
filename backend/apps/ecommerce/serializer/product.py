@@ -28,11 +28,19 @@ class ProductSerializer(serializers.ModelSerializer):
 class ProductListSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False, read_only=True)
     price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    uom = serializers.CharField(source="uom.name", read_only=True)
     cover_image = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
-        fields = ["id", "product_name", "category", "price", "cover_image"]
+        fields = [
+            "id",
+            "product_name",
+            "category",
+            "price",
+            "cover_image",
+            "uom",
+        ]
 
     def get_cover_image(self, obj: Product):
         if not obj.cover_image:

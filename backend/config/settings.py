@@ -183,5 +183,5 @@ AUTH_USER_MODEL = "user_auth.User"
 
 
 # Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

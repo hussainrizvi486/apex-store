@@ -1,4 +1,4 @@
-// /home/frappe/frappe-bench/apps/basma/basma/www
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { twMerge } from 'tailwind-merge'
 import * as React from "react"
 
@@ -45,4 +45,10 @@ function integer(value: any): number {
     return isNaN(parseInt(value)) ? 0 : parseInt(value);
 }
 
-export { float, formatCurrency, decimal, useIsMobile, cn, integer };
+function isActiveURL(path: string): boolean {
+    if (!path) return false;
+
+    return window.location.pathname === path;
+}
+
+export { float, formatCurrency, decimal, useIsMobile, cn, integer, isActiveURL };

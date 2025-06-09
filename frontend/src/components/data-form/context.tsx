@@ -48,12 +48,20 @@ const DFContextProvider: React.FC<{ children: React.ReactNode, fields: TypeField
             }
         })
 
-
-        console.table(values);
         Object.keys(formState).forEach((key) => {
             if (Object.keys(values).includes(key)) {
+                const field = fields.find((f) => f.name === key);
+                if (!field) {
+                    return
+                }
+
                 const value = formState[key]?.value;
-                values[key] = value;
+
+                if (field.type === "autocomplete") {
+                    values[key] = value.value;
+                } else {
+                    values[key] = value;
+                }
             }
         });
         return values;

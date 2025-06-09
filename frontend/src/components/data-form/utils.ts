@@ -81,7 +81,7 @@ class DFFormObject {
             const key = field.name;
             const value = values[key];
             if (field.required && !["number", "float", "currency"].includes(field.type)) {
-                
+
                 if (!value || value == "" || value == undefined || value == null) {
                     errors[key] = `This field is required`;
                 }

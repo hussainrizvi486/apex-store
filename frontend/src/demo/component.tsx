@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import {
     Select,
@@ -22,6 +21,7 @@ import { TableInput } from "@components/table-input";
 import { Dialog, DialogContent, DialogClose, DialogTrigger } from "@components/ui/dialog";
 import { X } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover";
+import TextEditorDemo from "./text-editor-demo";
 
 export const DemoComponent = () => {
     return (
@@ -61,6 +61,9 @@ export const DemoComponent = () => {
                 <div className="mb-12"></div>
                 <div className="mb-12"></div>
                 <div className="mb-12"></div>
+                <div className="mb-12">
+                    <TextEditorDemo />
+                </div>
             </div>
         </div>
     )

@@ -23,6 +23,7 @@ interface DataTableCellProps {
     children: React.ReactNode;
     isHeader?: boolean;
     className?: string;
+    width?: string | number;
 }
 
 // Sort Icon Component
@@ -68,9 +69,9 @@ const DataTableCell: React.FC<DataTableCellProps> = (props) => {
     const Tag = props.isHeader ? 'th' : 'td';
     return (
         <Tag className={cn(
-            "text-sm font-normal text-left py-1.5 px-2 whitespace-nowrap overflow-hidden text-ellipsis",
+            "text-sm font-normal text-left py-3 px-2 ",
             props.className,
-            props.isHeader ? "bg-muted text-muted-foreground font-medium" : ""
+            props.isHeader ? "bg-muted text-muted-foreground font-bold" : ""
         )}>
             {props.children || <></>}
         </Tag>
@@ -85,6 +86,10 @@ const DataTable = <T,>({
     onRowSelectionChange,
     enableSorting = true
 }: DataTableProps<T>): React.ReactElement => {
+
+    if (!columns || columns.length === 0) {
+        return <></>
+    }
     const [rowSelection, setRowSelection] = React.useState({});
     const [sorting, setSorting] = React.useState<SortingState>([]);
 
@@ -144,8 +149,8 @@ const DataTable = <T,>({
 
 
     return (
-        <div className={cn("rounded-md overflow-x-auto", className)}>
-            <table className="border-collapse table-fixed border border-gray-200 min-w-full">
+        <div className={cn("rounded-md overflow-hidden border border-gray-300", className)}>
+            <table className="border-collapse table-fixed  w-full">
                 <thead>
                     {table.getHeaderGroups().map(headerGroup => (
                         <DataTableRow key={headerGroup.id} isHeader>
@@ -164,7 +169,7 @@ const DataTable = <T,>({
                                 }
 
                                 return (
-                                    <DataTableCell key={header.id} isHeader>
+                                    <DataTableCell key={header.id} isHeader width={header.column.columnDef.size}>
                                         {header.isPlaceholder ? null : (
                                             <div
                                                 className={cn(
@@ -189,7 +194,7 @@ const DataTable = <T,>({
                     ))}
                 </thead>
 
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-300">
                     {table.getRowModel().rows.length === 0 ? (
                         <tr>
                             <td

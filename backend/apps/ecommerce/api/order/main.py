@@ -21,7 +21,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "id": obj.product.id,
             "name": obj.product.product_name,
             "description": obj.product.description,
-            "cover_image": request.build_absolute_uri(obj.product.cover_image.url) if request and obj.product.cover_image else None,
+            "cover_image": (
+                request.build_absolute_uri(obj.product.cover_image.url)
+                if request and obj.product.cover_image
+                else None
+            ),
             "price": obj.price,
         }
 
@@ -54,7 +58,9 @@ class CustomerOrderView(APIView):
     def get(self, request, *args, **kwargs):
         customer = Customer.objects.get(user=self.request.user)
         orders_queryset = Order.objects.filter(customer=customer)
-        serializer = OrderListSerializer(orders_queryset, many=True, context={"request": request})
+        serializer = OrderListSerializer(
+            orders_queryset, many=True, context={"request": request}
+        )
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):

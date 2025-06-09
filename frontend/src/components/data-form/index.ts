@@ -46,6 +46,7 @@ export type FieldType =
     | "select"
     | "multiselect"
     | "checkbox"
+    | "custom"
     | "table"
     | "autocomplete";
 
@@ -76,30 +77,32 @@ export interface BaseField<T extends FieldType = FieldType> {
 export interface TypeField<T extends FieldType = FieldType> {
     label: string;
     name: string;
-    type: T;
+    component?: React.FC;
+    type?: T;
     required?: boolean;
     disabled?: boolean;
-    sectionBreak: boolean;
-    columnBreak: boolean;
     hidden?: boolean;
     placeholder?: string;
     description?: string;
-    options: TypeOption[]
-    getOptions?: (value: T) => Promise<TypeOption[]>;
+    onChange?: (value: T) => void;
+    options?: TypeOption[]
+    getOptions?: () => Promise<TypeOption[]>;
     currency?: string;
     precision?: number;
-    onChange?: (value: T) => void;
     validators?: FieldValidator<T>;
     defaultValue?: FieldValue,
+    sectionBreak?: boolean;
+    columnBreak?: boolean;
     fields?: TypeField[]
 }
+
 
 /** Form values type */
 
 export type FormValues = Record<string, FieldValue>
 
 export interface DataFormProps {
-    fields: BaseField<FieldType>[];
+    fields: TypeField<FieldType>[];
     values?: FormValues;
     onChange?: (data: FormValues) => void;
     onSubmit?: (data: FormValues) => void;
@@ -109,16 +112,16 @@ export interface DataFormProps {
 
 
 export interface DFInputProps {
-    field: BaseField;
+    field: TypeField<FieldType>;
     setValue: (params: { value: FieldValue; key: string }) => void;
 }
 
 
 export interface TypeDFSection {
-    label?: string
-    name?: string
-    columns?: TypeField[][]
-    sectionBreak: boolean
+    label?: string;
+    name?: string;
+    columns?: TypeField[][];
+    sectionBreak: boolean;
 }
 
 export interface FieldState {

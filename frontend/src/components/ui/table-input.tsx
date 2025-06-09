@@ -1,52 +1,26 @@
 import { useState, useEffect } from "react";
 import { FileText, Trash2 } from "lucide-react";
-import { Input } from "./input";
-import { AutoComplete } from "./autocomplete";
-import { FieldType } from "@components/data-form/field";
+import { TypeField } from "@components/data-form/index";
+import { BaseField } from "@components/data-form/components/field";
+import { Button } from "./button";
 
 type InputValue = string | number | boolean | undefined | null;
 export type TableInputValue = Array<Record<string, InputValue>>;
+
+function getColumnsStyles(columnCount: number) {
+  let styles = "2rem ";
+  styles += `repeat(${columnCount}, 1fr) `;
+  styles += `2rem`
+  return styles;
+}
 
 interface TableInputProps {
   onChange?: (data: TableInputValue) => void;
   label?: string;
   value?: TableInputValue;
   defaultValue?: TableInputValue;
-  fields: Array<FieldType>;
+  fields: Array<TypeField>;
 }
-
-const TableFormField: React.FC<{
-  field: FieldType;
-  value?: InputValue;
-  onChange?: (name: string, value: InputValue) => void;
-}> = ({ field, value, onChange }) => {
-  const props = {
-    name: field.name,
-    value: value,
-    onChange: (e: any) => onChange?.(field.name, e.target?.value !== undefined ? e.target.value : e),
-    placeholder: field.placeholder,
-    required: field.required,
-    className: "border-none py-1.5 px-2 rounded-none shadow-none mt-0 ring-0 w-full",
-  };
-
-  switch (field.type) {
-    case "text":
-    case "number":
-    case "float":
-      return <Input type={field.type === "float" ? "number" : field.type} {...props} />;
-    case "autocomplete":
-      return (
-        <AutoComplete
-          options={field.options}
-          value={value as any}
-          onChange={(val) => onChange?.(field.name, val)}
-          className="py-1.5 px-2"
-        />
-      );
-    default:
-      return <Input type="text" {...props} />;
-  }
-};
 
 const EmptyTable = () => {
   return (
@@ -67,7 +41,6 @@ export const TableInput: React.FC<TableInputProps> = ({
 }) => {
   const [data, setData] = useState<TableInputValue>([]);
 
-  // Initialize with value or defaultValue
   useEffect(() => {
     if (value) {
       setData(value);
@@ -97,22 +70,23 @@ export const TableInput: React.FC<TableInputProps> = ({
 
   return (
     <div>
-      <div className="border border-input rounded-md overflow-hidden">
-        <div className="bg-gray-50">
-          <div className="flex">
-            <div className="basis-1/12 shrink-0 px-2 flex items-center justify-center">
-              <div className="text-sm">No.</div>
+      <div className="border border-gray-200 rounded-md p-1">
+        <div className="bg-[#f2f2f2] rounded-sm">
+          <div className="grid items-center" style={{ gridTemplateColumns: getColumnsStyles(fields.length) }}>
+            <div className="px-2 flex items-center justify-center border-r border-r-gray-200 ">
+              <div className="text-sm font-medium">No.</div>
             </div>
 
             {fields.map((field) => (
-              <div key={field.name} className="basis-full">
-                <div className="text-sm px-2 py-2 border-input border-x">
+              <div key={field.name} className="">
+                <div className="text-sm font-medium px-2 py-2 border-r border-r-gray-200 last:border-none">
                   {field.label}
                   {field.required && <span className="text-red-500 ml-1">*</span>}
                 </div>
               </div>
             ))}
-            <div className="basis-1/12"></div>
+
+            <div className=""></div>
           </div>
         </div>
 
@@ -120,37 +94,33 @@ export const TableInput: React.FC<TableInputProps> = ({
           <EmptyTable />
         ) : (
           data.map((row, i) => (
-            <div className="border-b border-input last:border-none" key={i}>
-              <div className="flex items-center h-12">
-                <div className="basis-1/12 shrink-0 px-2 flex items-center justify-center">
-                  <div className="text-sm">{i + 1}</div>
-                </div>
+            <div className="grid border-b border-gray-200 last:border-none h-10 relative" style={{ gridTemplateColumns: getColumnsStyles(fields.length) }} key={i}>
+              <div className="px-2 flex items-center justify-center border-r border-r-gray-200 ">
+                <div className="text-sm">{i + 1}</div>
+              </div>
 
-                {fields.map((field) => (
-                  <div className="basis-full" key={field.name}>
-                    <div className="border-x border-input">
-                      <div className="focus-within:ring-1 ring-offset-1 ring-ring">
-                        <TableFormField
-                          field={field}
-                          value={row[field.name]}
-                          onChange={(name, value) => handleFieldChange(i, name, value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              {fields.map((field) => (
+                <div key={field.name} className="border-r border-r-gray-200 last:border-none h-full relative p-1">
 
-                <div className="basis-1/12">
-                  <div className="flex justify-center">
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(i)}
-                      className="text-red-500 hover:text-red-700 cursor-pointer"
-                    >
-                      <Trash2 className="size-4" />
-                    </button>
+                  <div className="h-full focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-1 rounded">
+                    <BaseField
+                      {...field}
+                      className="h-full w-full border-none outline-none focus:ring-0 rounded px-2 my-0"
+                      onChange={(value) => handleFieldChange(i, field.name, value)}
+                      value={row[field.name]}
+                    />
                   </div>
                 </div>
+              ))}
+
+              <div className="flex justify-center items-center">
+                <button
+                  type="button"
+                  onClick={() => handleDelete(i)}
+                  className="text-red-600 hover:text-red-700 cursor-pointer"
+                >
+                  <Trash2 className="size-5" />
+                </button>
               </div>
             </div>
           ))
@@ -158,14 +128,13 @@ export const TableInput: React.FC<TableInputProps> = ({
       </div>
 
       <div className="mt-4 flex justify-end">
-        <button
+        <Button
+          size="sm"
           onClick={handleAdd}
-          className="text-xs px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded"
-          type="button"
-          role="button"
         >
           Add Row
-        </button>
+        </Button>
+
       </div>
     </div>
   );

@@ -48,11 +48,9 @@ def get_product_detail(request):
 
 class ProductistAPIView(APIView):
     def get(self, *args, **kwargs):
-        products_queryset = Product.objects.for_user(user=self.request.user)
-        print(self.request.user)
-        # products_queryset = Product.objects.exclude(
-        #     product_type=ProductTypeChoices.TEMPLATE
-        # )
+        products_queryset = Product.objects.for_user(user=self.request.user).order_by(
+            "-updated_at"
+        )
         serializer = ProductListSerializer(
             products_queryset, many=True, context={"request": self.request}
         )
@@ -62,4 +60,3 @@ class ProductistAPIView(APIView):
                 "results": serializer.data,
             }
         )
-        ...
