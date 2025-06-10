@@ -13,6 +13,16 @@ const formField: Array<TypeField> = [
         name: "product_details_section",
     },
     {
+        label: "Type",
+        name: "product_type",
+        type: "select",
+        options: [
+            { label: "Product", value: "product" },
+            { label: "Template", value: "template" },
+            { label: "Variant", value: "variant" },
+        ],
+    },
+    {
         label: "Title",
         name: "product_name",
         type: "text",
@@ -22,6 +32,7 @@ const formField: Array<TypeField> = [
     {
         label: "Category",
         name: "category",
+        required: true,
         type: "autocomplete",
         getOptions: async () => {
             const request = await authAPI.get("api/get/categories/list");
@@ -91,14 +102,12 @@ const formField: Array<TypeField> = [
             {
                 label: "Valid From",
                 type: "date",
-                required: true,
                 name: "valid_from",
             },
             {
                 label: "Valid Till",
                 type: "date",
-                name: "valid_till",
-                required: true,
+                name: "valid_till"
             }
         ]
     }
@@ -167,6 +176,22 @@ const useProductMutation = () => {
     })
 }
 
+
+const defaultValues = {
+    "product_type": "product",
+    "product_name": "Sample Product",
+    "disable": true,
+    "item_prices": [{
+        "price_list": "43ae235d-ceee-40c9-b1c3-587fc49e2cd2",
+        "price": "45",
+        "valid_from": "2025-06-12",
+        "valid_till": "2025-06-20"
+    }],
+    "description": "This is a sample product description.",
+    "uom": "c3304080-3b74-4f1d-89ea-b74875a208a1",
+
+}
+
 const Index = () => {
     const { mutate: createProduct, isLoading } = useProductMutation();
 
@@ -207,7 +232,7 @@ const Index = () => {
             }
         });
 
-        createProduct(formData);
+        // createProduct(formData);
     }
 
     return (
@@ -218,9 +243,7 @@ const Index = () => {
                 </div>
 
                 <div className="bg-white p-2">
-                    <DataForm fields={formField} onSubmit={handleSubmit} values={{
-                        "product_name": "Jordan Men's 14 Retro Gym Red Black/Gym Red-White/Off White (487471 006) - 10",
-                    }} />
+                    <DataForm fields={formField} onSubmit={handleSubmit} values={defaultValues} />
                 </div>
             </div>
         </div>

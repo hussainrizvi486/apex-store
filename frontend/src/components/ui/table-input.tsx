@@ -1,8 +1,21 @@
 import { useState, useEffect } from "react";
 import { FileText, Trash2 } from "lucide-react";
-import { TypeField } from "@components/data-form/index";
-import { BaseField } from "@components/data-form/components/field";
+
+import { cn } from "@utils/index";
+import { FieldValue, TypeField } from "@components/data-form/index";
+import { AutoComplete } from "@components/ui/autocomplete";
 import { Button } from "./button";
+import { Checkbox } from "@components/ui/checkbox";
+import { Input } from "@components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@components/ui/select";
+
 
 type InputValue = string | number | boolean | undefined | null;
 export type TableInputValue = Array<Record<string, InputValue>>;
@@ -22,6 +35,116 @@ interface TableInputProps {
   fields: Array<TypeField>;
 }
 
+
+
+export const Field: React.FC<FieldProps> = (props) => {
+  const { state, type } = props;
+
+  const [className, setClassName] = useState<string>();
+
+  function handleChange(value: FieldValue) {
+    props?.onChange?.(value);
+  }
+
+  function handleBlur(value: FieldValue) {
+    props?.onBlur?.(value);
+  }
+
+
+  useEffect(() => {
+    if (state?.hasError) {
+      setClassName("ring ring-offset-3 ring-destructive");
+    }
+    else {
+      setClassName("");
+    }
+  }, [state, state?.hasError])
+
+  if (!type) {
+    return <></>
+  }
+
+  if (type === "checkbox") {
+    return (
+      <Checkbox name={props.name} id={props.name}
+        onCheckedChange={handleChange}
+        className={cn(props.className, className)}
+      />
+    )
+  }
+  if (type == "select") {
+    return (
+      <main>
+        <Select onValueChange={handleChange} >
+          <SelectTrigger className={cn(props.className, className)}
+          >
+            <SelectValue placeholder={props.placeholder || "Select"} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {props.options?.map((option, index) => (
+                <SelectItem className="text-sm" key={index} value={option.value}>{option.label}</SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select >
+      </main>
+
+    )
+  }
+
+  if (type == "autocomplete") {
+    return (
+      <AutoComplete options={props.options} getOptions={props.getOptions} onChange={handleChange} className={cn(props.className, className)}
+      />
+
+    )
+  }
+
+  if (type == "table") {
+    return (
+      <TableInput fields={props.fields} />
+    )
+  }
+
+  if (type === "date") {
+    return (
+      <Input
+        className={cn(props.className, className)}
+        name={props.name}
+        type="date"
+        onChange={handleChange}
+        onBlur={handleBlur}
+      />
+    )
+  }
+
+
+  if (["currency", "float", "number"].includes(type)) {
+    return (
+      <input className={cn(
+        "w-full px-2 py-1 h-8 my-2 text-right rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground [&>span]:line-clamp-1", className, props.className,
+      )}
+        type="number"
+        placeholder={type == "number" ? "0" : "0.00"}
+        name={props.name}
+
+        onChange={(event) => handleChange(event.target.value)}
+        onBlur={(event) => handleBlur(event.target.value)}
+      />
+    )
+  }
+  return (
+    <Input
+      className={cn(props.className, className)}
+      name={props.name}
+      type="text"
+      onChange={handleChange}
+      onBlur={handleBlur}
+    />
+  )
+}
+
 const EmptyTable = () => {
   return (
     <div className="py-4 flex justify-center">
@@ -39,7 +162,12 @@ export const TableInput: React.FC<TableInputProps> = ({
   value,
   defaultValue,
 }) => {
-  const [data, setData] = useState<TableInputValue>([]);
+  let fieldObject = fields.reduce((acc, field) => {
+    acc[field.name] = field;
+    return acc;
+  }, {} as Record<string, TypeField>);
+
+  const [data, setData] = useState<TableInputValue>(defaultValue || []);
 
   useEffect(() => {
     if (value) {
@@ -63,11 +191,18 @@ export const TableInput: React.FC<TableInputProps> = ({
 
   const handleFieldChange = (index: number, name: string, value: InputValue) => {
     const newData = [...data];
+
+    if (fieldObject[name]?.type == "autocomplete") {
+      value = value?.value || null;
+    }
+
     newData[index] = { ...newData[index], [name]: value };
     setData(newData);
     onChange?.(newData);
   };
 
+
+  // console.log(defaultValue)
   return (
     <div>
       <div className="border border-gray-200 rounded-md p-1">
@@ -103,7 +238,7 @@ export const TableInput: React.FC<TableInputProps> = ({
                 <div key={field.name} className="border-r border-r-gray-200 last:border-none h-full relative p-1">
 
                   <div className="h-full focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-1 rounded">
-                    <BaseField
+                    <Field
                       {...field}
                       className="h-full w-full border-none outline-none focus:ring-0 rounded px-2 my-0"
                       onChange={(value) => handleFieldChange(i, field.name, value)}

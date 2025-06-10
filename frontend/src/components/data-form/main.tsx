@@ -7,12 +7,14 @@ import { integer } from "@utils/index";
 import { DFFormObject } from "./utils";
 import { DFContextProvider, useDFContext } from "./context";
 
+
+
 const DataForm: React.FC<DataFormProps> = (props) => {
     if (!props.fields) {
         return <div className="text-sm">No fields available</div>;
     }
     return (
-        <DFContextProvider fields={props.fields}>
+        <DFContextProvider fields={props.fields} values={props.values || null}>
             <DataFormContent {...props} />
         </DFContextProvider>
     );

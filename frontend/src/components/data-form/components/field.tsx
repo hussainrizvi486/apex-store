@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useDFContext } from "../context";
 import { TableInput } from "@components/ui/table-input";
 import { TextEditor } from "@components/ui";
+import { StepBack } from "lucide-react";
 
 
 
@@ -138,6 +139,7 @@ export const BaseField: React.FC<FieldProps> = (props) => {
 
 export const Field: React.FC<FieldProps> = (props) => {
     const { state, type } = props;
+    const defaultValue = state?.value;
     const [className, setClassName] = useState<string>();
 
 
@@ -166,6 +168,7 @@ export const Field: React.FC<FieldProps> = (props) => {
                 <Checkbox name={props.name} id={props.name}
                     onCheckedChange={handleChange}
                     className={cn(props.className, className)}
+                    defaultChecked={Boolean(defaultValue)}
                 /> <Label field={props} className="ml-2 text-sm" />
             </div>
         )
@@ -174,14 +177,16 @@ export const Field: React.FC<FieldProps> = (props) => {
     if (type == "custom") {
         return props.component?.({ onChange: handleChange, onBlur: handleBlur, state }) || <></>;
     }
+
     if (type == "select") {
         return (
             <div>
                 <div className="mb-1">
                     <Label field={props} className="mb-2" />
                 </div>
-                <Select onValueChange={handleChange}  >
+                <Select onValueChange={handleChange} defaultValue={typeof defaultValue === "object" ? defaultValue?.id : defaultValue} >
                     <SelectTrigger className={cn(props.className, className)}
+
                     >
                         <SelectValue placeholder={props.placeholder || "Select"} />
                     </SelectTrigger>
@@ -193,7 +198,7 @@ export const Field: React.FC<FieldProps> = (props) => {
                         </SelectGroup>
                     </SelectContent>
                 </Select>
-            </div>
+            </div >
 
         )
     }
@@ -204,6 +209,7 @@ export const Field: React.FC<FieldProps> = (props) => {
             <div className="mb-1">
                 <Label field={props} className="mb-2" />
                 <AutoComplete options={props.options} getOptions={props.getOptions} onChange={handleChange} className={cn(props.className, className)}
+                    value={defaultValue}
                 />
             </div>
         )
@@ -213,7 +219,7 @@ export const Field: React.FC<FieldProps> = (props) => {
         return (
             <div>
                 <Label field={props} className="mb-2" />
-                <TableInput fields={props.fields} onChange={handleChange} />
+                <TableInput fields={props.fields} onChange={handleChange} defaultValue={defaultValue} />
             </div>
         )
     }
@@ -225,9 +231,11 @@ export const Field: React.FC<FieldProps> = (props) => {
                 <textarea
                     onChange={(event) => handleChange(event.target.value)}
                     className={cn(
-                        "w-full px-2 py-1 h-24 my-2 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground [&>span]:line-clamp-1", className, props.className,)}>
+                        "w-full px-2 py-1 h-24 my-2 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground [&>span]:line-clamp-1", className, props.className,)}
+                    defaultValue={defaultValue || ""}
+                >
 
-                    {props.value}
+                    {/* {defaultValue || ""} */}
                 </textarea>
             </>
         )
@@ -240,6 +248,7 @@ export const Field: React.FC<FieldProps> = (props) => {
                 className={cn(props.className, className)}
                 name={props.name}
                 type="text"
+                value={defaultValue || ""}
                 onChange={handleChange}
                 onBlur={handleBlur}
             />
@@ -258,7 +267,6 @@ const DFInput: React.FC<DFInputProps> = (props) => {
     const context = useDFContext();
     const state = context.formState?.[fieldName];
     return (
-        // <div className="mb-4 max-w-[576px]">
         <div className="mb-4">
             <div>
                 <Field {...props.field} onChange={onChange} state={state} />

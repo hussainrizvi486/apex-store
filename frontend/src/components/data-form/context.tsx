@@ -14,13 +14,16 @@ interface DFContextType {
 
 const DFContext = createContext<DFContextType>({ fields: [], getFields: () => [], getFormState: () => ({}) });
 
-const DFContextProvider: React.FC<{ children: React.ReactNode, fields: TypeField[] }> = ({ children, fields }) => {
+const DFContextProvider: React.FC<{ children: React.ReactNode, fields: TypeField[], values: FormValues | null }> = ({ children, fields, values }) => {
     const getFormState = (): FormState => {
         const state: FormState = {};
+
         fields.forEach((field) => {
             const key = field.name;
+            const value = values?.[key];
             state[key] = {
-                value: field.defaultValue ?? undefined,
+                name: key,
+                value: value,
                 error: "",
                 hasError: false,
             };
@@ -28,7 +31,7 @@ const DFContextProvider: React.FC<{ children: React.ReactNode, fields: TypeField
         return state;
     };
 
-    const [formState, setFormState] = useState<FormState>({});
+    const [formState, setFormState] = useState<FormState>(getFormState());
 
     const setFieldValue = ({ key, value }: { key: string; value: FieldValue }) => {
         setFormState((prevState) => ({
@@ -58,7 +61,7 @@ const DFContextProvider: React.FC<{ children: React.ReactNode, fields: TypeField
                 const value = formState[key]?.value;
 
                 if (field.type === "autocomplete") {
-                    values[key] = value.value;
+                    values[key] = value?.value;
                 } else {
                     values[key] = value;
                 }

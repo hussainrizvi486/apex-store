@@ -7,6 +7,9 @@ import { cn } from '@utils/index';
 export interface Option {
     label: string;
     value: string;
+    disabled?: boolean;
+    description?: string;
+    icon?: React.ReactNode;
 }
 
 interface AutoCompleteProps {
@@ -24,7 +27,20 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props) => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<Option[]>(props.options || []);
-    const [selected, setSelected] = useState<Option | null>(null);
+    const [selected, setSelected] = useState<Option | null>(props.options?.find(option => {
+        if (!props.value) {
+            return false;
+        }
+
+        if (typeof props.value !== 'object') {
+            return option.value === props.value;
+        }
+        else {
+            return option.value === (props.value as Option)?.value;
+        }
+    }) || null);
+
+
 
 
     const handleSelect = (option: Option) => {
@@ -48,6 +64,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props) => {
         const filteredOptions = props.options?.filter((option) =>
             option.label.toLowerCase().trim().includes(query.toLowerCase())
         );
+
         setResults(filteredOptions || []);
     }
 
@@ -60,12 +77,19 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props) => {
             props.getOptions().then((data) => {
                 setResults(data);
                 if (props.value) {
-                    const selectedOption = data.find(option => option.value === (props.value as Option).value);
+                    const selectedOption = data.find(option => {
+                        if (typeof props.value !== 'object') {
+                            return option.value === props.value;
+                        }
+                        else {
+                            return option.value === (props.value as Option)?.value;
+                        }
+                    });
                     setSelected(selectedOption || null);
                 }
             });
         }
-    }, [])
+    }, [props.getOptions, props.options, props.value])
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -91,9 +115,9 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props) => {
             >
                 <div className="mb-2 border-b border-b-input flex items-center">
                     <div>
-                        <SearchIcon className='size-3' />
+                        <SearchIcon className='size-4' />
                     </div>
-                    <input type="text" className='px-2 py-1 w-full outline-none text-xs rounded-md flex-auto' placeholder='Search here'
+                    <input type="text" className='px-2 py-1 w-full outline-none text-sm rounded-md flex-auto' placeholder='Search here'
                         value={query} onChange={(e) => setQuery(e.target.value)}
                     />
                 </div>
@@ -105,7 +129,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props) => {
                         className="cursor-pointer "
                     >
                         <div className='flex gap-2 px-2 py-1.5 overflow-hidden items-center hover:bg-accent cursor-pointer rounded-md transition-colors'>
-                            <div className='flex-1 truncate text-xs'>{option.label}</div>
+                            <div className='flex-1 truncate text-sm'>{option.label}</div>
                             <Check
                                 className={cn(
                                     "ml-auto size-4",

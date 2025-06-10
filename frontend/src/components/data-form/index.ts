@@ -1,9 +1,9 @@
 /**
  * Represents an option for select/multiselect/autocomplete fields
  */
-export interface TypeOption<T = string> {
+export interface TypeOption {
     label: string;
-    value: T;
+    value: string;
     disabled?: boolean;
     description?: string;
     icon?: React.ReactNode;
