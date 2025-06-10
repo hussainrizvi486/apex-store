@@ -33,15 +33,6 @@ const DEFAULT_PROFILE_IMAGE = 'https://cdn-icons-png.flaticon.com/512/6997/69976
 
 
 
-
-const AddAddress = () => {
-    return (
-        <>
-        </>
-    );
-};
-
-
 const EditProfile = () => {
     return (
         <>
@@ -99,8 +90,9 @@ const ProfilePage: React.FC = () => {
 
     return (
         <>
-            <Header />
+            {/* <Header /> */}
             <div className='mx-auto max-w-6xl'>
+                <header>Hi</header>
                 <div className='py-4'>
                     <Tabs defaultValue="orders">
                         <TabsList className='py-6 w-full'>

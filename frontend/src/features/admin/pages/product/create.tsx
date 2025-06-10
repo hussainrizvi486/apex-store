@@ -2,7 +2,7 @@ import { DataForm } from "@components/data-form/main";
 import { FormValues, TypeField } from "@components/data-form";
 import { authAPI } from "@features/auth/api";
 import { Button } from "@components/ui/button";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 
@@ -179,40 +179,42 @@ const useProductMutation = () => {
 
 const defaultValues = {
     "product_type": "product",
-    "product_name": "Sample Product",
-    "disable": true,
-    "item_prices": [{
-        "price_list": "43ae235d-ceee-40c9-b1c3-587fc49e2cd2",
-        "price": "45",
-        "valid_from": "2025-06-12",
-        "valid_till": "2025-06-20"
-    }],
-    "description": "This is a sample product description.",
-    "uom": "c3304080-3b74-4f1d-89ea-b74875a208a1",
-
+    "product_name": " Joomra Women's Trail Running Barefoot Shoes | Wide Toe Box Minimalist Sneakers | Zero Drop ",
+    "category": "d9b2a1f4-5d48-4f33-aa55-dfbad1735c61",
+    "description": " Joomra Women's Trail Running Barefoot Shoes | Wide Toe Box Minimalist Sneakers | Zero Drop ",
+    "disable": false,
+    "media_files": [],
+    "item_prices": [
+        {
+            "price_list": "a149a427-5406-49aa-8316-f5049d4a9430",
+            "price": "41.99",
+            "valid_from": "",
+            "valid_till": ""
+        }
+    ],
 }
 
 const Index = () => {
     const { mutate: createProduct, isLoading } = useProductMutation();
 
-    const handleSubmit = (d: FormValues) => {
+    const handleSubmit = useCallback((d: FormValues) => {
         const data = { ...d };
         console.log(data)
         if (data.media_files?.length > 0) {
             const coverImage = data.media_files[0];
-            data["cover_image"] = coverImage;
-            data.media_files = data.media_files.slice(1);
+            if (coverImage instanceof File) {
+                data["cover_image"] = coverImage;
+                data.media_files = data.media_files.slice(1);
+            }
         }
 
         const formData = new FormData();
 
         Object.keys(data).forEach(key => {
             const value = data[key];
-
             if (Array.isArray(value)) {
                 value.forEach((item) => {
                     if (item instanceof File) {
-                        // Handle File objects directly
                         formData.append(`${key}[]`, item);
                     } else if (typeof item === "object" && item !== null) {
                         formData.append(`${key}[]`, JSON.stringify(item));
@@ -232,8 +234,8 @@ const Index = () => {
             }
         });
 
-        // createProduct(formData);
-    }
+        createProduct(formData);
+    }, [])
 
     return (
         <div>

@@ -2,30 +2,29 @@ import { SidebarProvider, Sidebar } from "@components/ui/sidebar";
 import { Link, Outlet } from "react-router-dom";
 import { Settings2, ReceiptText, PackageOpen, House, DotIcon, UserRound, BellDot } from "lucide-react";
 import { cn, isActiveURL } from "@utils/index";
-import { ItemText } from "@radix-ui/react-select";
 
 
 
 
-export const AdminSidebarLayout = () => {
-    const items = [
-        { label: "Home", icon: <House />, url: "/admin/product/list" },
-        { label: "Products", icon: <PackageOpen />, url: "" },
-        { label: "Orders", icon: <ReceiptText />, url: "" },
-        { label: "Customers", icon: <DotIcon />, url: "" },
-        { label: "Discounts", icon: <DotIcon />, url: "" },
-        { label: "Analytics", icon: <DotIcon />, url: "" },
-        { label: "Settings", icon: <Settings2 />, url: "" }
+const items = [
+    { label: "Home", icon: <House />, url: "/admin" },
+    { label: "Products", icon: <PackageOpen />, url: "/admin/products/list" },
+    { label: "Orders", icon: <ReceiptText />, url: "/admin/orders/list" },
+    { label: "Customers", icon: <DotIcon />, url: "" },
+    { label: "Discounts", icon: <DotIcon />, url: "" },
+    { label: "Analytics", icon: <DotIcon />, url: "" },
+    { label: "Settings", icon: <Settings2 />, url: "" }
+]
 
-    ]
+export const Layout = () => {
     return (
         <div>
             <header className="bg-neutral-900 h-12 flex items-center justify-between px-4 text-white">
-                <div className="font-semibold">Apex Store</div>
+                <Link to="/admin"><div className="font-semibold">Apex Store</div></Link>
 
                 <div>
                     <div className="bg-neutral-800 w-2xl rounded-md border border-neutral-700 focus-within:ring-2 ring-offset-1 ring-neutral-500 transition-all">
-                        <input type="text " className=" outline-none w-full px-2 py-1 text-sm "  placeholder="Search"/>
+                        <input type="text " className=" outline-none w-full px-2 py-1 text-sm " placeholder="Search" />
                     </div>
                 </div>
 

@@ -13,6 +13,7 @@ const DataForm: React.FC<DataFormProps> = (props) => {
     if (!props.fields) {
         return <div className="text-sm">No fields available</div>;
     }
+
     return (
         <DFContextProvider fields={props.fields} values={props.values || null}>
             <DataFormContent {...props} />
@@ -29,6 +30,7 @@ const DataFormContent: React.FC<DataFormProps> = (props) => {
 
     const handleSubmit = () => {
         const values = formContext.getValues?.();
+
         if (!values) {
             return;
         }

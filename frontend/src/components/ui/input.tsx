@@ -15,6 +15,7 @@ interface InputProps {
     placeholder?: string
     className?: string
     value?: string,
+    disabled?: boolean
     required?: boolean
     type?: InputType
     precision?: number,

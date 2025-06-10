@@ -17,7 +17,6 @@ const DFContext = createContext<DFContextType>({ fields: [], getFields: () => []
 const DFContextProvider: React.FC<{ children: React.ReactNode, fields: TypeField[], values: FormValues | null }> = ({ children, fields, values }) => {
     const getFormState = (): FormState => {
         const state: FormState = {};
-
         fields.forEach((field) => {
             const key = field.name;
             const value = values?.[key];
@@ -61,7 +60,7 @@ const DFContextProvider: React.FC<{ children: React.ReactNode, fields: TypeField
                 const value = formState[key]?.value;
 
                 if (field.type === "autocomplete") {
-                    values[key] = value?.value;
+                    values[key] = typeof value == "object" ? value?.value : value;
                 } else {
                     values[key] = value;
                 }

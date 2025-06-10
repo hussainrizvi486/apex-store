@@ -1,15 +1,12 @@
-import { Header } from '@components/layouts';
+
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { Tabs, TabsTrigger, TabsList, TabsContent } from '@components/ui/tabs';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getAddressQuery, AddressType } from "@features/auth/api/address";
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@components/ui/dialog';
-import { DataForm } from '@components/data-form/main';
-import { cn } from '@utils/index';
-import { DataTable } from '@components/data-table';
-import { ColumnDef } from '@tanstack/react-table';
-import { ChevronDown, X as CloseIcon, Pencil, Star, Trash2 } from 'lucide-react';
+
+import { ChevronDown, X as CloseIcon, Menu as MenuIcon, Pencil, Star, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -17,6 +14,7 @@ import { authAPI } from '@features/auth/api';
 import moment from 'moment';
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
 import { Link } from 'react-router-dom';
+import { Tuple } from '@reduxjs/toolkit';
 
 
 export interface ProfileType {
@@ -30,9 +28,6 @@ export interface ProfileType {
 
 const DEFAULT_PROFILE_IMAGE = 'https://cdn-icons-png.flaticon.com/512/6997/6997662.png';
 
-const AddAddress = () => {
-    return <></>;
-};
 
 const EditProfile = () => {
     return (
@@ -75,6 +70,43 @@ const AddressTab = () => {
     );
 };
 
+const Header = () => {
+    const [open, setOpen] = useState(true);
+
+    const sidebarRef = React.useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+
+        const handleClickOutside = (event: MouseEvent) => {
+            if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+                setOpen(false);
+            }
+        };
+
+        if (open) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [open])
+    return (
+        <div>
+            <MenuIcon onClick={() => setOpen(prev => !prev)} />
+
+            {
+                open ?
+                    <div className='fixed top-0 left-0 w-64 h-full shadow-lg z-50 p-4 bg-gray-600 text-white' ref={sidebarRef}>
+                        sidebar
+                    </div>
+                    : <></>
+            }
+        </div>
+    )
+}
 const ProfilePage: React.FC = () => {
     const user: ProfileType = {
         username: 'John Doe',
@@ -84,7 +116,7 @@ const ProfilePage: React.FC = () => {
 
     return (
         <>
-            {/* <Header /> */}
+            <Header />
             <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
                 <div className='py-4'>
                     <Tabs defaultValue="orders">

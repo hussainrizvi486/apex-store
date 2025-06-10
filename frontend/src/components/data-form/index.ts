@@ -125,6 +125,7 @@ export interface TypeDFSection {
 }
 
 export interface FieldState {
+    name: string;
     value?: FieldValue;
     error?: string;
     hasError?: boolean;

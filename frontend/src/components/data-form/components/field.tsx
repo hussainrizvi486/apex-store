@@ -65,7 +65,6 @@ export const BaseField: React.FC<FieldProps> = (props) => {
     }
     if (type == "select") {
         return (
-            <main>
                 <Select onValueChange={handleChange} >
                     <SelectTrigger className={cn(props.className, className)}
                     >
@@ -79,7 +78,7 @@ export const BaseField: React.FC<FieldProps> = (props) => {
                         </SelectGroup>
                     </SelectContent>
                 </Select >
-            </main>
+            
 
         )
     }

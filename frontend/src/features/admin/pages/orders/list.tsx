@@ -3,6 +3,8 @@ import { DataTable } from '@components/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { ChevronDown } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
+import { Link } from 'react-router-dom';
+import { Button } from '@components/ui/button';
 
 
 
@@ -206,13 +208,28 @@ let orderData: TypeOrder[] = [
 
 
 
-const OrdersTab: React.FC = () => {
+const Index: React.FC = () => {
     return (
         <div>
-            <div className='text-sm my-4'>My Orders</div>
+            <div className="flex items-center justify-between mb-4 p-3 bg-white shadow-sm rounded-md mt-4">
+                <div className="text-lg font-medium">My Orders</div>
+
+                <div >
+                    <Link to="/admin/product/create">
+                        <Button size="sm">
+                            Create New
+                        </Button>
+                    </Link>
+                </div>
+            </div>
+
+
+
             <div>
-                {/* <DataTable columns={TempColumns} data={orderData} /> */}
+                <DataTable columns={TempColumns} data={orderData} />
             </div>
         </div>
     )
 }
+
+export default Index;
