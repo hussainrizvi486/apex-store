@@ -1,15 +1,16 @@
+import React from "react"
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom"
 
 import { CartPage } from "./features/cart/pages/index"
 // import { LoginPage } from "./features/auth/pages/login"
 
 import { RegisterPage } from "./features/auth/pages/register"
-import React from "react"
 import { AuthRoutes } from "./routes/auth"
 
 import { AddAddress } from "@features/customer/pages/profile/add-address";
 import { Header } from "@components/layouts"
 import { AdminSidebarLayout } from "@features/admin/layouts/sidebar-layout"
+import { OrdersDetail } from "@features/customer/pages/profile/order-detail"
 
 
 const LoginPage = React.lazy(() => import("@features/auth/pages/login.tsx"));
@@ -40,6 +41,7 @@ function Application() {
         <Route path="*" element={<NotFound />} />
 
         <Route path="/profile/address/add" element={<AddAddress />} />
+        <Route path="/profile/orders/detail" element={<OrdersDetail/>}/>
         {/* <Route path="/product" element={<ProductPage />} /> */}
         <Route path="/cart" element={<CartPage />} />
 

@@ -2,7 +2,8 @@ import { FormValues } from "@components/data-form"
 import { DataForm } from "@components/data-form/main"
 import { Header } from "@components/layouts"
 import { useAddressMutation } from "@features/auth/api/address"
-import { useNavigate } from "react-router-dom"
+import { Link,useNavigate } from "react-router-dom"
+import { ArrowLeft } from 'lucide-react';
 
 const fields = [
 
@@ -33,8 +34,13 @@ export const AddAddress = () => {
     return (
         <>
             <Header />
-            <div className="mx-auto max-w-6xl py-6">
-                <div className="mb-6 font-semibold text-lg">Add Address</div>
+            <div className="p-4 max-w-6xl mx-auto">
+                <div className='flex gap-3 items-center mt-4 mb-6'>
+                    <Link to='/profile' className='flex items-center'>
+                        <ArrowLeft size={22} />
+                    </Link>
+                    <h2 className="text-lg font-semibold ">Add Address</h2>
+                </div>
                 <DataForm fields={fields} onSubmit={handleSubmit} />
             </div>
         </>
