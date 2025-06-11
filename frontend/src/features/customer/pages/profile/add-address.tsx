@@ -33,8 +33,8 @@ export const AddAddress = () => {
 
     return (
         <>
-            <Header />
-            <div className="p-4 max-w-6xl mx-auto">
+            {/* <Header /> */}
+            <div className="max-w-6xl mx-auto p-2 sm:p-4 md:p-6">
                 <div className='flex gap-3 items-center mt-4 mb-6'>
                     <Link to='/profile' className='flex items-center'>
                         <ArrowLeft size={22} />

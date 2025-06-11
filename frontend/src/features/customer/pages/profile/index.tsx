@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { getAddressQuery, AddressType } from "@features/auth/api/address";
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from '@components/ui/dialog';
 
-import { ChevronDown, X as CloseIcon, Menu as MenuIcon, Pencil, Star, Trash2 } from 'lucide-react';
+import { ChevronDown, X as CloseIcon, Menu as MenuIcon, Star, XIcon, SquarePenIcon, UserIcon, BookmarkIcon, TruckIcon, StarIcon, HeartIcon, LogOut, MapPinPlusIcon, Pencil, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -28,12 +28,14 @@ export interface ProfileType {
 
 const DEFAULT_PROFILE_IMAGE = 'https://cdn-icons-png.flaticon.com/512/6997/6997662.png';
 
-
 const EditProfile = () => {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button>Edit Profile</Button>
+                <div>
+                    <SquarePenIcon size={16} className='md:hidden' />
+                    <Button className='hidden md:block'>Edit Profile</Button>
+                </div>
             </DialogTrigger>
             <DialogContent>
                 <Input />
@@ -45,38 +47,39 @@ const EditProfile = () => {
     );
 };
 
+
+
 const AddressTab = () => {
     const { data } = getAddressQuery();
 
     return (
-        <div className='p-6 max-w-6xl mx-auto'>
+        <div className='max-w-6xl mx-auto pt-6 md:p-6 '>
             <div className='mb-4'>
                 <div className='flex justify-between items-center my-2'>
-                    <div className="text-xl font-semibold">Address Book</div>
-                    <div>
-                        <Link to={"/profile/address/add"}>
-                            <Button>Add Address</Button>
-                        </Link>
-                    </div>
+                    <div className="text-lg md:text-xl font-semibold">Address Book</div>
                 </div>
-                <p className="text-sm text-gray-500">Manage your shipping and billing addresses.</p>
+                <p className="text-xs md:text-sm text-gray-500">Manage your shipping and billing addresses.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 {data?.map((address) => (
                     <AddressCard key={address.id} data={address} />
                 ))}
             </div>
+            <div className='flex justify-end sm:justify-start'>
+                <Link to={"/profile/address/add"}>
+                    <Button>Add Address</Button>
+                </Link>
+            </div>
+
         </div>
     );
 };
 
 const Header = () => {
-    const [open, setOpen] = useState(true);
-
+    const [open, setOpen] = useState(false);
     const sidebarRef = React.useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-
         const handleClickOutside = (event: MouseEvent) => {
             if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
                 setOpen(false);
@@ -85,28 +88,112 @@ const Header = () => {
 
         if (open) {
             document.addEventListener('mousedown', handleClickOutside);
+            document.body.style.overflow = 'hidden';
         } else {
             document.removeEventListener('mousedown', handleClickOutside);
+            document.body.style.overflow = '';
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+            document.body.style.overflow = '';
         };
-    }, [open])
-    return (
-        <div>
-            <MenuIcon onClick={() => setOpen(prev => !prev)} />
+    }, [open]);
 
-            {
-                open ?
-                    <div className='fixed top-0 left-0 w-64 h-full shadow-lg z-50 p-4 bg-gray-600 text-white' ref={sidebarRef}>
-                        sidebar
-                    </div>
-                    : <></>
-            }
+    return (
+        <div className='absolute right-0 top-0 pr-2 sm:pr-4 pt-3 sm:py-4 z-40'>
+            <button
+                onClick={() => setOpen(true)}
+                className="md:hidden cursor-pointer p-1 sm:p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                aria-label="Open menu"
+            >
+                <MenuIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
+            </button>
+
+            {open && (
+                <div className="fixed inset-0 bg-opacity-50 z-40 transition-opacity duration-300" />
+            )}
+
+            <div
+                className={`fixed top-0 right-0 w-[280px] xs:w-[300px] sm:w-80 h-[100dvh] overflow-y-auto shadow-xl z-50 bg-gray-800 text-white transition-all duration-300 ease-in-out transform ${open ? 'translate-x-0' : 'translate-x-full'}`}
+                ref={sidebarRef}
+            >
+                <div className="flex justify-between items-center p-6 border-b border-gray-700">
+                    <h2 className="text-xl font-semibold">My Account</h2>
+                    <button
+                        onClick={() => setOpen(false)}
+                        className="p-1 rounded-full hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                        aria-label="Close menu"
+                    >
+                        <XIcon className="w-6 h-6" />
+                    </button>
+                </div>
+
+                <nav className="p-4">
+                    <ul className="space-y-2">
+                        <li>
+                            <Link
+                                to=""
+                                className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200"
+                                onClick={() => setOpen(false)}
+                            >
+                                <UserIcon className="w-5 h-5 mr-3" />
+                                <span className="text-base">Your Account</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                to=""
+                                className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200"
+                                onClick={() => setOpen(false)}
+                            >
+                                <BookmarkIcon className="w-5 h-5 mr-3" />
+                                <span className="text-base">Address Book</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                to=""
+                                className="flex items-center  p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200"
+                                onClick={() => setOpen(false)}
+                            >
+                                <TruckIcon className="w-5 h-5 mr-3" />
+                                <span className="text-base">My Orders</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                to=""
+                                className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200"
+                                onClick={() => setOpen(false)}
+                            >
+                                <StarIcon className="w-5 h-5 mr-3" />
+                                <span className="text-base">My Reviews</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                to=""
+                                className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200"
+                                onClick={() => setOpen(false)}
+                            >
+                                <HeartIcon className="w-5 h-5 mr-3" />
+                                <span className="text-base">Wishlist</span>
+                            </Link>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
+                    <button className="w-full py-2 px-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
+                        <LogOut size={18} /> Sign Out
+                    </button>
+                </div>
+            </div>
         </div>
-    )
-}
+    );
+};
+
 const ProfilePage: React.FC = () => {
     const user: ProfileType = {
         username: 'John Doe',
@@ -117,11 +204,11 @@ const ProfilePage: React.FC = () => {
     return (
         <>
             <Header />
-            <div className='mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
+            <div className='mx-auto max-w-6xl px-2 sm:px-6 lg:px-8'>
                 <div className='py-4'>
                     <Tabs defaultValue="orders">
                         <TabsList
-                            className='py-6 w-full flex md:overflow-x-visible overflow-x-auto overflow-y-hidden scrollbar-hide'
+                            className='py-6 w-full  md:overflow-x-visible overflow-x-auto overflow-y-hidden scrollbar-hide hidden md:flex'
                             style={{ WebkitOverflowScrolling: 'touch' }}
                         >
                             <TabsTrigger value='profile' className='flex-1 min-w-[120px] text-center sm:text-left'>Your Account</TabsTrigger>
@@ -158,6 +245,7 @@ const ProfilePage: React.FC = () => {
 
 export default ProfilePage;
 
+
 const AddressCard: React.FC<{ data: AddressType }> = (props) => {
     const { data } = props;
 
@@ -166,32 +254,29 @@ const AddressCard: React.FC<{ data: AddressType }> = (props) => {
     }
 
     return (
-        <div className="border rounded-md p-6 relative ">
-            <div className="absolute top-2 right-2 flex space-x-2">
-                <button className="text-gray-500 hover:text-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                </button>
+        <div className="border border-gray-300 rounded-lg shadow-lg p-4 relative bg-white">
 
-                <button className="text-gray-500 hover:text-red-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </button>
+            <div className="mb-4">
+                <span className="text-lg font-semibold text-gray-800">{data?.title}</span>
             </div>
-
-            <div className="mb-2">
-                <span className="font-medium">{data?.title}</span>
-            </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-700">
                 <p>{data?.address_line_1} {data?.address_line_2}</p>
                 <p>{data?.city}, {data?.state} {data?.postal_code}</p>
                 <p>{data?.country}</p>
             </div>
+            <div className="flex justify-end space-x-2">
+                <button className="text-gray-600 hover:text-gray-800 transition duration-200 flex text-xs gap-1 items-center">
+                    <Pencil className='w-4 h-4' /> <span>Edit</span>
+                </button>
+                <span className='text-gray-600'>|</span>
+                <button className="text-gray-600 hover:text-red-600 transition duration-200 flex text-xs gap-1 items-center">
+                    <Trash2 className='w-4 h-4' /> <span >Delete</span>
+                </button>
+            </div>
         </div>
     );
 };
+
 
 const ProfileTab: React.FC = () => {
     const user: ProfileType = {
@@ -206,7 +291,7 @@ const ProfileTab: React.FC = () => {
     const [profile, setProfile] = useState<ProfileType>(data);
 
     return (
-        <div className="max-w-6xl mx-auto lg:py-16 sm:py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto md:p-6">
             <div className="flex flex-col sm:flex-row items-center space-x-0 border-b border-gray-200 p-3 mb-5">
                 <label htmlFor="imageUpload" className="cursor-pointer flex-shrink-0 mb-2 md:mb-4">
                     <img
@@ -216,22 +301,30 @@ const ProfileTab: React.FC = () => {
                     />
                     <input id="imageUpload" type="file" accept="image/*" className="hidden" />
                 </label>
-                <div className="text-center sm:text-left sm:ml-4">
-                    <h1 className="md:text-4xl text-2xl font-semibold text-gray-900">{profile.first_name} {profile.last_name}</h1>
+                <div className="text-center sm:text-left sm:ml-4 relative">
+                    <h1 className="flex gap-2 md:text-4xl text-2xl font-semibold text-gray-900">
+                        {profile.first_name} {profile.last_name}<span className="md:hidden mt-2"><EditProfile /></span>
+                    </h1>
                     <p className="mt-1 md:text-sm text-xs text-gray-500">{profile.email}</p>
                 </div>
             </div>
 
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold text-gray-900">Your Account</h2>
-                <EditProfile />
+            <div className="flex md:hidden">
+                <h2 className="text-xl font-semibold text-gray-900">Your Account</h2>
             </div>
 
-            <p className="text-base text-gray-600 mb-8">
+            <div className="hidden md:flex justify-between items-center mb-2">
+                <h2 className="text-2xl font-semibold text-gray-900">Your Account</h2>
+                <div>
+                    <EditProfile />
+                </div>
+            </div>
+
+            <p className="text-sm text-gray-600 md:text-base mb-5 md:mb-8 ">
                 Manage your profile information.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-2 md:gap-x-6 md:gap-y-4 ">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                     <Input name="firstName" value={profile.first_name} />
@@ -275,7 +368,7 @@ const OrdersTab: React.FC = () => {
     if (isError) return <div>Failed to load orders.</div>;
 
     return (
-        <div className="p-6 max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto py-4 md:p-6 ">
             <h2 className="text-lg font-semibold mb-4">My Orders</h2>
             {data && data.length > 0 ? (
                 data.map((order: any) => (
@@ -283,17 +376,17 @@ const OrdersTab: React.FC = () => {
                         key={order.id}
                         className="border border-gray-200 rounded-xl p-4 mb-6 shadow-sm"
                     >
-                        <div className="flex justify-between items-center mb-3">
+                        <div className="flex justify-between md:items-center mb-3">
                             <div>
-                                <div className="text-sm text-gray-500">Order ID</div>
-                                <div className="font-medium">{order.order_id}</div>
+                                <div className="text-xs md:text-sm text-gray-500">Order ID</div>
+                                <div className="text-xs md:font-medium">{order.order_id}</div>
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-xs md:text-sm text-gray-500">
                                 {moment(order.order_date).format('MMMM Do YYYY, h:mm:ss a')}
                             </div>
                         </div>
-                        <div className="mb-2 text-sm">
-                            <strong>Total Quantity:</strong> {order.total_qty} | <strong>Total Amount:</strong> ${order.total_amount}
+                        <div className="mb-2 text-xs md:text-sm flex flex-col md:flex-row gap-1 ">
+                            <div><strong>Total Quantity:</strong> {order.total_qty}</div><div className='hidden md:block'>|</div><div><strong>Total Amount:</strong> ${order.total_amount}</div>
                         </div>
                         <div className="mt-4">
                             <h4 className="font-semibold mb-2 text-sm">Items</h4>
@@ -307,10 +400,10 @@ const OrdersTab: React.FC = () => {
                                             <div className='shrink-0 shadow-md'>
                                                 <img src={item.product.cover_image} alt="" className='h-20 w-20 object-cover' />
                                             </div>
-                                            <div className="font-medium text-sm">{item.product.name}</div>
+                                            <div className="font-medium text-xs md:text-sm">{item.product.name}</div>
                                         </div>
-                                        <div className="text-xs text-gray-600 mt-1">
-                                            Qty: {item.quantity} | Price: ${item.price} | Amount: ${item.amount}
+                                        <div className="text-xs text-gray-600 mt-2 flex flex-col sm:flex-row gap-1">
+                                            <div>Qty: {item.quantity}</div><span className='hidden sm:block'>|</span><div>Price: ${item.price}</div><span className='hidden sm:block'>|</span><div>Amount: ${item.amount}</div>
                                         </div>
                                     </li>
                                 ))}
@@ -318,7 +411,7 @@ const OrdersTab: React.FC = () => {
                         </div>
                         <div className="flex justify-end mt-4">
                             <Link to={"/profile/orders/detail"}>
-                                <Button>Order Details</Button>
+                                <Button className='text-xs sm:text-sm '>Order Details</Button>
                             </Link>
                         </div>
                     </div>
@@ -365,29 +458,28 @@ const reviewsData: Review[] = [
 
 const ReviewTab: React.FC = () => {
     return (
-        <div className="p-6 max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto py-4 md:p-6 ">
+            <h2 className="text-lg font-semibold mb-4">My Reviews ({reviewsData.length})</h2>
             {reviewsData.map(review => (
-                <div key={review.id} className="mb-6">
-                    <h2 className="text-lg font-semibold mb-4">My Reviews ({reviewsData.length})</h2>
-
-                    <div className="flex gap-3 bg-gray-100 p-3 mb-3">
+                <div key={review.id} className="border-gray-200 rounded-xl p-4 mb-6 shadow-sm">
+                    <div className="flex gap-3 items-center bg-gray-100 rounded-xl p-3 mb-3">
                         <img
                             alt={review.productTitle}
-                            className="w-15 h-15 object-contain mb-3 sm:mb-0"
-                            height="60"
+                            className="w-15 h-15 object-cover"
                             src={review.productImage}
-                            width="60"
                         />
-                        <div className="flex flex-col justify-center text-sm leading-tight">
-                            <p className="text-gray-900 text-ellipsis">{review.productTitle} - {review.productDetails}</p>
-                            <p className="text-gray-600 mt-0.5 text-xs">
+                        <div className="flex flex-col justify-center text-sm leading-tight max-h-[50px] md:h-auto overflow-hidden">
+                            <p className="text-gray-900 md:h-auto whitespace-nowrap overflow-hidden text-ellipsis">
+                                {review.productTitle} - {review.productDetails}
+                            </p>
+                            <p className="flex flex-col gap-1 md:flex-row text-gray-600 mt-0.5 text-xs whitespace-nowrap overflow-hidden text-ellipsis">
                                 Black / Label size:
                                 <span className="text-gray-400 text-xs"> {review.sizeLabel}</span>
                             </p>
                         </div>
                     </div>
-                    <div className='flex items-center justify-between'>
-                        <div className="flex items-center gap-2 mb-2 text-xs sm:text-sm">
+                    <div className='flex items-center justify-between mb-2'>
+                        <div className="flex items-center gap-2 text-xs md:text-sm">
                             <div className="flex items-center gap-1 text-yellow-500">
                                 <Star size={18} /> <span>{review.rating}</span>
                             </div>
@@ -396,42 +488,24 @@ const ReviewTab: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="text-xs text-gray-500 mt-2 select-none text-right">
-                            on {review.date}
+                        <div className="text-xs text-gray-500 select-none">
+                            {review.date}
                         </div>
                     </div>
 
                     <p className="text-sm my-3">{review.reviewText}</p>
 
-                    <div className="flex gap-2 mb-4 flex-wrap">
+                    <div className="flex gap-2 flex-wrap">
                         {review.reviewImages.map((image, index) => (
-                            <div className="relative w-20 h-20 flex-shrink-0 border border-gray-300 rounded mb-2" key={index}>
+                            <div className="relative w-15 h-15 sm:w-20 sm:h-20 flex-shrink-0 border border-gray-300 rounded mb-2" key={index}>
                                 <img
                                     alt="Review image"
                                     className="w-full h-full object-cover"
-                                    height="80"
                                     src={image}
-                                    width="80"
                                 />
                             </div>
                         ))}
                     </div>
-
-                    <div className="flex items-center gap-4 text-xs text-gray-600 border-t border-gray-300 pt-2 select-none">
-                        <button className="flex items-center gap-1 hover:text-gray-900">
-                            <i className="far fa-thumbs-up"></i>
-                            Helpful
-                        </button>
-                        <span>|</span>
-                        <button className="hover:text-gray-900 cursor-pointer flex items-center gap-1">
-                            <Pencil size={14} /> Edit
-                        </button>
-                        <span>|</span>
-                        <button className="hover:text-gray-900 cursor-pointer flex items-center gap-1">
-                            <Trash2 size={14} /> Delete
-                        </button>
-                    </div>
-
                 </div>
             ))}
         </div>
@@ -441,7 +515,7 @@ const ReviewTab: React.FC = () => {
 
 const WishlistTab: React.FC = () => {
     return (
-        <div className="p-6 max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto py-4 md:p-6">
             <h2 className="text-lg font-semibold mb-4">My Wishlist (0)</h2>
         </div>
     );
