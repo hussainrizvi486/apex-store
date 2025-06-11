@@ -215,7 +215,7 @@ const Index: React.FC = () => {
                 <div className="text-lg font-medium">My Orders</div>
 
                 <div >
-                    <Link to="/admin/product/create">
+                    <Link to="/admin/order/create">
                         <Button size="sm">
                             Create New
                         </Button>

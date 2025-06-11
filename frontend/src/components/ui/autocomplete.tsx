@@ -19,7 +19,7 @@ interface AutoCompleteProps {
     placeholder?: string;
     getOptions?: () => Promise<{ label: string; value: string }[]>;
     onChange?: (option: Option | null) => void;
-    value?: Option | null | object;
+    value?: Option | null | string;
     renderOption?: (option: Option) => React.ReactNode;
 }
 

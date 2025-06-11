@@ -51,6 +51,7 @@ interface TableInputContextType {
 
 interface TableInputProps {
   fields: Array<TypeField>;
+  actionLabel?: string,
   onChange?: (data: TableInputValue) => void;
   value?: TableInputValue;
   defaultValue?: TableInputValue;
@@ -190,17 +191,8 @@ const Field: React.FC<FieldProps> = (props) => {
   if (!type) {
     return null;
   }
-
-  // h-8 text-sm border-0 shadow-none focus:ring-1 focus:ring-blue-500 rounded px-2
   const className = cn("my-0 h-full shadow-none border-0", fieldClassName);
 
-  const baseInputProps = {
-    name: props.name,
-    placeholder: props.placeholder,
-    disabled: props.disabled,
-    className: className,
-    value: value || "",
-  };
 
   switch (type) {
     case "checkbox":
@@ -297,7 +289,7 @@ const TableInputHeader: React.FC<{ fields: Array<TypeField> }> = ({ fields }) =>
   return (
     <div className="bg-gray-50 border-b border-gray-200">
       <div
-        className="grid items-center min-h-[40px]"
+        className="grid items-center h-10 "
         style={getColumnsCSS(fields.length)}
       >
         <div className="px-3 flex items-center justify-center border-r border-gray-200">
@@ -329,7 +321,7 @@ const EmptyTable: React.FC = () => (
     <div className="flex flex-col items-center text-gray-500">
       <FileText className="w-12 h-12 mb-2" />
       <div className="text-sm">No data available</div>
-      <div className="text-xs text-gray-400">Click "Add Row" to get started</div>
+      {/* <div className="text-xs text-gray-400">Click "Add Row" to get started</div> */}
     </div>
   </div>
 );
@@ -346,7 +338,7 @@ const TableInputBody: React.FC = () => {
       {data.map((row, rowIndex) => (
         <div
           key={rowIndex}
-          className="grid items-center min-h-[50px] hover:bg-gray-50"
+          className="grid items-center h-10 hover:bg-gray-50"
           style={getColumnsCSS(fields.length)}
         >
           <div className="px-3 flex items-center justify-center border-r border-gray-200 h-full">
@@ -381,6 +373,7 @@ const TableInputBody: React.FC = () => {
 
 const TableInput: React.FC<TableInputProps> = ({
   fields,
+  actionLabel,
   onChange,
   value,
   defaultValue,
@@ -426,10 +419,10 @@ const TableInput: React.FC<TableInputProps> = ({
 
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-500">
-            {data.length} {data.length === 1 ? 'row' : 'rows'}
+            {/* {data.length} {data.length === 1 ? 'row' : 'rows'} */}
           </div>
           <Button size="sm" onClick={handleAdd}>
-            Add Row
+            {actionLabel || "Add Row"}
           </Button>
         </div>
       </div>

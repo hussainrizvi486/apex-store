@@ -5,6 +5,7 @@ import { Layout } from "./layouts/sidebar-layout";
 const Home = React.lazy(() => import("./pages/home/index"));
 const ProductList = React.lazy(() => import("./pages/product/list"));
 const OrderList = React.lazy(() => import("./pages/orders/list"));
+const OrderForm = React.lazy(() => import("./pages/orders/form"));
 const ProductForm = React.lazy(() => import("./pages/product/create"));
 
 
@@ -18,6 +19,7 @@ export const routes: RouteObject[] = [
             { path: "products/list", element: <ProductList /> },
             { path: "orders/list", element: <OrderList /> },
             { path: "product/create", element: <ProductForm /> },
+            { path: "order/create", element: <OrderForm /> },
 
         ]
     },
