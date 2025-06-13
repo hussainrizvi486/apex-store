@@ -1,5 +1,5 @@
 import { Button } from "@components/ui/button";
-import { SquarePen } from "lucide-react";
+import { Folders, LogOut, MapPinHouse, SquarePen } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Index = () => {
@@ -16,7 +16,6 @@ const Index = () => {
 
             <div className="flex justify-center py-4">
                 <div className="flex flex-col items-center">
-
                     <img src="https://cdn-icons-png.flaticon.com/512/6997/6997662.png" alt="" className="h-20 w-20 rounded-full" />
 
                     <div className="text-sm text-center mt-2 font-medium">
@@ -27,15 +26,10 @@ const Index = () => {
                         <SquarePen className="size-4" /> Edit Profile
                     </Link>
                 </div>
-
-
             </div>
 
 
-            <div className="flex justify-end py-2">
-            </div>
-
-            <div>
+            {/* <div>
                 <div className="text-sm mb-4">
                     <div className="font-medium mb-1">First Name</div>
                     <div className="bg-gray-100 p-2 rounded-md">{user.firstName}</div>
@@ -58,20 +52,36 @@ const Index = () => {
                     <div className="font-medium mb-1">Date of Birth</div>
                     <div className="bg-gray-100 p-2 rounded-md">{user.dob}</div>
                 </div>
+            </div> */}
+
+            <div >
+                <div className="mb-4 font-semibold">Quick Access</div>
+                <Link to="/profile/address" className="text-sm flex items-center gap-2  hover:bg-accent transition-colors px-1 py-2 rounded-md font-medium  ">
+                    <MapPinHouse />
+                    My Addresses
+                </Link>
+
+                <Link to="/profile/orders" className="text-sm flex items-center gap-2  hover:bg-accent transition-colors px-1 py-2 rounded-md font-medium">
+                    <Folders />
+                    My Orders
+                </Link>
+
+                <Link to="/profile/orders" className="text-sm flex items-center gap-2  hover:bg-accent transition-colors px-1 py-2 rounded-md font-medium">
+                    <Folders />
+                    My Reviews
+                </Link>
+                <Link to="/profile/orders" className="text-sm flex items-center gap-2  hover:bg-accent transition-colors px-1 py-2 rounded-md font-medium">
+                    <Folders />
+                    Wishlist
+                </Link>
+                <Link to="/profile/orders" className="text-sm flex items-center gap-2  hover:bg-accent transition-colors px-1 py-2 rounded-md font-medium">
+                    <LogOut />
+                    Logout
+                </Link>
             </div>
 
             <div className="mt-4">
-                <div>
-                    <Link to="/profile/address" className="text-sm text-blue-500 hover:underline">
-                        My Addresses
-                    </Link>
-                </div>
 
-                <div>
-                    <Link to="/profile/orders" className="text-sm text-blue-500 hover:underline">
-                        My Orders
-                    </Link>
-                </div>
             </div>
         </div>
     )

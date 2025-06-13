@@ -6,6 +6,7 @@ import { Outlet } from "react-router-dom";
 
 const Profile = React.lazy(() => import("./pages/profile/index"));
 const EditProfile = React.lazy(() => import("./pages/profile/edit"));
+const OrderList = React.lazy(() => import("./pages/orders/list"));
 
 const ProfileLayout = () => {
     return (
@@ -26,9 +27,11 @@ export const routes: RouteObject[] = [
     {
         path: "/profile",
         element: <ProfileLayout />,
+
         children: [
             { index: true, element: <Profile /> },
             { path: "edit", element: <EditProfile /> },
+            { path: "orders", element: <OrderList /> },
         ]
     },
 ]
