@@ -1,6 +1,7 @@
 import { Folders, LogOut, MapPinHouse, SquarePen } from "lucide-react";
 import { Link } from "react-router-dom";
 
+
 const Index = () => {
     const user = {
         firstName: 'John',
@@ -10,10 +11,21 @@ const Index = () => {
         dob: '1990-01-01',
         fullName: 'John Doe'
     }
-    return (
-        <div className="px-2">
 
-            <div className="flex justify-center py-4">
+    //     {
+    //     "id": "10f97572-823b-49a8-932e-aed5b9f24135",
+    //     "dob": null,
+    //     "image": null,
+    //     "email": "admin@gmail.com",
+    //     "first_name": "",
+    //     "last_name": "",
+    //     "username": "",
+    //     "mobile": null,
+    //     "verified": false
+    // }
+    return (
+        <>
+            <div className="flex justify-center py-2 border-b mb-4">
                 <div className="flex flex-col items-center">
                     <img src="https://cdn-icons-png.flaticon.com/512/6997/6997662.png" alt="" className="h-20 w-20 rounded-full" />
 
@@ -29,7 +41,7 @@ const Index = () => {
 
 
             <div >
-                <div className="mb-4 font-semibold">Quick Access</div>
+                <div className="mb-2 font-semibold">Quick Access</div>
                 <Link to="/profile/address" className="text-sm flex items-center gap-2  hover:bg-accent transition-colors px-1 py-2 rounded-md font-medium  ">
                     <MapPinHouse />
                     My Addresses
@@ -57,7 +69,7 @@ const Index = () => {
             <div className="mt-4">
 
             </div>
-        </div>
+        </>
     )
 }
 

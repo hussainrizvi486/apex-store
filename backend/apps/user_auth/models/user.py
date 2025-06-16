@@ -35,6 +35,8 @@ class User(AbstractUser):
         default=uuid4, primary_key=True, editable=False, unique=True, max_length=999
     )
     email = models.EmailField(unique=True)
+    image = models.ImageField(upload_to="user_images", null=True, blank=True)
+    dob = models.DateField(null=True, blank=True)
     username = models.CharField(max_length=50, unique=False, null=False)
     mobile = models.CharField(max_length=50, unique=True, null=True, blank=True)
     modified = models.DateTimeField(auto_now=True, null=True)
