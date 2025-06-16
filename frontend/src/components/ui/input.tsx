@@ -18,14 +18,16 @@ interface InputProps {
     disabled?: boolean
     required?: boolean
     type?: InputType
-    precision?: number,
+    // precision?: number,
     onChange?: (value: string) => void
     onBlur?: (value: string) => void
+    // suffixIcon?: React.ReactNode
+    // prefixIcon?: React.ReactNode
 }
 
 
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className = "", ...props }, ref) => {
+const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, ...props }, ref) => {
     const [value, setValue] = useState(props.value || "");
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -40,19 +42,21 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className = "", 
 
 
     return (
-        <input
-            {...props}
-            ref={ref}
-            name={props.name}
-            placeholder={props.placeholder}
-            defaultValue={value}
-            value={value}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className={cn(
-                "w-full px-2 py-1 h-8 my-2 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground [&>span]:line-clamp-1", className
-            )}
-        />
+        <div className="relative flex items-center w-full">
+            <input
+                {...props}
+                ref={ref}
+                name={props.name}
+                placeholder={props.placeholder}
+                defaultValue={value}
+                value={value}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className={cn(
+                    "w-full px-2 py-1 h-8 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground [&>span]:line-clamp-1", className
+                )}
+            />
+        </div>
     )
 })
 

@@ -7,6 +7,9 @@ html {
 }
 
 @layer base {
+    * {
+        border-color: #ebebeb;
+    }
 
     input[type='number']::-webkit-outer-spin-button,
     input[type='number']::-webkit-inner-spin-button,
@@ -16,11 +19,15 @@ html {
         margin: 0;
         -moz-appearance: textfield !important;
     }
+
+
 }
 
 @theme {
+    --default-border-color: #e0e0e0;
     --color-background: #ffffff;
     --color-sidebar: #ebebeb;
+    --color-hover-bg: #dccee8;
     --color-muted: #f8f9fa;
     --color-foreground: #333333;
     --color-popover: var(--color-background);
@@ -30,6 +37,7 @@ html {
     --color-secondary: #ededed;
     --color-secondary-foreground: #323232;
     --color-destructive: #dc2626;
+    --color-destructive-foreground: #FFF;
     --color-input: #a7a7a7;
     --color-ring: #8b5cf6;
     --color-muted-foreground: #6b7280;

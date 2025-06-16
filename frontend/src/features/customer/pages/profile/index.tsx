@@ -1,4 +1,3 @@
-import { Button } from "@components/ui/button";
 import { Folders, LogOut, MapPinHouse, SquarePen } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -28,31 +27,6 @@ const Index = () => {
                 </div>
             </div>
 
-
-            {/* <div>
-                <div className="text-sm mb-4">
-                    <div className="font-medium mb-1">First Name</div>
-                    <div className="bg-gray-100 p-2 rounded-md">{user.firstName}</div>
-                </div>
-
-                <div className="text-sm mb-4">
-                    <div className="font-medium mb-1">Last Name</div>
-                    <div className="bg-gray-100 p-2 rounded-md">{user.lastName}</div>
-                </div>
-                <div className="text-sm mb-4">
-                    <div className="font-medium mb-1">Email</div>
-                    <div className="bg-gray-100 p-2 rounded-md">{user.email}</div>
-                </div>
-
-                <div className="text-sm mb-4">
-                    <div className="font-medium mb-1">Phone</div>
-                    <div className="bg-gray-100 p-2 rounded-md">{user.phone}</div>
-                </div>
-                <div className="text-sm mb-4">
-                    <div className="font-medium mb-1">Date of Birth</div>
-                    <div className="bg-gray-100 p-2 rounded-md">{user.dob}</div>
-                </div>
-            </div> */}
 
             <div >
                 <div className="mb-4 font-semibold">Quick Access</div>

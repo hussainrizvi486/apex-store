@@ -21,6 +21,7 @@ class BaseModel(models.Model):
 class Address(BaseModel):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     title = models.CharField(max_length=100, null=True, blank=True)
+    default = models.BooleanField(default=False, null=True)
     address_type = models.CharField(max_length=50, null=True, blank=True)
     address_line_1 = models.CharField(max_length=255)
     address_line_2 = models.CharField(max_length=255, blank=True, null=True)
@@ -33,3 +34,10 @@ class Address(BaseModel):
 
     def __str__(self):
         return f"{self.address_line_1}, {self.city}, {self.state}, {self.country}"
+
+    def save(self, *args, **kwargs):
+
+        if self.default:
+            Address.objects.filter(user=self.user, default=True).update(default=False)
+
+        super().save(*args, **kwargs)

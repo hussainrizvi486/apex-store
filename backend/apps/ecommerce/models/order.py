@@ -38,6 +38,9 @@ class Order(BaseModel):
 
         return order_id
 
+    status = models.CharField(
+        max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING
+    )
     order_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     total_qty = models.DecimalField(max_digits=10, decimal_places=2)
@@ -51,13 +54,12 @@ class Order(BaseModel):
         return str(self.customer)
 
     def calculate_total(self):
-        self.total_amount = sum(item.amount for item in self.items.all())
-        self.total_qty = sum(item.quantity for item in self.items.all())
+        self.total_amount = sum(item.amount or 0 for item in self.items.all())
+        self.total_qty = sum(item.quantity or 0 for item in self.items.all())
 
     def save(self, *args, **kwargs):
         if not self.is_new():
             self.calculate_total()
-            return
 
         super().save(*args, **kwargs)
 
@@ -65,12 +67,22 @@ class Order(BaseModel):
 class OrderItem(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
-    quantity = models.DecimalField(max_digits=10, decimal_places=2)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.DecimalField(
+        default=1, max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True, default=0.00
+    )
+    amount = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True, default=0.00
+    )
     uom = models.CharField(max_length=50, null=True, blank=True)
     price_list = models.ForeignKey(
-        PriceList, on_delete=models.CASCADE, related_name="order_items"
+        PriceList,
+        on_delete=models.CASCADE,
+        related_name="order_items",
+        null=True,
+        blank=True,
     )
 
     def __str__(self):

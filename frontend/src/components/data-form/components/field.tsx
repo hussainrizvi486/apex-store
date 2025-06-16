@@ -65,20 +65,20 @@ export const BaseField: React.FC<FieldProps> = (props) => {
     }
     if (type == "select") {
         return (
-                <Select onValueChange={handleChange} >
-                    <SelectTrigger className={cn(props.className, className)}
-                    >
-                        <SelectValue placeholder={props.placeholder || "Select"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                            {props.options?.map((option, index) => (
-                                <SelectItem className="text-sm" key={index} value={option.value}>{option.label}</SelectItem>
-                            ))}
-                        </SelectGroup>
-                    </SelectContent>
-                </Select >
-            
+            <Select onValueChange={handleChange} >
+                <SelectTrigger className={cn(props.className, className)}
+                >
+                    <SelectValue placeholder={props.placeholder || "Select"} />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectGroup>
+                        {props.options?.map((option, index) => (
+                            <SelectItem className="text-sm" key={index} value={option.value}>{option.label}</SelectItem>
+                        ))}
+                    </SelectGroup>
+                </SelectContent>
+            </Select >
+
 
         )
     }
@@ -181,11 +181,10 @@ export const Field: React.FC<FieldProps> = (props) => {
         return (
             <div>
                 <div className="mb-1">
-                    <Label field={props} className="mb-2" />
+                    <Label field={props} />
                 </div>
                 <Select onValueChange={handleChange} defaultValue={typeof defaultValue === "object" ? defaultValue?.id : defaultValue} >
                     <SelectTrigger className={cn(props.className, className)}
-
                     >
                         <SelectValue placeholder={props.placeholder || "Select"} />
                     </SelectTrigger>

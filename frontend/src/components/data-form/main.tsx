@@ -69,7 +69,10 @@ const DataFormContent: React.FC<DataFormProps> = (props) => {
                 </Section>
             ))}
             <div>
-                <Button onClick={handleSubmit}>Save</Button>
+                {
+                    props.DFTrigger ? <div onClick={handleSubmit}>{props.DFTrigger}</div> : <Button onClick={handleSubmit}>Save</Button>
+                }
+
             </div>
         </div>
     );

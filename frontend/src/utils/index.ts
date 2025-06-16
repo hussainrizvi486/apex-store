@@ -31,6 +31,7 @@ function decimal(value: any, precision = 2) {
 }
 
 function formatCurrency(value: any) {
+    if (isNaN(parseFloat(value))) return "$0.00";
     return new Intl.NumberFormat("en-PH", {
         style: "currency",
         currency: "USD",

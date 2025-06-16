@@ -19,7 +19,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         """
         return {
             "id": obj.product.id,
-            "name": obj.product.product_name,
+            "product_name": obj.product.product_name,
             "description": obj.product.description,
             "cover_image": (
                 request.build_absolute_uri(obj.product.cover_image.url)
@@ -40,6 +40,7 @@ class OrderListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
+            "status",
             "order_id",
             "customer",
             "total_qty",
@@ -57,7 +58,9 @@ class CustomerOrderView(APIView):
 
     def get(self, request, *args, **kwargs):
         customer = Customer.objects.get(user=self.request.user)
-        orders_queryset = Order.objects.filter(customer=customer)
+        orders_queryset = Order.objects.filter(customer=customer).order_by(
+            "-order_date"
+        )
         serializer = OrderListSerializer(
             orders_queryset, many=True, context={"request": request}
         )

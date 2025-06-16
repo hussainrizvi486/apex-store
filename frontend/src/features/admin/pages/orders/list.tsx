@@ -223,8 +223,6 @@ const Index: React.FC = () => {
                 </div>
             </div>
 
-
-
             <div>
                 <DataTable columns={TempColumns} data={orderData} />
             </div>

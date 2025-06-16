@@ -1,3 +1,5 @@
+import React from "react";
+
 /**
  * Represents an option for select/multiselect/autocomplete fields
  */
@@ -104,6 +106,7 @@ export type FormValues = Record<string, FieldValue>
 export interface DataFormProps {
     fields: TypeField<FieldType>[];
     values?: FormValues;
+    DFTrigger?: React.ReactNode;
     onChange?: (data: FormValues) => void;
     onSubmit?: (data: FormValues) => void;
     onValue?: (data: FormValues) => void;
