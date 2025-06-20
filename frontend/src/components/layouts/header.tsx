@@ -1,5 +1,5 @@
-import axios from "axios";
 import React, { useCallback, useEffect } from "react";
+import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { LogOut as LogOutIcon, Menu, Search as SearchIcon, ShoppingCart, UserRound } from "lucide-react";
@@ -20,45 +20,38 @@ interface SearchBarResultsProps {
 }
 
 
-const ProfileDropdown = () => {
+const ProfileDropdown = ({ className = "" }) => {
+    const handleLogout = () => { };
+
     return (
-        <nav>
-            <Link to="/profile">
-                <div className="text-sm px-2 mb-1 font-medium hover:underline hover:underline-offset-1 cursor-pointer">
-                    Profile
+        <Popover>
+            <PopoverTrigger asChild>
+                <button className={cn("hover:cursor-pointer outline-none", className)}>
+                    <UserRound className="size-5" />
+                </button>
+            </PopoverTrigger>
+
+            <PopoverContent className="p-2">
+                <div className="mb-2">
+                    <div className="px-2 text-lg font-semibold">Hi Hussain</div>
+                    <div className="mt-2">
+                        <ProfileDropdown />
+                    </div>
                 </div>
-            </Link>
-            <Link to="/cart">
-                <div className="text-sm px-2 mb-1 font-medium hover:underline hover:underline-offset-1 cursor-pointer">
-                    My Cart
-                </div>
-            </Link>
-            <Link to="/orders">
-                <div className="text-sm px-2 mb-1 font-medium hover:underline hover:underline-offset-1 cursor-pointer">
-                    Orders
-                </div>
-            </Link>
-            <Link to="/settings">
-                <div className="text-sm px-2 mb-1 font-medium hover:underline hover:underline-offset-1 cursor-pointer">
-                    Account Settings
-                </div>
-            </Link>
-        </nav>
+                <button
+                    onClick={handleLogout}
+                    className="text-sm flex gap-2 items-center hover:cursor-pointer hover:bg-gray-100 w-full p-2 transition-colors font-semibold outline-none"
+                >
+                    <LogOutIcon className="size-4" /> Logout
+                </button>
+            </PopoverContent>
+        </Popover>
     )
 }
 
-const navLinks = [
-    { label: "Shop", url: "/" },
-    { label: "Deals", url: "/" },
-    { label: "Categories", url: "/" },
-]
 
 export const Header = () => {
-    const { isAuthenticated, logout } = useAuth();
-
-    const handleLogout = () => {
-        logout();
-    };
+    const { isAuthenticated } = useAuth();
 
     return (
         <header className="border-b border-gray-200">
@@ -70,12 +63,9 @@ export const Header = () => {
                     <Link to="/">
                         <h1 className="text-2xl font-bold font-poppins"><span className="text-primary">APEX</span>Store</h1>
                     </Link>
-
                 </div>
 
-
                 <SearchBar />
-
 
                 <div className="flex items-center justify-end">
                     <nav className="flex items-center gap-2">
@@ -86,28 +76,9 @@ export const Header = () => {
                                         <ShoppingCart className="size-5" />
                                     </Link>
 
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <button className="hover:cursor-pointer outline-none">
-                                                <UserRound className="size-5" />
-                                            </button>
-                                        </PopoverTrigger>
 
-                                        <PopoverContent className="p-2">
-                                            <div className="mb-2">
-                                                <div className="px-2 text-lg font-semibold">Hi Hussain</div>
-                                                <div className="mt-2">
-                                                    <ProfileDropdown />
-                                                </div>
-                                            </div>
-                                            <button
-                                                onClick={handleLogout}
-                                                className="text-sm flex gap-2 items-center hover:cursor-pointer hover:bg-gray-100 w-full p-2 transition-colors font-semibold outline-none"
-                                            >
-                                                <LogOutIcon className="size-4" /> Logout
-                                            </button>
-                                        </PopoverContent>
-                                    </Popover>
+                                    <Link to="/profile" className="sm:hidden"><UserRound className="size-5" /></Link>
+                                    <ProfileDropdown className="hidden sm:block" />
                                 </>
                                 :
                                 <>
