@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useCallback, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut as LogOutIcon, Search as SearchIcon, ShoppingCart, UserRound } from "lucide-react";
+import { LogOut as LogOutIcon, Menu, Search as SearchIcon, ShoppingCart, UserRound } from "lucide-react";
 
 import { PopoverContent, Popover, PopoverTrigger } from "@components/ui/popover";
 import { useAuth } from "@features/auth/hooks";
@@ -62,22 +62,23 @@ export const Header = () => {
 
     return (
         <header className="border-b border-gray-200">
-            <div className="flex justify-between items-center px-20 py-4">
+            <div className="grid grid-cols-2 p-2">
                 <div className="flex items-center">
+                    <div className="cursor-pointer hover:bg-hover-bg p-1 rounded-full transition-colors mr-1">
+                        <Menu className="size-6" />
+                    </div>
                     <Link to="/">
                         <h1 className="text-2xl font-bold font-poppins"><span className="text-primary">APEX</span>Store</h1>
                     </Link>
-                    <nav className="flex gap-6 ml-8 mt-1">
-                        {navLinks.map((v, index) => (
-                            <Link key={index} className="text-sm font-medium font-poppins" to={v.url}>{v.label}</Link>
-                        ))}
-                    </nav>
+
                 </div>
+
 
                 <SearchBar />
 
-                <div>
-                    <nav className="flex gap-4">
+
+                <div className="flex items-center justify-end">
+                    <nav className="flex items-center gap-2">
                         {
                             isAuthenticated ?
                                 <>
@@ -172,8 +173,8 @@ const SearchBar = () => {
     const { data: results, isLoading } = useSuggestionsQuery(query);
 
     return (
-        <div className="relative">
-            <div className="flex items-center border border-gray-300 rounded-full pl-3 pr-2 py-0.5 w-2xl focus-within:ring-2 focus-within:ring-primary transition-all duration-200 ring-offset-2">
+        <div className="relative row-start-2 col-span-2 mt-2 sm:mt-0">
+            <div className="flex items-center border border-gray-300 rounded-md pl-3 pr-2 py-0.5 md:w-2xl focus-within:ring-2 focus-within:ring-primary transition-all duration-200 ring-offset-2 ">
                 <input
                     type="text"
                     placeholder="Search for products, category, etc..."

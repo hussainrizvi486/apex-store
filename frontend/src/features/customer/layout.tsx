@@ -67,7 +67,6 @@ const SidebarContent = () => {
     )
 }
 
-
 export const Layout = () => {
     const location = useLocation();
     const [open, setOpen] = React.useState(false);
@@ -96,7 +95,7 @@ export const Layout = () => {
                         </Sheet>
                     </div>
 
-                    <h1 className="text-lg font-bold font-poppins"><span className="text-primary">APEX</span>Store</h1>
+                    <Link to="/"><h1 className="text-lg font-bold font-poppins"><span className="text-primary">APEX</span>Store</h1></Link>
                 </div>
 
                 <div>

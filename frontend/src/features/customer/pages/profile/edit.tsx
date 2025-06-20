@@ -137,10 +137,12 @@ const Index = () => {
             </div>
 
             <div>
-                <div className="flex items-center gap-2 text-sm py-2 px-1 bg-white border-b cursor-pointer hover:bg-accent transition-colors">
-                    <KeyRound className="size-5" />
-                    <div>Change Password</div>
-                </div>
+                <Link to="/profile/change-password">
+                    <div className="flex items-center gap-2 text-sm py-2 px-1 bg-white border-b cursor-pointer hover:bg-accent transition-colors">
+                        <KeyRound className="size-5" />
+                        <div>Change Password</div>
+                    </div>
+                </Link>
                 <div className="flex items-center gap-2 text-sm py-2 px-1 bg-white border-b cursor-pointer hover:bg-accent transition-colors">
                     <Mail className="size-5" />
                     <div>Change Email</div>
