@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db import connection
+from django.db.models import Value
 
 
 from apps.ecommerce.models.product import (
@@ -63,11 +64,42 @@ class ProductistAPIView(APIView):
         )
 
 
+from django.db.models import Subquery, OuterRef, Q, Value, DecimalField
+from django.db.models.functions import Coalesce
+from django.utils import timezone
+
+
 class ProductAPIView(APIView):
     def get(self, request, *args, **kwargs):
+
         data = {}
         try:
-            product = Product.objects.get(id=kwargs.get("id"))
+
+            product = (
+                Product.objects.prefetch_related("images")
+                .annotate(
+                    price=Coalesce(
+                        Subquery(
+                            ProductPrice.objects.filter(product=OuterRef("id"))
+                            .filter(
+                                Q(valid_from__isnull=True)
+                                | Q(valid_from__lte=timezone.now())
+                            )
+                            .filter(
+                                Q(valid_till__isnull=True)
+                                | Q(valid_till__gte=timezone.now())
+                            )
+                            .order_by("-valid_from")
+                            .values("price")[:1]
+                        ),
+                        Value(0),
+                        output_field=DecimalField(),
+                    ),
+                    rating=Value(5),
+                )
+                .get(id=kwargs.get("id"))
+            )
+
             serializer = ProductSerializer(product, context={"request": request})
             data = serializer.data
         except Product.DoesNotExist:

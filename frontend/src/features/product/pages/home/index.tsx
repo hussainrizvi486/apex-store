@@ -1,8 +1,7 @@
 import { useProductsList } from "@features/product/api";
 import { ProductCard, ProductsGrid } from "../../components";
 
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@components/ui/carousel"
-    ;
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@components/ui/carousel";
 
 
 const slides = [

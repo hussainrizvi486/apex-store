@@ -45,7 +45,9 @@ const Carousel: React.FC<CarouselProps> = ({ className = "", children }) => {
 
         const container = scrollContainerRef.current;
         const scrollAmount = container.clientWidth;
+        
         container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+
     }, []);
 
     const checkScrollability = React.useCallback(() => {

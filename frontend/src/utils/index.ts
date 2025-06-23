@@ -30,11 +30,11 @@ function decimal(value: any, precision = 2) {
     return v.toFixed(precision);
 }
 
-function formatCurrency(value: any) {
+function formatCurrency(value: any, currency: string = "USD"): string {
     if (isNaN(parseFloat(value))) return "$0.00";
     return new Intl.NumberFormat("en-PH", {
         style: "currency",
-        currency: "USD",
+        currency: currency,
     }).format(value);
 }
 
