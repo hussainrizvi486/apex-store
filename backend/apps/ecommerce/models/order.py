@@ -3,7 +3,7 @@ from django.db import models
 from django.utils import timezone
 from .product import Product, BaseModel, PriceList
 from .customer import Customer
-from .main import Address
+from apps.user_auth.models import Address
 
 
 class OrderStatus(models.TextChoices):

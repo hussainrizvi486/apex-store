@@ -35,7 +35,28 @@ const ProfileDropdown = ({ className = "" }) => {
                 <div className="mb-2">
                     <div className="px-2 text-lg font-semibold">Hi Hussain</div>
                     <div className="mt-2">
-                        <ProfileDropdown />
+                        <nav>
+                            <Link to="/profile">
+                                <div className="text-sm px-2 mb-1 font-medium hover:underline hover:underline-offset-1 cursor-pointer">
+                                    Profile
+                                </div>
+                            </Link>
+                            <Link to="/cart">
+                                <div className="text-sm px-2 mb-1 font-medium hover:underline hover:underline-offset-1 cursor-pointer">
+                                    My Cart
+                                </div>
+                            </Link>
+                            <Link to="/orders">
+                                <div className="text-sm px-2 mb-1 font-medium hover:underline hover:underline-offset-1 cursor-pointer">
+                                    Orders
+                                </div>
+                            </Link>
+                            <Link to="/settings">
+                                <div className="text-sm px-2 mb-1 font-medium hover:underline hover:underline-offset-1 cursor-pointer">
+                                    Account Settings
+                                </div>
+                            </Link>
+                        </nav>
                     </div>
                 </div>
                 <button
@@ -54,46 +75,48 @@ export const Header = () => {
     const { isAuthenticated } = useAuth();
 
     return (
-        <header className="border-b border-gray-200">
-            <div className="grid grid-cols-2 p-2">
-                <div className="flex items-center">
-                    <div className="cursor-pointer hover:bg-hover-bg p-1 rounded-full transition-colors mr-1">
-                        <Menu className="size-6" />
+        <div className="max-w-6xl mx-auto">
+
+            <header className="border-b border-gray-200">
+                <div className="grid grid-cols-2 p-2 md:grid-cols-4 md:py-3">
+                    <div className="flex items-center">
+                        <div className="cursor-pointer hover:bg-hover-bg p-1 rounded-full transition-colors mr-1 md:hidden ">
+                            <Menu className="size-6" />
+                        </div>
+                        <Link to="/">
+                            <h1 className="text-2xl font-bold font-poppins"><span className="text-primary">APEX</span>Store</h1>
+                        </Link>
                     </div>
-                    <Link to="/">
-                        <h1 className="text-2xl font-bold font-poppins"><span className="text-primary">APEX</span>Store</h1>
-                    </Link>
+
+                    <SearchBar />
+
+                    <div className="flex items-center justify-end">
+                        <nav className="flex items-center gap-2">
+                            {
+                                isAuthenticated ?
+                                    <>
+                                        <Link to="/cart">
+                                            <ShoppingCart className="size-5" />
+                                        </Link>
+
+                                        <Link to="/profile" className="sm:hidden"><UserRound className="size-5" /></Link>
+                                        <ProfileDropdown className="hidden sm:block" />
+                                    </>
+                                    :
+                                    <>
+                                        <Link to="/login">
+                                            <ShoppingCart className="size-5" />
+                                        </Link>
+                                        <Link to="/login">
+                                            <UserRound className="size-5" />
+                                        </Link>
+                                    </>
+                            }
+                        </nav>
+                    </div>
                 </div>
-
-                <SearchBar />
-
-                <div className="flex items-center justify-end">
-                    <nav className="flex items-center gap-2">
-                        {
-                            isAuthenticated ?
-                                <>
-                                    <Link to="/cart">
-                                        <ShoppingCart className="size-5" />
-                                    </Link>
-
-
-                                    <Link to="/profile" className="sm:hidden"><UserRound className="size-5" /></Link>
-                                    <ProfileDropdown className="hidden sm:block" />
-                                </>
-                                :
-                                <>
-                                    <Link to="/login">
-                                        <ShoppingCart className="size-5" />
-                                    </Link>
-                                    <Link to="/login">
-                                        <UserRound className="size-5" />
-                                    </Link>
-                                </>
-                        }
-                    </nav>
-                </div>
-            </div>
-        </header>
+            </header>
+        </div>
     );
 };
 
@@ -144,8 +167,9 @@ const SearchBar = () => {
     const { data: results, isLoading } = useSuggestionsQuery(query);
 
     return (
-        <div className="relative row-start-2 col-span-2 mt-2 sm:mt-0">
-            <div className="flex items-center border border-gray-300 rounded-md pl-3 pr-2 py-0.5 md:w-2xl focus-within:ring-2 focus-within:ring-primary transition-all duration-200 ring-offset-2 ">
+        <div className="relative row-start-2 col-span-2 mt-2 md:mt-0 md:row-start-1 md:col-start-2 md:col-span-2">
+
+            <div className="flex items-center border border-gray-300 rounded-md pl-3 pr-2  focus-within:ring-2 focus-within:ring-primary transition-all duration-200 ring-offset-2 ">
                 <input
                     type="text"
                     placeholder="Search for products, category, etc..."

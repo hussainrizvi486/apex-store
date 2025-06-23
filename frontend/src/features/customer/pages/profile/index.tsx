@@ -25,20 +25,24 @@ const Index = () => {
     // }
     return (
         <>
-            <div className="flex justify-center py-2 border-b mb-4">
+            <div className="flex justify-center py-2 border-b mb-4 md:justify-start md:gap-4">
+
                 <div className="flex flex-col items-center">
-                    <img src="https://cdn-icons-png.flaticon.com/512/6997/6997662.png" alt="" className="h-20 w-20 rounded-full" />
-
-                    <div className="text-sm text-center mt-2 font-medium">
-                        {user.fullName}
+                    <div>
+                        <img src="https://cdn-icons-png.flaticon.com/512/6997/6997662.png" alt="" className="h-20 w-20 rounded-full" />
+                        <div className="text-sm text-center mt-2 font-medium">
+                            {user.fullName}
+                        </div>
                     </div>
-
                     <Link to="/profile/edit" className="mt-2 flex items-center gap-2 text-sm text-secondary-foreground ">
                         <SquarePen className="size-4" /> Edit Profile
                     </Link>
                 </div>
-            </div>
+                <div className="py-4 hidden md:block">
+                    <div className="text-lg font-semibold">Hi Welcome, {user.fullName}</div>
+                </div>
 
+            </div>
 
             <div >
                 <div className="mb-2 font-semibold">Quick Access</div>
@@ -65,6 +69,7 @@ const Index = () => {
                     Logout
                 </Link>
             </div>
+
 
             <div className="mt-4">
 

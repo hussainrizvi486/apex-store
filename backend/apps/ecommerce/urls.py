@@ -5,18 +5,23 @@ from .api.customer.cart import CartViewSet
 from .api.product.search import Suggestions
 from .api.product.product import ProductView
 from .api.category import CategoryViewSet
-from .api.order.main import CustomerOrderView
+from .api.order.main import CustomerOrderView, OrderAPIView
 from .api.queries.urls import urlpatterns as queries_urls
 
 # from rest_framework.routers import DefaultRouter
 
 
 urlpatterns = [
+    path(
+        "api/order/detail/",
+        OrderAPIView.as_view({"get": "retrieve"}),
+        name="retrieve-order",
+    ),
     path("api/product/create", ProductView.as_view(), name="create-product"),
+    path("api/get/product/detail", get_product_detail, name="get_product_detail"),
     path("api/get/product/list", get_products, name="get_products"),
     path("product/list", ProductistAPIView.as_view(), name="list-products"),
     path("search/suggestions", Suggestions.as_view(), name="suggestions"),
-    path("api/get/product/detail", get_product_detail, name="get_product_detail"),
     path("api/product/search", search_products, name="search_products"),
     # path("api/get/product/reviews", get_product_detail, name="get_product_detail"),
     path(
@@ -34,6 +39,7 @@ urlpatterns = [
         "api/customer/cart", CartViewSet.as_view({"get": "retrieve"}), name="get-cart"
     ),
     path("api/customer/orders/list", CustomerOrderView.as_view(), name="get-orders"),
+    path("api/customer/orders/detail", CustomerOrderView.as_view(), name="get-orders"),
     path(
         "api/customer/cart/add-item",
         CartViewSet.as_view({"post": "add_item"}),
