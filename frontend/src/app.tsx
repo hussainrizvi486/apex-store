@@ -10,7 +10,7 @@ const LoginPage = React.lazy(() => import("@features/auth/pages/login.tsx"));
 const HomePage = React.lazy(() => import("@features/product/pages/home/index"));
 // const NotFound = React.lazy(() => import("./pages/404"));
 const SearchPage = React.lazy(() => import("@features/product/pages/search/index"));
-
+const ProductDetailPage = React.lazy(() => import("@features/product/pages/detail/index"))
 import { routes as AdminRoutes } from "@features/admin/routes"
 import { routes as CustomerRoutes } from "@features/customer/routes"
 
@@ -43,6 +43,7 @@ function Application() {
           <Outlet />
         </>}>
 
+          <Route path="/product/:id" element={<ProductDetailPage />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/login" element={<LoginPage />} />

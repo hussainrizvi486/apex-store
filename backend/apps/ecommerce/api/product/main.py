@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db import connection
 
+
 from apps.ecommerce.models.product import (
     Product,
     ProductPrice,
@@ -60,3 +61,16 @@ class ProductistAPIView(APIView):
                 "results": serializer.data,
             }
         )
+
+
+class ProductAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        data = {}
+        try:
+            product = Product.objects.get(id=kwargs.get("id"))
+            serializer = ProductSerializer(product, context={"request": request})
+            data = serializer.data
+        except Product.DoesNotExist:
+            return Response({"error": "Product not found"}, status=404)
+
+        return Response(data=data)
