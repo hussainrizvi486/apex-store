@@ -1,5 +1,6 @@
 import { authAPI } from "@features/auth/api";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
+import apiClient from "../../../main";
 
 
 
@@ -15,9 +16,6 @@ export interface CartItemType {
     price: string;
     amount: string;
 }
-
-
-
 
 
 
@@ -66,3 +64,45 @@ export const useUpdateCartItem = () => {
         }
     });
 };
+
+
+
+const useCartQuery = () => {
+    return useQuery({
+        queryKey: ["cart"],
+        queryFn: async () => {
+            const { data } = await authAPI.get("/api/customer/cart");
+            return data;
+        },
+
+    });
+}
+
+const useAddCartMutation = () => {
+    return useMutation({
+        mutationFn: async (payload: Record<string, string>) => {
+            const { data } = await authAPI.post("/api/customer/cart/add-item", payload);
+            return data;
+        },
+        onSuccess: () => {
+            return apiClient.invalidateQueries({
+                queryKey: ["cart"]
+            })
+        }
+    });
+}
+
+const useUpdateCartMutation = () => {
+    return useMutation({
+        mutationFn: async (payload: Record<string, string>) => {
+            const { data } = await authAPI.post("/api/customer/cart/update", payload);
+            return data;
+        },
+        onSuccess: () => {
+            return apiClient.invalidateQueries({
+                queryKey: ["cart"]
+            })
+        }
+    })
+}
+export { useCartQuery, useAddCartMutation, useUpdateCartMutation };

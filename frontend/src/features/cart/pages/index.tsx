@@ -7,9 +7,8 @@ import { Header } from '@components/layouts';
 import { Button } from '@components/ui/button';
 
 
-export const CartPage = () => {
+const Index = () => {
   const cartQuery = useCartItems();
-
   const mi = useUpdateCartItem();
   if (cartQuery.isLoading) {
     return (
@@ -24,8 +23,8 @@ export const CartPage = () => {
   return (
     <>
       <Header />
-      <div className="max-w-7xl mx-auto p-4 flex justify-center bg-gray-50">
-        <main className="mx-auto p-4 md:p-8 w-full">
+      <div className="max-w-7xl mx-auto flex justify-center bg-gray-50">
+        <main className="mx-auto px-2 py-4 md:p-8 w-full">
           <div className='mb-2'>
             <h2 className="text-2xl ">Cart</h2>
           </div>
@@ -96,13 +95,13 @@ const CartItem = ({ data }) => {
   const { product } = data;
   return (
     <div key={data.id} className="flex flex-col sm:flex-row justify-between bg-white border border-gray-300 p-3 rounded-md mb-2">
-      <div className="flex gap-2 w-full sm:w-auto">
 
+      <div className="mb-2 flex gap-2 w-full sm:w-auto sm:mb-0">
         <div className='border border-gray-200 overflow-hidden shrink-0'>
           <img
             src={product.cover_image}
             alt={product.product_name}
-            className="h-24 w-24 rounded-md object-contain"
+            className="h-24 w-24 rounded-md object-contain shadow-sm border"
           />
         </div>
 
@@ -112,11 +111,10 @@ const CartItem = ({ data }) => {
         </div>
       </div>
 
-
-      <div className='shrink-0'>
-        <div className='flex justify-end mb-4'>
-          <button className='cursor-pointer'>
-            <Trash2 className='size-6 stroke-red-700' />
+      <div className="shrink-0 flex flex-row-reverse items-center justify-between sm:block">
+        <div className="flex justify-end mb-4">
+          <button className="cursor-pointer">
+            <Trash2 className="size-6 stroke-red-700" />
           </button>
         </div>
         <CounterButton count={integer(data.quantity || 1)} />
@@ -124,3 +122,7 @@ const CartItem = ({ data }) => {
     </div >
   )
 }
+
+
+
+export default Index;

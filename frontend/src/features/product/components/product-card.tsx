@@ -16,7 +16,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                     <img
                         src={product.cover_image || NO_IMAGE}
                         alt={product.product_name}
-                        className="w-full h-48 object-contain p-4"
+                        className="w-full h-48 object-contain p-2"
                     />
                     {/* {product.badge && (
                     <div className={`absolute top-2 left-2 text-xs font-semibold rounded-full px-2 py-1 ${product.badge === 'Best Seller' ? 'bg-blue-100 text-blue-700' :
@@ -31,7 +31,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
                         <HeartIcon size={16} className="hover:scale-105" />
                     </button>
                 </div>
-                <div className="p-4 flex flex-col justify-between flex-grow">
+                <div className="p-2 flex flex-col justify-between flex-grow">
                     <div className="mb-2">
                         <p className="text-sm font-semibold text-gray-900 line-clamp-2 mb">
                             {product.product_name}

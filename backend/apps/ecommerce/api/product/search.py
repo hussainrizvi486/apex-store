@@ -1,30 +1,29 @@
-from django.db.models import Q
+from django.utils import timezone
+from django.db.models import Subquery, OuterRef, Q, Value, DecimalField
+from django.db.models.functions import Coalesce
+from django.core.paginator import Paginator
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework.pagination import PageNumberPagination
 from apps.ecommerce.models.product import Product, ProductTypeChoices
 from apps.ecommerce.serializer.product import ProductListSerializer
 from apps.ecommerce.queries import PRODUCT_PRICE_SUBQUERY
-
-# from django.core.cache import cache
-# from django.conf import settings
-# from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from apps.ecommerce.models.product import ProductPrice
 
 
-# CACHE_TTL = getattr(settings, "CACHE_TTL", DEFAULT_TIMEOUT)
+class ProductSearchPagination(PageNumberPagination):
+    page_size = 50
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 class Suggestions(APIView):
     def _default(self):
-        # if cache.get("product_suggestions"):
-        #     return Response({"suggestions": cache.get("product_suggestions")})
-
         names = Product.objects.only("product_name").order_by("product_name")[:20]
         suggestions = [
             {"title": name.product_name, "query": name.product_name} for name in names
         ]
-        # cache.set("product_suggestions", suggestions, timeout=CACHE_TTL)
         return Response({"suggestions": suggestions})
 
     def get(self, *args, **kwargs):
@@ -33,6 +32,69 @@ class Suggestions(APIView):
             return self._default()
 
         return self._default()
+        ...
+
+
+class SearchProduct(APIView):
+    def get_queryset_filters(self, filters: dict):
+        filters = Q()
+        query = filters.get("query", "")
+        category = filters.get("category", "")
+        min_price = float(filters.get("min_price", 0) or 0)
+        max_price = float(filters.get("max_price", 0) or 0)
+
+        if query:
+            filters |= Q(product_name__icontains=query)
+            filters |= Q(description__icontains=query)
+
+        if category:
+            filters |= Q(category_id=category)
+
+        if min_price:
+            filters |= Q(price__gte=min_price)
+
+        if max_price:
+            filters |= Q(price__lte=max_price)
+
+        return filters
+
+    def get(self, *args, **kwargs):
+        filters: Q = self.get_queryset_filters(self.request.GET.dict())
+
+        product_queryset = Product.objects.filter(filters).annotate(
+            price=Coalesce(
+                Subquery(
+                    ProductPrice.objects.filter(product=OuterRef("id"))
+                    .filter(
+                        Q(valid_from__isnull=True) | Q(valid_from__lte=timezone.now())
+                    )
+                    .filter(
+                        Q(valid_till__isnull=True) | Q(valid_till__gte=timezone.now())
+                    )
+                    .order_by("-valid_from")
+                    .values("price")[:1]
+                ),
+                Value(0),
+                output_field=DecimalField(),
+            )
+        )
+        pagination = ProductSearchPagination()
+        paginated_queryset = pagination.paginate_queryset(
+            product_queryset, self.request, view=self
+        )
+        serializer = ProductListSerializer(
+            paginated_queryset, many=True, context={"request": self.request}
+        )
+        return Response(
+            data={
+                "products": serializer.data,
+                "count": pagination.page.paginator.count,
+                "next": pagination.get_next_link(),
+                "previous": pagination.get_previous_link(),
+            },
+            status=200,
+        )
+
         ...
 
 

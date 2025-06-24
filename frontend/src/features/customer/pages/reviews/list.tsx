@@ -49,7 +49,7 @@ const Index = () => {
 }
 
 
-const ReviewCard = ({ review }: { review: ReviewType }) => {
+export const ReviewCard = ({ review }: { review: ReviewType }) => {
     return (
         <div>
             <div className="border p-4 rounded-md mb-4 bg-white">

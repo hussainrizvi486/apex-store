@@ -15,7 +15,7 @@ const Index = () => {
 
     return (
         <div>
-            <div className="max-w-6xl mx-auto p-4">
+            <div className="max-w-6xl mx-auto px-2 py-4">
                 <Carousel className="w-full">
                     <CarouselContent className="h-[300px] ">
                         {
@@ -31,12 +31,11 @@ const Index = () => {
                 </Carousel>
 
                 <div className="overflow-hidden rounded-md">
-
                 </div>
 
 
-                <div className="p-4 mb-6">
-                    <div className="mb-4 font-bold text-lg">Our Products</div>
+                <div className="mb-6">
+                    <div className="mb-4 font-bold text-lg py-4">Our Products</div>
                     <ProductsGrid>
                         {data?.products?.map((item) => (
                             <ProductCard key={item.id} product={item} />
@@ -44,8 +43,8 @@ const Index = () => {
                     </ProductsGrid>
                 </div>
 
-                <div className="p-4">
-                    <div className="mb-4 font-bold text-lg">New Arrivals</div>
+                <div>
+                    <div className="mb-4 font-bold text-lg py-4">New Arrivals</div>
                     <ProductsGrid>
                         {data?.products?.map((item) => (
                             <ProductCard key={item.id} product={item} />

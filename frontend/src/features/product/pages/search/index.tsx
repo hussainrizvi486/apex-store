@@ -40,12 +40,14 @@ const Index = () => {
 
     return (
         <div className="max-w-7xl mx-auto">
-            <div className="flex ">
-                <SearchFilters />
-                <div className="flex-auto p-4 ml-6">
+            <div className="md:flex md:gap-8">
+                <div className="hidden md:block">
+                    <SearchFilters />
+                </div>
+
+                <div className="p-2 md:flex-auto ">
                     <div className="flex justify-between items-center">
                         <div>Search Results</div>
-
                         <div>
                             <Select>
                                 <SelectTrigger>

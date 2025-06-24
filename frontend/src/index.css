@@ -6,21 +6,21 @@ html {
     @apply font-poppins;
 }
 
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button,
+input[type='number'] {
+    -webkit-appearance: none;
+    -moz-appearance: textfield !important;
+    --color-input: #a7a7a7;
+    margin: 0;
+}
+
+
 @layer base {
     * {
         border-color: #ebebeb;
     }
-
-    input[type='number']::-webkit-outer-spin-button,
-    input[type='number']::-webkit-inner-spin-button,
-    input[type='number'] {
-        -webkit-appearance: none;
-        --color-input: #a7a7a7;
-        margin: 0;
-        -moz-appearance: textfield !important;
-    }
-
-
 }
 
 @theme {

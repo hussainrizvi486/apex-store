@@ -18,6 +18,7 @@ const apiClient = new QueryClient({
   },
 });
 
+export default apiClient;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -15,10 +15,7 @@ const Checkbox = React.forwardRef<
             )
             }
             {...props}
-
         >
-
-
             <CheckboxPrimitive.Indicator >
                 <svg focusable="false"
                     aria-hidden="true" viewBox="0 0 24 24" data-testid="CheckIcon" className="size-4 text-current fill-current">
