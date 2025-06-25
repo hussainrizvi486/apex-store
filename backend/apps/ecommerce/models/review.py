@@ -11,7 +11,6 @@ class ProductReview(BaseModel):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="reviews"
     )
-
     rating = models.PositiveIntegerField(
         default=1, validators=[MinValueValidator(1), MaxValueValidator(5)]
     )

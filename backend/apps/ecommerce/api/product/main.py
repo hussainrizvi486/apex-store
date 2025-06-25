@@ -35,17 +35,15 @@ def get_products(request):
 @api_view(["GET"])
 def get_product_detail(request):
     product_id = request.GET.get("id")
-
     if not product_id:
         return Response({"error": "Product ID is required"}, status=400)
-
     try:
         product = Product.objects.get(id=product_id)
     except Product.DoesNotExist:
         return Response({"error": "invalid product id"}, status=404)
 
     serializer = ProductSerializer(product, context={"request": request})
-    return Response({"product": serializer.data})
+    return Response(data=serializer.data)
 
 
 class ProductistAPIView(APIView):

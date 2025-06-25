@@ -4,7 +4,8 @@ import { authAPI } from "@features/auth/api";
 import { Button } from "@components/ui/button";
 import React, { useCallback, useState } from "react";
 import { X } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
+import { useParams } from "react-router-dom";
 
 const formField: Array<TypeField> = [
     {
@@ -177,24 +178,74 @@ const useProductMutation = () => {
 }
 
 
-const defaultValues = {
-    "product_type": "product",
-    "product_name": " Joomra Women's Trail Running Barefoot Shoes | Wide Toe Box Minimalist Sneakers | Zero Drop ",
-    "category": "d9b2a1f4-5d48-4f33-aa55-dfbad1735c61",
-    "description": " Joomra Women's Trail Running Barefoot Shoes | Wide Toe Box Minimalist Sneakers | Zero Drop ",
-    "disable": false,
-    "media_files": [],
-    "item_prices": [
-        {
-            "price_list": "a149a427-5406-49aa-8316-f5049d4a9430",
-            "price": "41.99",
-            "valid_from": "",
-            "valid_till": ""
-        }
-    ],
-}
+// const defaultValues = {
+//     "product_type": "product",
+//     "product_name": " Joomra Women's Trail Running Barefoot Shoes | Wide Toe Box Minimalist Sneakers | Zero Drop ",
+//     "category": "d9b2a1f4-5d48-4f33-aa55-dfbad1735c61",
+//     "description": " Joomra Women's Trail Running Barefoot Shoes | Wide Toe Box Minimalist Sneakers | Zero Drop ",
+//     "disable": false,
+//     "media_files": [],
+//     "item_prices": [
+//         {
+//             "price_list": "a149a427-5406-49aa-8316-f5049d4a9430",
+//             "price": "41.99",
+//             "valid_from": "",
+//             "valid_till": ""
+//         }
+//     ],
+// }
 
+
+const useProductQuery = (id: string) => {
+    console.log(id);
+    return useQuery({
+        queryKey: ["admin-product-detail", id],
+        queryFn: async () => {
+            const response = await authAPI.get(`api/get/product/detail?id=${id}`);
+            return response.data;
+        },
+        enabled: !!id
+    });
+};
+
+const EditProduct = ({ id }: { id: string }) => {
+    const { data: product, isLoading } = useProductQuery(id);
+
+    const handleSubmit = () => { };
+    console.log(product)
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+    if (!product) {
+        return <div>Product not found</div>;
+    }
+    const values = {
+        product_name: product.product_name,
+        description: product.description,
+    }
+    return (
+        <div>
+            <div>
+                <div className="flex items-center justify-between mt-4">
+                    <h1 className="font-semibold">Edit Product</h1>
+                </div>
+
+                <div className="bg-white p-2">
+                    <DataForm fields={formField} onSubmit={handleSubmit} values={values} />
+                </div>
+            </div>
+        </div>
+    )
+}
 const Index = () => {
+    const defaultValues = {};
+    const { id } = useParams<{ id: string | undefined }>();
+    console.log(id)
+
+    if (id) {
+        return <EditProduct id={id} />;
+    }
+
     const { mutate: createProduct, isLoading } = useProductMutation();
 
     const handleSubmit = useCallback((d: FormValues) => {

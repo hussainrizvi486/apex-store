@@ -42,12 +42,14 @@ const Index = () => {
             header: 'Product',
             cell: ({ row }) => {
                 const product = row.original;
-                return (<div className="flex items-center gap-2">
-                    <div className="h-12 w-12 shrink-0 rounded-sm border border-gray-200">
-                        <img src={product.cover_image} alt="" className="h-full w-full object-contain" />
+                return (<Link to={`/admin/product/${product.id}`}>
+                    <div className="flex items-center gap-2">
+                        <div className="h-12 w-12 shrink-0 rounded-sm border border-gray-200">
+                            <img src={product.cover_image} alt="" className="h-full w-full object-contain" />
+                        </div>
+                        <div className="line-clamp-3">{product.product_name}</div>
                     </div>
-                    <div className="line-clamp-3">{product.product_name}</div>
-                </div>)
+                </Link>)
             }
         },
         {

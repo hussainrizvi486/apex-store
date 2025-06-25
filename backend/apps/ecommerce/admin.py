@@ -56,6 +56,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
     list_filter = ("category", "created_at")
     search_fields = ("product_name", "description")
+    ordering = ("-updated_at",)
     inlines = [VariantAttributeInline, ProductImageInline, ProductPriceInline]
 
     def thumbnail(self, obj):

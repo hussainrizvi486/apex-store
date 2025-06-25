@@ -1,14 +1,13 @@
 from django.urls import path
-from .api.product import get_products, get_product_detail, search_products
+from .api.product import get_products, get_product_detail
+
 from .api.product.main import ProductistAPIView, ProductAPIView
 from .api.customer.cart import CartViewSet
-from .api.product.search import Suggestions
+from .api.product.search import Suggestions, SearchProduct
 from .api.product.product import ProductView
 from .api.category import CategoryViewSet
 from .api.order.main import CustomerOrderView, OrderAPIView
 from .api.queries.urls import urlpatterns as queries_urls
-
-# from rest_framework.routers import DefaultRouter
 
 
 urlpatterns = [
@@ -20,13 +19,13 @@ urlpatterns = [
     path("api/product/create", ProductView.as_view(), name="create-product"),
     path("api/get/product/detail", get_product_detail, name="get_product_detail"),
     path("api/get/product/list", get_products, name="get_products"),
+    path("api/product/search", SearchProduct.as_view(), name="search_products"),
     path("product/list", ProductistAPIView.as_view(), name="list-products"),
     path(
         "api/product/<str:id>",
         ProductAPIView.as_view(),
     ),
     path("search/suggestions", Suggestions.as_view(), name="suggestions"),
-    path("api/product/search", search_products, name="search_products"),
     # path("api/get/product/reviews", get_product_detail, name="get_product_detail"),
     path(
         "api/get/categories/list",
