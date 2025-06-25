@@ -14,6 +14,11 @@ interface DFContextType {
 
 const DFContext = createContext<DFContextType>({ fields: [], getFields: () => [], getFormState: () => ({}) });
 
+const useDFContext = () => {
+    const context = useContext(DFContext);
+    return context;
+}
+
 const DFContextProvider: React.FC<{ children: React.ReactNode, fields: TypeField[], values: FormValues | null }> = ({ children, fields, values }) => {
     const getFormState = (): FormState => {
         const state: FormState = {};
@@ -44,6 +49,7 @@ const DFContextProvider: React.FC<{ children: React.ReactNode, fields: TypeField
 
     const getValues = (): FormValues => {
         const values: FormValues = {};
+
         fields.forEach((f) => {
             if (!f.sectionBreak && !f.columnBreak) {
                 values[f.name] = null;
@@ -89,9 +95,5 @@ const DFContextProvider: React.FC<{ children: React.ReactNode, fields: TypeField
     );
 };
 
-const useDFContext = () => {
-    const context = useContext(DFContext);
-    return context;
-}
 
 export { DFContext, DFContextProvider, useDFContext }

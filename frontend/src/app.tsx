@@ -14,6 +14,9 @@ const ProductDetailPage = React.lazy(() => import("@features/product/pages/detai
 import { routes as AdminRoutes } from "@features/admin/routes"
 import { routes as CustomerRoutes } from "@features/customer/routes"
 import { Linkedin, Twitter } from "lucide-react"
+import { DataForm } from "@components/data-form/main"
+import { formField } from "@features/admin/pages/product/form"
+import { TypeField } from "@components/data-form"
 
 const AdminModule = () => {
   const routes = useRoutes(AdminRoutes);
@@ -25,6 +28,18 @@ const CustomerModule = () => {
 }
 
 
+
+const TestCase = () => {
+  let fields: TypeField[] = formField;
+  
+  return (
+
+    <div className="p-4 max-w-6xl mx-auto">
+      <DataForm fields={fields} />
+    </div>
+  )
+}
+
 function Application() {
 
   return (
@@ -33,6 +48,7 @@ function Application() {
       <AdminModule />
       <CustomerModule />
       <Routes>
+        <Route path="/test" element={<TestCase />} />
         <Route element={<AuthRoutes />}>
           <Route path="/cart" element={<CartPage />} />
         </Route>

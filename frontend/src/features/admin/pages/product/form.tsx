@@ -7,7 +7,7 @@ import { X } from "lucide-react";
 import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 
-const formField: Array<TypeField> = [
+export const formField: Array<TypeField> = [
     {
         label: "",
         sectionBreak: true,
