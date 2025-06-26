@@ -14,6 +14,7 @@ export type FormState = Record<string, FieldState>;
 export type FieldType = "text" | "number" | "float" | "currency" | "date" | "file" | "textarea" | "texteditor" | "select" | "checkbox" | "table" | "autocomplete" | "custom";
 export type FieldValue = string | number | boolean | File | Date | TypeOption | TypeOption[] | Record<string, any> | null | undefined;
 export type FormValues = Record<string, FieldValue>;
+export type ValidationFunction = (value: FieldValue) => boolean | string;
 
 export interface TypeField<T extends FieldType = FieldType> {
     name: string;
@@ -25,6 +26,7 @@ export interface TypeField<T extends FieldType = FieldType> {
     sectionBreak?: boolean;
     columnBreak?: boolean;
     component?: React.FC;
+    validate?: ValidationFunction;
     onChange?: (value: FieldValue) => void;
     onBlur?: (value: FieldValue) => void;
 }
