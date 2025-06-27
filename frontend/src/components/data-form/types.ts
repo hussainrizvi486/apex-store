@@ -25,16 +25,19 @@ export interface TypeField<T extends FieldType = FieldType> {
     placeholder?: string;
     sectionBreak?: boolean;
     columnBreak?: boolean;
-    component?: React.FC;
+    component?: (setValue: (value: FieldValue) => void,) => React.FC<any>;
     validate?: ValidationFunction;
     onChange?: (value: FieldValue) => void;
     onBlur?: (value: FieldValue) => void;
+
+    dependsOn?: (values: FormValues) => boolean;
+    requiredOn?: (values: FormValues) => boolean;
+    readOnlyOn?: (values: FormValues) => boolean;
 }
 
 export interface DataFormProps {
-    fields: TypeField[];
-    values?: FormValues | null;
-    onSubmit?: (values: FormValues) => void;
+    // fields: TypeField[];
+    // values?: FormValues | null;
 }
 
 

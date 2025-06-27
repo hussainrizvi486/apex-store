@@ -4,8 +4,6 @@ import { Settings2, ReceiptText, PackageOpen, House, DotIcon, UserRound, BellDot
 import { cn, isActiveURL } from "@utils/index";
 
 
-
-
 const items = [
     { label: "Home", icon: <House />, url: "/admin" },
     { label: "Products", icon: <PackageOpen />, url: "/admin/products/list" },
@@ -16,31 +14,34 @@ const items = [
     { label: "Settings", icon: <Settings2 />, url: "" }
 ]
 
+
+
 export const Layout = () => {
     return (
         <div>
-            <header className="bg-neutral-900 h-12 flex items-center justify-between px-4 text-white">
-                <Link to="/admin"><div className="font-semibold">Apex Store</div></Link>
-
-                <div>
-                    <div className="bg-neutral-800 w-2xl rounded-md border border-neutral-700 focus-within:ring-2 ring-offset-1 ring-neutral-500 transition-all">
-                        <input type="text " className=" outline-none w-full px-2 py-1 text-sm " placeholder="Search" />
-                    </div>
-                </div>
-
-                <div>
-                    <div className="flex items-center gap-3">
-                        <div className="cursor-pointer">
-                            <UserRound className="size-5" />
-                        </div>
-
-                        <div className="cursor-pointer">
-                            <BellDot className="size-5" />
+            <div className="relative">
+                <header className="bg-neutral-900 h-12 flex items-center justify-between px-4 text-white fixed top-0 left-0 right-0 z-10">
+                    <Link to="/admin"><div className="font-semibold">Apex Store</div></Link>
+                    <div>
+                        <div className="bg-neutral-800 w-2xl rounded-md border border-neutral-700 focus-within:ring-2 ring-offset-1 ring-neutral-500 transition-all">
+                            <input type="text " className=" outline-none w-full px-2 py-1 text-sm " placeholder="Search" />
                         </div>
                     </div>
-                </div>
 
-            </header>
+                    <div>
+                        <div className="flex items-center gap-3">
+                            <div className="cursor-pointer">
+                                <UserRound className="size-5" />
+                            </div>
+
+                            <div className="cursor-pointer">
+                                <BellDot className="size-5" />
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+            </div>
 
             <SidebarProvider style={{ minHeight: "calc(100svh - 3rem)" }}>
                 <Sidebar className="top-12">

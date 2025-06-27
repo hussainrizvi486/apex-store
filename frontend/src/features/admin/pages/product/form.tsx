@@ -1,4 +1,4 @@
-import { DataForm } from "@components/data-form/main";
+import { DataForm, DataFormProvider, DataFormTrigger } from "@components/data-form/main";
 import { FormValues, TypeField } from "@components/data-form";
 import { authAPI } from "@features/auth/api";
 import { Button } from "@components/ui/button";
@@ -212,7 +212,7 @@ const EditProduct = ({ id }: { id: string }) => {
     const { data: product, isLoading } = useProductQuery(id);
 
     const handleSubmit = () => { };
-    console.log(product)
+
     if (isLoading) {
         return <div>Loading...</div>;
     }
@@ -220,6 +220,7 @@ const EditProduct = ({ id }: { id: string }) => {
         return <div>Product not found</div>;
     }
     const values = {
+        product_type: product.product_type,
         product_name: product.product_name,
         description: product.description,
     }
@@ -231,7 +232,13 @@ const EditProduct = ({ id }: { id: string }) => {
                 </div>
 
                 <div className="bg-white p-2">
-                    <DataForm fields={formField} onSubmit={handleSubmit} values={values} />
+                    <DataFormProvider fields={formField} values={values} >
+
+                        <DataForm onSubmit={handleSubmit} />
+                        <DataFormTrigger>
+                            <Button>Save</Button>
+                        </DataFormTrigger>
+                    </DataFormProvider>
                 </div>
             </div>
         </div>

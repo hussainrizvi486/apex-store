@@ -76,7 +76,6 @@ export const Header = () => {
 
     return (
         <div className="max-w-6xl mx-auto">
-
             <header className="border-b border-gray-200">
                 <div className="grid grid-cols-2 p-2 md:grid-cols-4 md:py-3">
                     <div className="flex items-center">

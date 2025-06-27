@@ -1,38 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { FieldValue, FormValues, FormState, DataFormProps, TypeDFLayout, TypeField, TypeDFSection } from "./types";
 import { Input } from "@components/ui/input";
 import { Checkbox } from "@components/ui/checkbox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 import { cn } from "@utils/index";
 
-
-
 const Section: React.FC<{
 	children: React.ReactNode;
 	label: string;
-}> = ({ children, label }) => (
+}> = React.memo(({ children, label }) => (
 	<div className="mb-6 border-b border-gray-300 pb-6 ">
 		<h2 className="text-base font-semibold mb-4">{label}</h2>
 		<div className='flex gap-2'>
 			{children}
 		</div>
 	</div>
-);
+));
 
-const Column: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+const Column: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => (
 	<div className="basis-full">
 		{children}
 	</div>
-);
-
-
-
+));
 
 type DFContextValue = {
 	values: FormValues | null | undefined;
 	fields: TypeField[];
 	state: FormState;
 	isValid?: boolean;
+	onSave?: (values: FormValues) => void;
+	triggerSave?: () => void;
 	getValues?: () => FormValues;
 	setValue?: (name: string, value: FieldValue) => void;
 	setError?: (name: string, hasError?: boolean, message?: string) => void;
@@ -44,46 +41,104 @@ const DFContext = React.createContext<DFContextValue>({
 	state: {},
 });
 
-const DFProvider: React.FC<{
+const getFormFields = (fields: TypeField[]): TypeField[] => {
+	return fields.filter(field => !field.columnBreak && !field.sectionBreak);
+}
+
+const getInitialState = (fields: TypeField[], values?: FormValues | null): FormState => {
+	const state: FormState = {};
+
+	fields.forEach((field) => {
+		const value = values?.[field.name] || "";
+		state[field.name] = {
+			value: value,
+			hasError: false,
+			error: "",
+			field: field
+		};
+	})
+	return state
+}
+
+interface DataFormProviderProps {
 	children: React.ReactNode;
 	fields: TypeField[];
+	onSave?: (values: FormValues) => void;
 	values?: FormValues | null;
-}> = ({ children, fields, values }) => {
+}
 
+const DataFormProvider: React.FC<DataFormProviderProps> = ({ children, fields, values, onSave }) => {
+	const formFields: Array<TypeField> = useMemo(() => getFormFields(fields), [fields]);
+	const [state, setState] = useState<FormState>(getInitialState(fields, values));
+	const [isValid, setIsValid] = useState<boolean>(false);
 
-	const [state, setState] = React.useState<FormState>({});
-	const [isValid, setIsValid] = React.useState<boolean>(false);
-
-
-	const isEmpty = (value: FieldValue): boolean => {
+	const isEmpty = useCallback((value: FieldValue): boolean => {
 		if (value === null || value === undefined) return true;
 		if (typeof value === 'string') return value.trim() === '';
 		if (typeof value === 'number') return false;
 		if (typeof value === 'boolean') return false;
 		if (Array.isArray(value)) return value.length === 0;
 		return false;
-	};
+	}, []);
 
-
-	const getValues = (): FormValues => {
+	const getValues = useCallback((): FormValues => {
 		const values: FormValues = {};
 		Object.keys(state).forEach(key => values[key] = state[key].value);
 		return values;
-	}
+	}, [state]);
 
-	const setValue = (name: string, value: FieldValue) => {
-		setState((prev) => ({ ...prev, [name]: { ...prev[name], value: value } }))
-	}
+	// Optimized setValue to only update the specific field
+	const setValue = useCallback((name: string, value: FieldValue) => {
+		setState((prev) => {
+			// Only update if the value has actually changed
+			if (prev[name]?.value === value) return prev;
 
-	const setError = (name: string, hasError: boolean = false, message: string = "") => {
-		const currentState = { ...state[name], hasError: hasError, error: message };
-		setState(prev => ({ ...prev, [name]: currentState }))
-	}
+			return {
+				...prev,
+				[name]: { ...prev[name], value: value }
+			};
+		});
+	}, []);
 
-	const validateField = (name: string): boolean => {
+	const setError = useCallback((name: string, hasError: boolean = false, message: string = "") => {
+		setState(prev => {
+			const state = prev[name];
+			if (state?.hasError === hasError && state?.error === message) {
+				return prev;
+			}
+
+			return {
+				...prev,
+				[name]: { ...state, hasError: hasError, error: message }
+			};
+		});
+	}, []);
+
+	const validateFieldType = useCallback((field: TypeField, value: FieldValue): { isValid: boolean; message: string } => {
+		switch (field.type) {
+			case "number":
+				if (typeof value === 'string' && isNaN(Number(value))) {
+					return { isValid: false, message: `${field.label} must be a valid number` };
+				}
+				break;
+			case "float":
+			case "currency":
+				if (typeof value === 'string' && (isNaN(parseFloat(value)) || !isFinite(parseFloat(value)))) {
+					return { isValid: false, message: `${field.label} must be a valid decimal number` };
+				}
+				break;
+			case "date":
+				if (value && !(value instanceof Date) && isNaN(Date.parse(value as string))) {
+					return { isValid: false, message: `${field.label} must be a valid date` };
+				}
+				break;
+		}
+		return { isValid: true, message: "" };
+	}, []);
+
+	const validateField = useCallback((name: string): boolean => {
 		const field = fields.find(f => f.name === name);
 		const fieldState = state[name];
-
 
 		if (!field || !fieldState) return false;
 
@@ -94,15 +149,12 @@ const DFProvider: React.FC<{
 			hasError = true;
 			errorMessage = `${field.label} is required`;
 		}
-
-		// Type-specific validation
 		else if (!isEmpty(fieldState.value)) {
 			const validationResult = validateFieldType(field, fieldState.value);
 			hasError = !validationResult.isValid;
 			errorMessage = validationResult.message;
 		}
 
-		// Custom validation if provided
 		if (!hasError && field.validate) {
 			const customValidation = field.validate(fieldState.value);
 			if (typeof customValidation === 'string') {
@@ -116,40 +168,42 @@ const DFProvider: React.FC<{
 
 		setError(name, hasError, errorMessage);
 		return !hasError;
-	};
+	}, [fields, state, isEmpty, validateFieldType, setError]);
 
+	const handleSave = useCallback(() => {
+		formFields.forEach(field => {
+			validateField(field.name);
+		});
 
-	const formFields: Array<TypeField> = fields.map(field => field.columnBreak && !field.sectionBreak && field);
+		if (!isValid) {
+			return;
+		}
 
-
-	useEffect(() => {
-		const initialState: FormState = {};
-		formFields.forEach((field) => {
-			const value = values?.[field.name] || "";
-			initialState[field.name] = {
-				value: value,
-				hasError: false,
-				error: "",
-				field: field
-			};
-		})
-
-		setState(initialState);
-	}, [formFields, values])
-
+		const values = getValues();
+		onSave?.(values);
+	}, [formFields, validateField, isValid, getValues, onSave]);
 
 	useEffect(() => {
-		const hasErrors = Object.values(state).some(fieldState => fieldState.hasError);
-		setIsValid(!hasErrors);
-	}, [state])
+		setIsValid(!Object.values(state).some(fieldState => fieldState.hasError));
+	}, [state]);
+
+	const contextValue = useMemo(() => ({
+		fields: fields,
+		triggerSave: handleSave,
+		getValues,
+		setValue,
+		setError,
+		values,
+		state,
+		isValid
+	}), [fields, handleSave, getValues, setValue, setError, values, state, isValid]);
 
 	return (
-		<DFContext.Provider value={{ fields: fields, getValues, setValue, setError, values, state, isValid }}>
+		<DFContext.Provider value={contextValue}>
 			{children}
 		</DFContext.Provider>
 	)
 }
-
 
 const useDFContext = () => {
 	const context = React.useContext(DFContext);
@@ -158,7 +212,6 @@ const useDFContext = () => {
 	}
 	return context;
 }
-
 
 const buildLayout = (fields: TypeField[]) => {
 	const layout: TypeDFLayout = [];
@@ -211,71 +264,71 @@ const buildLayout = (fields: TypeField[]) => {
 	return layout;
 }
 
+const DataFormTrigger: React.FC<{
+	children: React.ReactNode;
+}> = ({ children }) => {
+	const form = useDFContext();
 
-const DataForm: React.FC<DataFormProps> = (props) => {
-	const formLayout = React.useMemo(() => buildLayout(props.fields), [props.fields]);
+	const handleClick = useCallback(() => {
+		form.triggerSave?.();
+		console.log(form.getValues?.())
+	}, [form]);
+
 	return (
-		<DFProvider fields={props.fields}>
+		<div onClick={handleClick}> {children}</div>
+	);
+};
+
+const DataForm: React.FC = () => {
+	const form = useDFContext();
+	const formLayout = useMemo(() => buildLayout(form.fields), [form.fields]);
+
+	return (
+		<div>
 			{formLayout.map((section, index) => (
 				<Section key={index} label={section.label || ""}>
 					{section.columns?.map(((col, k) => (
 						<Column key={k} >
 							{col.map((field, l) => (
-								<DFInput field={field} key={l} />
+								<DFInput field={field} key={field.name} />
 							))}
 						</Column>
 					)))}
 				</Section>
 			))}
-		</DFProvider>
+		</div>
 	)
 }
 
-
-const DFInput: React.FC<{ field: TypeField }> = (props) => {
+const DFInput: React.FC<{ field: TypeField }> = React.memo((props) => {
 	const form = useDFContext();
-
-	const [classNames, setClassNames] = useState<string>("");
 	const { field } = props;
 
 	const fieldState = form.state[field.name];
 
-	useEffect(() => {
-		if (fieldState?.hasError) {
-			setClassNames("ring ring-offset-3 ring-destructive");
-		} else {
-			setClassNames("");
-		}
+	const classNames = useMemo(() => {
+		return fieldState?.hasError ? "ring ring-offset-3 ring-destructive" : "";
+	}, [fieldState?.hasError]);
 
-	}, [fieldState?.hasError])
-
-
-	const handleChange = (value: FieldValue) => {
-		field.onChange?.(value);
+	const handleChange = useCallback((value: FieldValue) => {
 		form?.setValue?.(field.name, value);
-	};
+	}, [form, field.name]);
 
-	const handleBlur = () => {
-		// Validate field on blur
-		// form?.validateField?.(field.name);
+	const handleBlur = useCallback(() => {
 		field.onBlur?.(fieldState?.value);
-	};
-
-
-	const Field = () => <DFInputField
-		field={field}
-		className={classNames}
-		onBlur={handleBlur}
-		onChange={handleChange}
-		value={fieldState?.value} />;
-
-
+	}, [field, fieldState?.value]);
 
 	if (field.type === "checkbox") {
 		return (
 			<div className="mb-4 ">
 				<div className="flex items-center gap-2">
-					<Field />
+					<DFInputField
+						field={field}
+						className={classNames}
+						onBlur={handleBlur}
+						onChange={handleChange}
+						value={fieldState?.value}
+					/>
 					<label htmlFor={field.name} className="text-sm block font-medium">{field.label} </label>
 				</div>
 				{fieldState?.hasError && (
@@ -288,20 +341,29 @@ const DFInput: React.FC<{ field: TypeField }> = (props) => {
 	return (
 		<div className="mb-4 ">
 			<label htmlFor={field.name} className="text-sm block mb-2 font-medium">{field.label} </label>
-			<Field />
+			<DFInputField
+				field={field}
+				className={classNames}
+				onBlur={handleBlur}
+				onChange={handleChange}
+				value={fieldState?.value}
+			/>
 			{fieldState?.hasError && (
 				<span className="text-red-500 text-xs mt-1">{fieldState.error}</span>
 			)}
 		</div>
 	)
-}
+});
 
-const DFInputField = (props: {
-	field: TypeField, className: string, onChange: (value: FieldValue) => void;
+interface DFInputFieldProps {
+	field: TypeField,
+	className: string,
+	onChange: (value: FieldValue) => void;
 	onBlur: () => void;
 	value: FieldValue;
-}) => {
+}
 
+const DFInputField: React.FC<DFInputFieldProps> = React.memo((props) => {
 	const { field, className, onChange, onBlur, value } = props;
 
 	if (field.type == "checkbox") {
@@ -326,7 +388,7 @@ const DFInputField = (props: {
 				<SelectContent>
 					<SelectGroup>
 						{field.options?.map((option, index) => (
-							<SelectItem className="text-sm" key={index} value={option.value}>
+							<SelectItem className="text-sm" key={option.value} value={option.value}>
 								{option.label}
 							</SelectItem>
 						))}
@@ -340,15 +402,13 @@ const DFInputField = (props: {
 		<Input
 			name={field.name}
 			className={className}
-			onChange={(value) => onChange(value)}
 			type={field.type === "number" || field.type === "float" || field.type === "currency" ? "number" : "text"}
-			value={value as string || ""}
+			onChange={(event) => onChange(event.target.value)}
 			onBlur={onBlur}
+			defaultValue={value as string || ""}
 			placeholder={field.placeholder}
 		/>
 	)
+});
 
-}
-
-
-export { DataForm };
+export { DataFormProvider, DataForm, DataFormTrigger, DFInputField };
