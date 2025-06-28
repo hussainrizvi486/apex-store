@@ -13,6 +13,16 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ["name", "id", "description", "image"]
 
+    def get_image(self, obj: Category):
+        if not obj.image:
+            return None
+
+        request = self.context.get("request")
+        if not request:
+            return obj.image.url
+
+        return request.build_absolute_uri(obj.image.url)
+
 
 class PriceListSerializer(serializers.ModelSerializer):
     class Meta:

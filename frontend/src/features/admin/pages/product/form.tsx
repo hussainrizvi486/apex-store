@@ -1,5 +1,5 @@
 import { DataForm, DataFormProvider, DataFormTrigger } from "@components/data-form/main";
-import { FormValues, TypeField } from "@components/data-form";
+import { FormValues, TypeField, TypeOption } from "@components/data-form/types";
 import { authAPI } from "@features/auth/api";
 import { Button } from "@components/ui/button";
 import React, { useCallback, useState } from "react";
@@ -9,6 +9,7 @@ import { useParams } from "react-router-dom";
 
 export const formField: Array<TypeField> = [
     {
+        type: "section",
         label: "",
         sectionBreak: true,
         name: "product_details_section",
@@ -37,8 +38,13 @@ export const formField: Array<TypeField> = [
         type: "autocomplete",
         getOptions: async () => {
             const request = await authAPI.get("api/get/categories/list");
-            return request.data.map(v => ({ label: v.name, value: v.id }));
-        }
+            return request.data.map(v => ({ label: v.name, value: v.id, meta: v }));
+        },
+        renderOption: (option: TypeOption) => (
+            <div className="flex items-center"><img src={option.meta.image} alt="" /> {option.label}</div>
+        )
+
+
     },
     {
         label: "Description",
@@ -65,52 +71,55 @@ export const formField: Array<TypeField> = [
         label: "Media",
         name: "media_section",
         sectionBreak: true,
+        type: "section",
+
     },
 
     {
         label: "Images",
         name: "media_files",
         type: "custom",
-        component: (props) => <ProductMedia {...props} />,
+        // component: (props) => <ProductMedia {...props} />,
     },
     {
         label: "Pricing",
         sectionBreak: true,
         name: "pricing_section",
+        type: "section",
     },
     {
         label: "Item Price",
         type: "table",
         name: "item_prices",
-        fields: [
-            {
-                label: "Price List",
-                name: "price_list",
-                type: "autocomplete",
-                getOptions: async () => {
-                    const request = await authAPI.get("query/pricelist");
-                    return request.data.map(v => ({ label: v.name, value: v.id }));
-                },
-                required: true,
-            },
-            {
-                label: "Price",
-                type: "currency",
-                name: "price",
-                required: true,
+        // fields: [
+        //     {
+        //         label: "Price List",
+        //         name: "price_list",
+        //         type: "autocomplete",
+        //         getOptions: async () => {
+        //             const request = await authAPI.get("query/pricelist");
+        //             return request.data.map(v => ({ label: v.name, value: v.id }));
+        //         },
+        //         required: true,
+        //     },
+        //     {
+        //         label: "Price",
+        //         type: "currency",
+        //         name: "price",
+        //         required: true,
 
-            },
-            {
-                label: "Valid From",
-                type: "date",
-                name: "valid_from",
-            },
-            {
-                label: "Valid Till",
-                type: "date",
-                name: "valid_till"
-            }
-        ]
+        //     },
+        //     {
+        //         label: "Valid From",
+        //         type: "date",
+        //         name: "valid_from",
+        //     },
+        //     {
+        //         label: "Valid Till",
+        //         type: "date",
+        //         name: "valid_till"
+        //     }
+        // ]
     }
 ]
 

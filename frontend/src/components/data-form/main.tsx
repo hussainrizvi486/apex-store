@@ -4,24 +4,9 @@ import { Input } from "@components/ui/input";
 import { Checkbox } from "@components/ui/checkbox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
 import { cn } from "@utils/index";
+import { Column, Section } from "./components/layout";
+import { AutoComplete } from "@components/ui/autocomplete";
 
-const Section: React.FC<{
-	children: React.ReactNode;
-	label: string;
-}> = React.memo(({ children, label }) => (
-	<div className="mb-6 border-b border-gray-300 pb-6 ">
-		<h2 className="text-base font-semibold mb-4">{label}</h2>
-		<div className='flex gap-2'>
-			{children}
-		</div>
-	</div>
-));
-
-const Column: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => (
-	<div className="basis-full">
-		{children}
-	</div>
-));
 
 type DFContextValue = {
 	values: FormValues | null | undefined;
@@ -283,21 +268,19 @@ const DataForm: React.FC = () => {
 	const form = useDFContext();
 	const formLayout = useMemo(() => buildLayout(form.fields), [form.fields]);
 
-	return (
-		<div>
-			{formLayout.map((section, index) => (
-				<Section key={index} label={section.label || ""}>
-					{section.columns?.map(((col, k) => (
-						<Column key={k} >
-							{col.map((field, l) => (
-								<DFInput field={field} key={field.name} />
-							))}
-						</Column>
-					)))}
-				</Section>
-			))}
-		</div>
-	)
+	return (<div>
+		{formLayout.map((section, index) => (
+			<Section key={index} label={section.label || ""}>
+				{section.columns?.map(((col, k) => (
+					<Column key={k} >
+						{col.map((field, l) => (
+							<DFInput field={field} key={field.name} />
+						))}
+					</Column>
+				)))}
+			</Section>
+		))}
+	</div>)
 }
 
 const DFInput: React.FC<{ field: TypeField }> = React.memo((props) => {
@@ -396,6 +379,12 @@ const DFInputField: React.FC<DFInputFieldProps> = React.memo((props) => {
 				</SelectContent>
 			</Select>
 		);
+	}
+
+	if (field.type == "autocomplete") {
+		return (
+			<AutoComplete label={field.label} className={className} onChange={onChange} getOptions={field.getOptions} renderOption={field.renderOption} />
+		)
 	}
 
 	return (

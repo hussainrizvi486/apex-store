@@ -13,7 +13,9 @@ class CategoryViewSet(viewsets.ViewSet):
 
     def list(self, *args, **kwargs):
         queryset = Category.objects.all()
-        serializer = CategorySerializer(queryset, many=True)
+        serializer = CategorySerializer(
+            queryset, many=True, context={"request": self.request}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def tree(self, *args, **kwargs):

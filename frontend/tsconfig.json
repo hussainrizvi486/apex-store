@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "react": [
+      "node_modules/@types/react"
+    ],
     "baseUrl": "./src",
     "paths": {
       "@features/*": [
