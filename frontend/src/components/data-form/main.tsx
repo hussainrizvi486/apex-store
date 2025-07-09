@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { FieldValue, FormValues, FormState, DataFormProps, TypeDFLayout, TypeField, TypeDFSection } from "./types";
+import { FieldValue, FormValues, FormState, TypeDFLayout, TypeField, TypeDFSection } from "./types";
 import { Input } from "@components/ui/input";
 import { Checkbox } from "@components/ui/checkbox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
@@ -15,12 +15,13 @@ type DFContextValue = {
 	isValid?: boolean;
 	onSave?: (values: FormValues) => void;
 	triggerSave?: () => void;
-	getValues?: () => FormValues;
+	getValues: () => FormValues;
 	setValue?: (name: string, value: FieldValue) => void;
 	setError?: (name: string, hasError?: boolean, message?: string) => void;
 }
 
 const DFContext = React.createContext<DFContextValue>({
+	getValues: () => ({}),
 	values: {},
 	fields: [],
 	state: {},
@@ -200,8 +201,10 @@ const useDFContext = () => {
 
 const buildLayout = (fields: TypeField[]) => {
 	const layout: TypeDFLayout = [];
-	const sections: TypeDFSection[] = fields.filter(field => field.sectionBreak);
+	const sections: TypeDFSection[] = fields.filter(field => field.sectionBreak)
 
+
+	console.log("Sections found:", sections);
 	if (!sections.length) {
 		const section: TypeDFSection = { label: '' };
 		const columns: TypeField[][] = [[]];
@@ -221,7 +224,6 @@ const buildLayout = (fields: TypeField[]) => {
 		layout.push(section);
 		return layout;
 	}
-
 	sections.forEach(section => {
 		const startIndex = fields.findIndex(v => v.name === section.name);
 		const columns: TypeField[][] = [[]];
@@ -252,6 +254,7 @@ const buildLayout = (fields: TypeField[]) => {
 const DataFormTrigger: React.FC<{
 	children: React.ReactNode;
 }> = ({ children }) => {
+
 	const form = useDFContext();
 
 	const handleClick = useCallback(() => {
@@ -273,7 +276,7 @@ const DataForm: React.FC = () => {
 			<Section key={index} label={section.label || ""}>
 				{section.columns?.map(((col, k) => (
 					<Column key={k} >
-						{col.map((field, l) => (
+						{col.map((field) => (
 							<DFInput field={field} key={field.name} />
 						))}
 					</Column>
@@ -286,7 +289,6 @@ const DataForm: React.FC = () => {
 const DFInput: React.FC<{ field: TypeField }> = React.memo((props) => {
 	const form = useDFContext();
 	const { field } = props;
-
 	const fieldState = form.state[field.name];
 
 	const classNames = useMemo(() => {
@@ -300,6 +302,16 @@ const DFInput: React.FC<{ field: TypeField }> = React.memo((props) => {
 	const handleBlur = useCallback(() => {
 		field.onBlur?.(fieldState?.value);
 	}, [field, fieldState?.value]);
+
+
+	const { dependsOn, requiredOn } = field;
+
+	if (dependsOn && !dependsOn(form.getValues())) {
+		return <></>
+	}
+
+
+	const required: boolean = Boolean(requiredOn ? requiredOn(form.getValues()) : field.required)
 
 	if (field.type === "checkbox") {
 		return (
@@ -323,7 +335,10 @@ const DFInput: React.FC<{ field: TypeField }> = React.memo((props) => {
 
 	return (
 		<div className="mb-4 ">
-			<label htmlFor={field.name} className="text-sm block mb-2 font-medium">{field.label} </label>
+			<label htmlFor={field.name} className="text-sm block mb-2 font-medium">
+				{field.label} {required ? <span className="text-destructive">*</span> : <></>}
+			</label>
+
 			<DFInputField
 				field={field}
 				className={classNames}
@@ -331,6 +346,7 @@ const DFInput: React.FC<{ field: TypeField }> = React.memo((props) => {
 				onChange={handleChange}
 				value={fieldState?.value}
 			/>
+
 			{fieldState?.hasError && (
 				<span className="text-red-500 text-xs mt-1">{fieldState.error}</span>
 			)}
@@ -359,6 +375,17 @@ const DFInputField: React.FC<DFInputFieldProps> = React.memo((props) => {
 		/>)
 	}
 
+
+	if (field.type == "textarea") {
+		return (
+			<textarea name={field.name} className={cn("w-full text-sm p-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary", className)} rows={6}
+				onChange={(event) => onChange(event.target.value)}
+			>
+				{value as string || ""}
+			</textarea>
+		)
+	}
+
 	if (field.type === "select") {
 		return (
 			<Select
@@ -370,8 +397,8 @@ const DFInputField: React.FC<DFInputFieldProps> = React.memo((props) => {
 				</SelectTrigger>
 				<SelectContent>
 					<SelectGroup>
-						{field.options?.map((option, index) => (
-							<SelectItem className="text-sm" key={option.value} value={option.value}>
+						{field.options?.map((option) => (
+							<SelectItem className="text-sm" key={option.value} value={option.value} >
 								{option.label}
 							</SelectItem>
 						))}
@@ -385,6 +412,10 @@ const DFInputField: React.FC<DFInputFieldProps> = React.memo((props) => {
 		return (
 			<AutoComplete label={field.label} className={className} onChange={onChange} getOptions={field.getOptions} renderOption={field.renderOption} />
 		)
+	}
+
+	if (field.type == "custom" && field.component) {
+		return field.component();
 	}
 
 	return (

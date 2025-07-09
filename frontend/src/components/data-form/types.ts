@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type TypeOption = {
     label: string;
     value: string;
@@ -14,8 +15,26 @@ export type FormState = Record<string, FieldState>;
 export type FieldType = "text" | "number" | "float" | "currency" | "date" | "file" | "textarea" | "texteditor" | "select" | "checkbox" | "table" | "autocomplete" | "custom" | "section" | "column";
 export type FieldValue = string | number | boolean | File | Date | TypeOption | TypeOption[] | Record<string, any> | null | undefined;
 export type FormValues = Record<string, FieldValue>;
+
 export type ValidationFunction = (value: FieldValue) => boolean | string;
 
+
+export type DFContextValue = {
+    values: FormValues | null | undefined;
+    fields: TypeField[];
+    state: FormState;
+    isValid?: boolean;
+    onSave?: (values: FormValues) => void;
+    triggerSave?: () => void;
+    getValues: () => FormValues;
+    setValue?: (name: string, value: FieldValue) => void;
+    setError?: (name: string, hasError?: boolean, message?: string) => void;
+}
+
+
+export interface CustomFieldProps {
+    form: DFContextValue,
+}
 export interface TypeField<T extends FieldType = FieldType> {
     name: string;
     label: string;
@@ -25,7 +44,6 @@ export interface TypeField<T extends FieldType = FieldType> {
     placeholder?: string;
     sectionBreak?: boolean;
     columnBreak?: boolean;
-    component?: (setValue: (value: FieldValue) => void,) => React.FC<any>;
     validate?: ValidationFunction;
     onChange?: (value: FieldValue) => void;
     onBlur?: (value: FieldValue) => void;
@@ -34,11 +52,7 @@ export interface TypeField<T extends FieldType = FieldType> {
     dependsOn?: (values: FormValues) => boolean;
     requiredOn?: (values: FormValues) => boolean;
     readOnlyOn?: (values: FormValues) => boolean;
-}
-
-export interface DataFormProps {
-    // fields: TypeField[];
-    // values?: FormValues | null;
+    component?: (props: CustomFieldProps) => React.ReactNode;
 }
 
 
@@ -47,6 +61,5 @@ export type TypeDFSection = {
     label?: string;
     name?: string;
     columns?: TypeField[][];
-    // sectionBreak: boolean;
 }
 export type TypeDFLayout = Array<TypeDFSection>;
