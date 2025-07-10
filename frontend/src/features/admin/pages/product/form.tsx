@@ -7,34 +7,43 @@ import { X } from "lucide-react";
 import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { ReactSortable } from "react-sortablejs";
+import { fieldsObject } from "@components/data-form/test";
 
 
 interface FileTypes {
     file?: File;
-    url: string;
+    url?: string;
     id: string;
+    name?: string
 }
 const ProductMedia: React.FC<CustomFieldProps> = ({ form }) => {
 
-    const [files, setFiles] = useState<Array<FileTypes> | null>(null);
+    const [data, setData] = useState<Array<FileTypes> | null>(null);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
-            const fileArray = Array.from(event.target.files);
-            // setFiles(fileArray);
-            // form.setValue?.("media_files", fileArray);
+            const files = Array.from(event.target.files).map((file) => {
+                return {
+                    name: file.name,
+                    file: file,
+                    id: crypto.randomUUID(),
+                }
+            })
+
+            setData(files);
+            form.setValue?.("media_files", files);
         }
     }
 
     const removeFile = (index: number) => {
-        if (files?.length) {
-            const updated = files.filter((_, idx) => idx !== index);
-            setFiles(updated.length > 0 ? updated : null);
+        if (data?.length) {
+            const updated = data.filter((_, idx) => idx !== index);
+            setData(updated.length > 0 ? updated : null);
             form.setValue?.("media_files", updated);
         }
     }
 
-    if (!files?.length) {
+    if (!data?.length) {
         return (
             <div className="relative">
                 <input type="file" multiple className="absolute inset-0 border opacity-0 cursor-pointer" accept="image/*" onChange={(e) => { handleChange(e) }} />
@@ -49,25 +58,32 @@ const ProductMedia: React.FC<CustomFieldProps> = ({ form }) => {
     }
 
     return (
-        <div className="flex flex-wrap gap-2">
-            <ReactSortable list={files} setList={setFiles} >
+        <div >
+            <ReactSortable list={data} setList={setData} className="flex flex-wrap gap-2" animation={200}
+                delayOnTouchStart={true}
+                delay={2}>
 
-                {files.map((file, i) => (
-                    <div key={i} className="h-32 w-32 shadow-sm rounded-md overflow-hidden relative group border border-gray-200">
-                        <button
-                            onClick={() => removeFile(i)}
-                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10 cursor-pointer "
-                        >
-                            <X className="size-4" />
-                        </button>
-                        image
+                {data.map((file, i) => {
+                    if (file) {
+                        return (
+                            <div key={i} className="h-32 w-32 shadow-sm rounded-md overflow-hidden relative group border border-gray-200 ">
+                                <button
+                                    onClick={() => removeFile(i)}
+                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10 cursor-pointer "
+                                >
+                                    <X className="size-4" />
+                                </button>
 
-                        {/* <img src={URL.createObjectURL(file)} alt={`Uploaded file ${i}`} className="h-full w-full object-contain" /> */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-neutral-800 bg-opacity-50 text-white text-xs p-0.5 px-1 truncate line-clamp-1">
-                            {/* {file.name} */}
-                        </div>
-                    </div>
-                ))}
+                                <img src={URL.createObjectURL(file.file)} alt={`Uploaded file ${i}`} className="h-full w-full object-contain" />
+                                <div className="absolute bottom-0 left-0 right-0 bg-neutral-800 bg-opacity-50 text-white text-xs p-0.5 px-1 truncate line-clamp-1">
+                                    {file.name || ""}
+                                </div>
+                            </div>
+                        )
+
+                    }
+                }
+                )}
 
             </ReactSortable>
         </div>
@@ -81,12 +97,14 @@ export const formField: Array<TypeField> = [
         type: "section",
         label: "",
         sectionBreak: true,
+
         name: "product_details_section",
     },
     {
         label: "Type",
         name: "product_type",
         type: "select",
+        defaultValue: "variant",
         options: [
             { label: "Product", value: "product" },
             { label: "Template", value: "template" },
@@ -97,8 +115,8 @@ export const formField: Array<TypeField> = [
         label: "Template",
         name: "template",
         type: "autocomplete",
-        dependsOn: (values) => values.product_type === "template",
-        requiredOn: (values) => values.product_type === "template",
+        dependsOn: (values) => values.product_type === "variant",
+        requiredOn: (values) => values.product_type === "variant",
     },
     {
         label: "Title",
@@ -332,7 +350,7 @@ const Index = () => {
                 </div>
 
                 <div className="bg-white p-2">
-                    <DataForm fields={formField} onSubmit={handleSubmit} values={defaultValues} />
+                    {/* <DataForm fields={formField} onSubmit={handleSubmit} values={defaultValues} /> */}
                 </div>
             </div>
         </div>

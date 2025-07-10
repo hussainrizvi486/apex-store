@@ -35,11 +35,12 @@ export type DFContextValue = {
 export interface CustomFieldProps {
     form: DFContextValue,
 }
-export interface TypeField<T extends FieldType = FieldType> {
+export interface TypeField {
     name: string;
     label: string;
-    type: T;
+    type: FieldType;
     required?: boolean;
+    defaultValue?: FieldValue;
     options?: TypeOption[];
     placeholder?: string;
     sectionBreak?: boolean;
@@ -53,6 +54,7 @@ export interface TypeField<T extends FieldType = FieldType> {
     requiredOn?: (values: FormValues) => boolean;
     readOnlyOn?: (values: FormValues) => boolean;
     component?: (props: CustomFieldProps) => React.ReactNode;
+    fields?: Array<TypeField>;
 }
 
 

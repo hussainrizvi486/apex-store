@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { FieldValue, FormValues, FormState, TypeDFLayout, TypeField, TypeDFSection } from "./types";
+import { cn } from "@utils/index";
 import { Input } from "@components/ui/input";
 import { Checkbox } from "@components/ui/checkbox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@components/ui/select";
-import { cn } from "@utils/index";
-import { Column, Section } from "./components/layout";
 import { AutoComplete } from "@components/ui/autocomplete";
+import { Column, Section } from "./components/layout";
+import { FieldValue, FormValues, FormState, TypeDFLayout, TypeField, TypeDFSection } from "./types";
+import { TableInput } from "@components/ui/table-input";
 
 
 type DFContextValue = {
@@ -35,7 +36,7 @@ const getInitialState = (fields: TypeField[], values?: FormValues | null): FormS
 	const state: FormState = {};
 
 	fields.forEach((field) => {
-		const value = values?.[field.name] || "";
+		const value = values?.[field.name] || field.defaultValue || "";
 		state[field.name] = {
 			value: value,
 			hasError: false,
@@ -73,12 +74,9 @@ const DataFormProvider: React.FC<DataFormProviderProps> = ({ children, fields, v
 		return values;
 	}, [state]);
 
-	// Optimized setValue to only update the specific field
 	const setValue = useCallback((name: string, value: FieldValue) => {
 		setState((prev) => {
-			// Only update if the value has actually changed
 			if (prev[name]?.value === value) return prev;
-
 			return {
 				...prev,
 				[name]: { ...prev[name], value: value }
@@ -127,11 +125,11 @@ const DataFormProvider: React.FC<DataFormProviderProps> = ({ children, fields, v
 		const fieldState = state[name];
 
 		if (!field || !fieldState) return false;
-
 		let hasError = false;
 		let errorMessage = "";
+		const isRequired = field.requiredOn ? field.requiredOn(getValues()) : field.required;
 
-		if (field.required && isEmpty(fieldState.value)) {
+		if (isRequired && isEmpty(fieldState.value)) {
 			hasError = true;
 			errorMessage = `${field.label} is required`;
 		}
@@ -415,7 +413,10 @@ const DFInputField: React.FC<DFInputFieldProps> = React.memo((props) => {
 	}
 
 	if (field.type == "custom" && field.component) {
-		return field.component();
+		return field.component({ form: useDFContext() });
+	}
+	if (field.type == "table" && field.fields) {
+		return <TableInput fields={field.fields} />;
 	}
 
 	return (

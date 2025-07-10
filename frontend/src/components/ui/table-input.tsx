@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { CircleX, Files, FileText, Trash2 } from "lucide-react";
+import { CircleX, FileText, Trash2 } from "lucide-react";
 
-import { cn, float } from "@utils/index";
-import { FieldState } from "@components/data-form/index";
+import { FieldState, TypeField } from "@components/data-form/types";
 
+import { Button } from "@components/ui/button";
 import { AutoComplete } from "@components/ui/autocomplete";
-import { Button } from "./button";
 import { Checkbox } from "@components/ui/checkbox";
 import { Input } from "@components/ui/input";
+
 import {
   Select,
   SelectContent,
@@ -16,26 +16,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@components/ui/select";
-import { TypeOption } from "@components/data-form/types";
+import { FieldValue } from "@components/data-form";
+import { cn } from "@utils/index";
 
-type FieldType = "text" | "textarea" | "date" | "select" | "number" | "autocomplete" | "float" | "checkbox" | "table";
+
+
 type InputValue = string | number | boolean | undefined | null;
 type TableInputValue = Array<Record<string, InputValue>>;
 
-interface TypeField<T extends FieldType = FieldType> {
-  label: string;
-  name: string;
-  type: T;
-  required?: boolean;
-  disabled?: boolean;
-  placeholder?: string;
-  description?: string;
-  options?: TypeOption[];
-  defaultValue?: InputValue;
-  onChange?: (value: InputValue) => void;
-  getOptions?: () => Promise<TypeOption[]>;
-  fields?: Array<TypeField>; // For nested table fields
-}
 
 interface TableInputContextType {
   fields: Array<TypeField>;
@@ -49,6 +37,7 @@ interface TableInputContextType {
   handleDelete: (index: number) => void;
 }
 
+
 interface TableInputProps {
   fields: Array<TypeField>;
   actionLabel?: string,
@@ -59,12 +48,6 @@ interface TableInputProps {
   className?: string;
 }
 
-interface FieldProps extends TypeField {
-  state?: FieldState | null;
-  onChange?: (value: InputValue) => void;
-  onBlur?: (value: InputValue) => void;
-  value?: InputValue;
-}
 
 function getColumnsCSS(count: number): React.CSSProperties {
   let styles = "2rem ";
@@ -168,122 +151,100 @@ const useTableInputContext = () => {
   return context;
 };
 
-const Field: React.FC<FieldProps> = (props) => {
-  const [fieldClassName, setFieldClassName] = useState<string>("");
-  const { state, type, onChange, onBlur, value } = props;
 
-  const handleChange = (newValue: InputValue) => {
-    onChange?.(newValue);
-  };
+interface FieldProps {
+  field: TypeField;
+  onChange?: (value: InputValue) => void;
+  onBlur?: (value: InputValue) => void;
+  value?: FieldValue;
+}
 
-  const handleBlur = (newValue: InputValue) => {
-    onBlur?.(newValue);
-  };
+const Field: React.FC<FieldProps> = React.memo((props) => {
+  const state: FieldState = useTableInputContext().state[props.field.name];
+
+  const { field, onChange, onBlur, value, } = props;
+  const [className, setClassName] = useState<string>("");
 
   useEffect(() => {
-    if (state?.hasError) {
-      setFieldClassName("ring-2 ring-red-500 ring-offset-2");
+    if (state.hasError) {
+      setClassName("ring-2 ring-red-500 ring-offset-2");
     } else {
-      setFieldClassName("");
+      setClassName("");
     }
-  }, [state?.hasError]);
+  }, [state.hasError]);
 
-  if (!type) {
-    return null;
+
+
+
+  if (field.type == "checkbox") {
+    return (<Checkbox
+      name={field.name}
+      id={field.name}
+      checked={Boolean(value)}
+    // onBlur={onBlur}
+    // onCheckedChange={(checked) => onChange(checked)}
+    />)
   }
-  const className = cn("my-0 h-full shadow-none border-0", fieldClassName);
 
 
-  switch (type) {
-    case "checkbox":
-      return (
-        <Checkbox
-          name={props.name}
-          id={props.name}
-          checked={Boolean(value)}
-          onCheckedChange={handleChange}
-          className={className}
-        />
-      );
+  if (field.type == "textarea") {
+    return (
+      <textarea name={field.name} className={cn("w-full text-sm p-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary", className)} rows={6}
+      // onChange={(event) => onChange(event.target.value)}
+      >
+        {value as string || ""}
+      </textarea>
+    )
+  }
 
-    case "select":
-      return (
-        <Select
-          onValueChange={handleChange}
-          value={String(value || "")}
+  if (field.type === "select") {
+    return (
+      <Select
+        value={value as string || ""}
+      // onValueChange={(val) => onChange(val)}
+      >
+        <SelectTrigger className={cn(className)}
+        //  onBlur={onBlur}
         >
-          <SelectTrigger className={className}>
-            <SelectValue placeholder={props.placeholder || "Select"} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {props.options?.map((option, index) => (
-                <SelectItem className="text-sm" key={index} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      );
-
-    case "autocomplete":
-      return (
-        <AutoComplete
-          label={props.label}
-          options={props.options}
-          getOptions={props.getOptions}
-          onChange={handleChange}
-          className={className}
-          value={value}
-        />
-      );
-
-    case "date":
-      return (
-        <Input
-          name={props.name}
-          className={className}
-          placeholder={props.placeholder || "YYYY-MM-DD"}
-          disabled={props.disabled}
-          value={String(value)}
-          type="date"
-          onChange={(newValue) => handleChange(newValue)}
-          onBlur={(newValue) => handleBlur(newValue)}
-        />
-      );
-
-    case "number":
-    case "float":
-      return (
-        <Input
-          name={props.name}
-          type="number"
-          placeholder={type === "number" ? "0" : "0.00"}
-          disabled={props.disabled}
-          className={cn(className, "text-right")}
-          value={String(value || "")}
-          onChange={(v) => handleChange(float(v))}
-          onBlur={(v) => handleBlur(float(v))}
-        />
-      );
-
-
-    default:
-      return (
-        <Input
-          name={props.name}
-          placeholder={props.placeholder || "Enter value"}
-          disabled={props.disabled}
-          type="text"
-          className={className}
-          value={String(value)}
-          onChange={(v) => handleChange(v)}
-          onBlur={(v) => handleBlur(v)}
-        />
-      );
+          <SelectValue placeholder={field.placeholder || "Select"} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {field.options?.map((option) => (
+              <SelectItem className="text-sm" key={option.value} value={option.value} >
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    );
   }
-};
+
+  if (field.type == "autocomplete") {
+    return (
+      <AutoComplete label={field.label} className={className}
+        // onChange={onChange}
+        getOptions={field.getOptions} renderOption={field.renderOption} />
+    )
+  }
+
+  // if (field.type == "custom" && field.component) {
+  //   return field.component({ form: useDFContext() });
+  // }
+
+  return (
+    <Input
+      name={field.name}
+      className={className}
+      type={field.type === "number" || field.type === "float" || field.type === "currency" ? "number" : "text"}
+      // onChange={(event) => onChange(event.target.value)}
+      // onBlur={onBlur}
+      defaultValue={value as string || ""}
+      placeholder={field.placeholder}
+    />
+  )
+});
 
 const TableInputHeader: React.FC<{ fields: Array<TypeField> }> = ({ fields }) => {
   return (
@@ -348,9 +309,11 @@ const TableInputBody: React.FC = () => {
           {fields.map((field) => (
             <div key={field.name} className="px-2 py-1 border-r border-gray-200 last:border-r-0 h-full">
               <Field
-                {...field}
-                onChange={(fieldValue) => handleFieldChange(rowIndex, field.name, fieldValue)}
-                value={row[field.name]}
+                field={field}
+              // state={}
+              // {...field}
+              // onChange={(fieldValue) => handleFieldChange(rowIndex, field.name, fieldValue)}
+              // value={row[field.name]}
               />
             </div>
           ))}
