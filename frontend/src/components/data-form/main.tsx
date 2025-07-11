@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { AutoComplete } from "@components/ui/autocomplete";
 import { Column, Section } from "./components/layout";
 import { FieldValue, FormValues, FormState, TypeDFLayout, TypeField, TypeDFSection } from "./types";
-import { TableInput } from "@components/ui/table-input";
+import { TableInput } from "@components/ui/table-input/index";
 
 
 type DFContextValue = {
@@ -415,7 +415,7 @@ const DFInputField: React.FC<DFInputFieldProps> = React.memo((props) => {
 	if (field.type == "custom" && field.component) {
 		return field.component({ form: useDFContext() });
 	}
-	if (field.type == "table" && field.fields) {
+	if (field.type == "table" && field?.fields?.length) {
 		return <TableInput fields={field.fields} />;
 	}
 

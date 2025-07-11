@@ -21,20 +21,92 @@ import { cn } from "@utils/index";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@components/ui/dialog";
 
 
+type TableInputState = Array<{ state: FieldState, index: number }>
+type TableInputValues = Array<Record<string, FieldValue>>;
+interface ContextType {
+  fields: Array<TypeField>;
+  values: Record<string, FieldValue> | null;
+  state: TableInputState;
+  // onChange: () => void;
+  // onAddRow: () => void;
+  // onDeleteRow: () => void;
+  setValue: (name: string, value: FieldValue, index: number) => void;
+  getValues: () => TableInputValues;
+}
+
+
+
+const context = React.createContext<ContextType | null>(null);
+
+interface ProviderProps {
+  values: Record<string, FieldValue> | null;
+  children: React.ReactNode;
+  fields: Array<TypeField>;
+  // onChange?: (data: TableInputValues) => void;
+}
+
+const ContextProvider: React.FC<ProviderProps> = (props) => {
+  function getInitialState(fields: Array<TypeField>): TableInputState {
+    const state: TableInputState = []
+
+    fields.forEach((field, index) => {
+      state.push({
+        state: {
+          error: "",
+          hasError: false,
+          value: field.defaultValue || null,
+          field: field,
+        },
+        index: index,
+      });
+    })
+    return state
+  }
+
+  const { fields, values } = props;
+
+  const [state, setState] = useState<TableInputState>(getInitialState(props.fields));
+
+  const setValue = (name: string, value: FieldValue, index: number) => {
+    setState(prev => {
+      // const row = prev.find(row => row.index === index);
+      // if (!row) return prev;
+      // const { state } = row;
+      // if (state.value === value) return prev;
+      // state.value = value;
+      // state.hasError = false;
+      // state.error = "";
+
+      return prev;
+    })
+  };
+
+  const getValues = (): TableInputValues => {
+    const values: TableInputValues = [];
+    return values;
+  }
+
+
+  return (
+    <context.Provider value={{ setValue, getValues, state, fields, values }} >
+      {props.children}
+    </context.Provider>
+  )
+}
 
 type InputValue = string | number | boolean | undefined | null;
-type TableInputValue = Array<Record<string, InputValue>>;
+type TableInputValue = Array<Record<string, FieldValue>>;
 
 
 interface TableInputContextType {
   fields: Array<TypeField>;
-  values: Record<string, InputValue> | null;
+  values: Record<string, FieldValue> | null;
   state: Record<string, FieldState>;
   data: TableInputValue;
-  setValue: (name: string, value: InputValue) => void;
-  getValue: (name: string) => InputValue;
-  getValues: () => Record<string, InputValue>;
-  handleFieldChange: (rowIndex: number, fieldName: string, value: InputValue) => void;
+  setValue: (name: string, value: FieldValue) => void;
+  getValue: (name: string) => FieldValue;
+  getValues: () => Record<string, FieldValue>;
+  handleFieldChange: (rowIndex: number, fieldName: string, value: FieldValue) => void;
   handleDelete: (index: number) => void;
 }
 
@@ -188,9 +260,9 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
 
   if (field.type === "textarea") {
     return (
-      <textarea 
-        name={field.name} 
-        className={cn("w-full text-sm p-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary", className)} 
+      <textarea
+        name={field.name}
+        className={cn("w-full text-sm p-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary", className)}
         rows={6}
         onChange={(event) => onChange?.(event.target.value)}
         onBlur={(event) => onBlur?.(event.target.value)}
@@ -225,19 +297,19 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
 
   if (field.type === "autocomplete") {
     return (
-      <AutoComplete 
-        label={field.label} 
+      <AutoComplete
+        label={field.label}
         className={className}
         onChange={onChange}
         value={value}
-        getOptions={field.getOptions} 
-        renderOption={field.renderOption} 
+        getOptions={field.getOptions}
+        renderOption={field.renderOption}
       />
     );
   }
 
   if (field.type === "custom" && field.component) {
-    return field.component({ 
+    return field.component({
       value,
       onChange,
       onBlur,
@@ -303,14 +375,14 @@ const EmptyTable: React.FC = () => (
   </div>
 );
 
-const TableInputForm: React.FC<{ 
-  row: Record<string, InputValue>; 
+const TableInputForm: React.FC<{
+  row: Record<string, InputValue>;
   index: number;
   onClose: () => void;
   onSave: (data: Record<string, InputValue>) => void;
 }> = ({ row, index, onClose, onSave }) => {
   const { fields } = useTableInputContext();
-  const [formValues, setFormValues] = useState<Record<string, InputValue>>({...row});
+  const [formValues, setFormValues] = useState<Record<string, InputValue>>({ ...row });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (name: string, value: InputValue) => {
@@ -318,7 +390,7 @@ const TableInputForm: React.FC<{
       ...prev,
       [name]: value
     }));
-    
+
     // Clear error when field is changed
     if (errors[name]) {
       setErrors(prev => ({
@@ -330,13 +402,13 @@ const TableInputForm: React.FC<{
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     fields.forEach(field => {
       if (field.required && (formValues[field.name] === undefined || formValues[field.name] === null || formValues[field.name] === "")) {
         newErrors[field.name] = "This field is required";
       }
     });
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -353,7 +425,7 @@ const TableInputForm: React.FC<{
       <DialogHeader>
         <DialogTitle>Editing Row #{index + 1}</DialogTitle>
       </DialogHeader>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto p-1">
         {fields.map((field) => (
           <div key={field.name} className="space-y-1">
@@ -372,7 +444,7 @@ const TableInputForm: React.FC<{
           </div>
         ))}
       </div>
-      
+
       <DialogFooter>
         <Button variant="outline" onClick={onClose}>Cancel</Button>
         <Button onClick={handleSave}>Save Changes</Button>
@@ -427,7 +499,7 @@ const TableInputBody: React.FC = () => {
             </div>
 
             {fields.map((field) => (
-              <div key={field.name} 
+              <div key={field.name}
                 className={cn(
                   "px-3 py-2 border-r border-gray-200 last:border-r-0 h-full flex items-center",
                   field.required && row[field.name] === null ? "bg-red-50/10" : ""
