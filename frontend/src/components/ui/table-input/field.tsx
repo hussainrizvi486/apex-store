@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import { FieldState, TypeField, FieldValue } from "@components/data-form/types";
 import { Input } from "@components/ui/input";
@@ -12,6 +13,7 @@ import {
     SelectValue,
 } from "@components/ui/select";
 import { cn } from "@utils/index";
+import { ReactReduxContext } from "react-redux";
 
 
 
@@ -20,19 +22,24 @@ interface FieldProps {
     onChange?: (value: FieldValue) => void;
     onBlur?: (value: FieldValue) => void;
     value?: FieldValue;
+
 }
 
 const Field: React.FC<FieldProps> = React.memo((props) => {
-    const { field, onChange, onBlur, value } = props;
+    const { field, onBlur, value } = props;
     const [className, setClassName] = useState<string>("");
 
-    useEffect(() => {
-        if (field.required && (value === null || value === undefined || value === "")) {
-            setClassName("ring-2 ring-red-500 ring-offset-2");
-        } else {
-            setClassName("");
-        }
-    }, [field.required, value]);
+
+    const onChange = (value: any) => {
+        console.log("Field onChange", field.name, value);
+    }
+    // useEffect(() => {
+    //     if (field.required && (value === null || value === undefined || value === "")) {
+    //         setClassName("ring-2 ring-red-500 ring-offset-2");
+    //     } else {
+    //         setClassName("");
+    //     }
+    // }, [field.required, value]);
 
 
 
@@ -86,23 +93,39 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
     }
 
     if (field.type === "autocomplete") {
+        // const defaultValue = value ? typeof value === "string" ? value : JSON.stringify(value) : "";
         return (
             <AutoComplete
                 label={field.label}
                 className={className}
                 onChange={onChange}
                 // value={value}
+                defaultValue={value}
                 getOptions={field.getOptions}
                 renderOption={field.renderOption}
             />
         );
     }
 
-    if (field.type === "custom" && field.component) {
-        const form = null;
-        return field.component({ form });
-    }
+    // if (field.type === "custom" && field.component) {
+    //     const form = null;
+    //     return field.component({ form });
+    // }
 
+    if (field.type == "date") {
+        return (
+            <Input
+                name={field.name}
+                className={className}
+                type="date"
+                defaultValue={value as string || ""}
+                onChange={(event) => onChange?.(event.target.value)}
+                onBlur={(event) => onBlur?.(event.target.value)}
+                // value={value as string || ""}
+                placeholder={field.placeholder}
+            />
+        )
+    }
     return (
         <Input
             name={field.name}
@@ -110,7 +133,7 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
             type={field.type === "number" || field.type === "float" || field.type === "currency" ? "number" : "text"}
             onChange={(event) => onChange?.(event.target.value)}
             onBlur={(event) => onBlur?.(event.target.value)}
-            value={value as string || ""}
+            defaultValue={value as string || ""}
             placeholder={field.placeholder}
         />
     );

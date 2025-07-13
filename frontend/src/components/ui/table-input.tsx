@@ -534,6 +534,7 @@ const TableInputBody: React.FC = () => {
                 <PencilIcon className="size-4" />
               </button>
             </div>
+            
           </div>
         ))}
       </div>
