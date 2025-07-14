@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
-import { FieldState, TypeField, FieldValue } from "@components/data-form/types";
+import { TypeField, FieldValue } from "@components/data-form/types";
 import { Input } from "@components/ui/input";
 import { Checkbox } from "@components/ui/checkbox";
 import { AutoComplete } from "@components/ui/autocomplete";
@@ -13,7 +13,7 @@ import {
     SelectValue,
 } from "@components/ui/select";
 import { cn } from "@utils/index";
-import { ReactReduxContext } from "react-redux";
+import { TIFieldState, useTIContext } from ".";
 
 
 
@@ -22,25 +22,31 @@ interface FieldProps {
     onChange?: (value: FieldValue) => void;
     onBlur?: (value: FieldValue) => void;
     value?: FieldValue;
+    state: TIFieldState;
 
 }
 
 const Field: React.FC<FieldProps> = React.memo((props) => {
-    const { field, onBlur, value } = props;
+    const ctx = useTIContext()
+
+    const { field, onBlur, value, state } = props;
     const [className, setClassName] = useState<string>("");
 
 
-    const onChange = (value: any) => {
+    const onChange = (value: FieldValue) => {
+        ctx.setValue({ name: field.name, value, index: state.index });
         console.log("Field onChange", field.name, value);
     }
-    // useEffect(() => {
-    //     if (field.required && (value === null || value === undefined || value === "")) {
-    //         setClassName("ring-2 ring-red-500 ring-offset-2");
-    //     } else {
-    //         setClassName("");
-    //     }
-    // }, [field.required, value]);
 
+
+    useEffect(() => {
+        if (state.hasError) {
+            setClassName("ring-2 ring-red-500 ring-offset-2");
+        }
+        else {
+            setClassName("");
+        }
+    }, [state.hasError]);
 
 
     if (field.type === "checkbox") {
@@ -93,6 +99,7 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
     }
 
     if (field.type === "autocomplete") {
+
         // const defaultValue = value ? typeof value === "string" ? value : JSON.stringify(value) : "";
         return (
             <AutoComplete

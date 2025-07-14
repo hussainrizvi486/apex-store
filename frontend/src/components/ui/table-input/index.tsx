@@ -1,24 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { CircleX, FileText, Trash2, Settings as SettingsIcon, Pencil as PencilIcon, DeleteIcon } from "lucide-react";
-
+import { FileText, Trash2, Settings as SettingsIcon, Pencil as PencilIcon, DeleteIcon } from "lucide-react";
 import { FieldState, TypeField } from "@components/data-form/types";
-
 import { Button } from "@components/ui/button";
-import { AutoComplete } from "@components/ui/autocomplete";
 import { Checkbox } from "@components/ui/checkbox";
-import { Input } from "@components/ui/input";
-
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@components/ui/select";
 import { FieldValue } from "@components/data-form";
 import { cn } from "@utils/index";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@components/ui/dialog";
+import { Dialog, DialogContent } from "@components/ui/dialog";
 import { Field } from "./field";
 
 
@@ -29,7 +16,7 @@ function getColumnsCSS(count: number): React.CSSProperties {
     return { gridTemplateColumns: styles };
 }
 
-interface TIFieldState extends FieldState {
+export interface TIFieldState extends FieldState {
     index: number;
 }
 
@@ -39,17 +26,18 @@ type TableInputState = Array<{
 
 type TableInputValues = Array<Record<string, FieldValue>>;
 interface ContextType {
-    fields: Array<TypeField>;
+    fields: TypeField[];
     values: Record<string, FieldValue> | null;
     state: TableInputState;
-    setValue: (name: string, value: FieldValue, index: number) => void;
+    setValue: (params: { name: string; value: FieldValue; index: number }) => void;
     addRow: () => void;
-    deleteRow: (index: number | Array<number>) => void;
+    deleteRow: (index: number | number[]) => void;
     editingRow: number | null;
     setEditingRow: (index: number | null) => void;
     onChange?: () => void;
     getValues: () => TableInputValues;
 }
+
 
 
 const context = React.createContext<ContextType | null>(null);
@@ -86,7 +74,8 @@ const ContextProvider: React.FC<ProviderProps> = (props) => {
     const [state, setState] = useState<TableInputState>(getInitialState(props.fields, values));
     const [editingRow, setEditingRow] = useState<number | null>(null);
 
-    const setValue = (name: string, value: FieldValue, index: number) => {
+    const setValue = (params: { name: string; value: FieldValue; index: number }) => {
+        const { index, value, name } = params;
         setState(prev => {
             const newState = [...prev];
             const row = newState[index];
@@ -140,7 +129,7 @@ const ContextProvider: React.FC<ProviderProps> = (props) => {
         const values: TableInputValues = [];
 
         state.forEach((row) => {
-            const rowValues = {} as Record<string, FieldValue>;
+            const rowValues: Record<string, FieldValue> = {};
             Object.keys(row).forEach((key) => {
                 const value = row[key].value;
                 rowValues[key] = value;
@@ -149,7 +138,9 @@ const ContextProvider: React.FC<ProviderProps> = (props) => {
         });
         return values;
     }
-
+    useEffect(() => {
+        console.warn(state)
+    }, [state])
     return (
         <context.Provider value={{
             setValue,
@@ -168,7 +159,7 @@ const ContextProvider: React.FC<ProviderProps> = (props) => {
 }
 
 
-const useContext = () => {
+const useTIContext = () => {
     const ctx = React.useContext(context);
     if (!ctx) {
         throw new Error("useContext must be used within a ContextProvider");
@@ -236,15 +227,11 @@ const TableInputMain = () => {
 }
 
 const EditRowForm: React.FC = () => {
-    const context = useContext();
+    const context = useTIContext();
     const { fields, state, editingRow, deleteRow, addRow } = context;
 
-    // Fix: Use editingRow directly as the array index (0-based)
     const rowState = state[editingRow!];
-
-    if (!editingRow === null || !rowState) return <></>
-
-    // Get the display number for the row (1-based for display)
+    if (editingRow === null || !rowState) return <></>
     const displayRowNumber = editingRow! + 1;
 
     const handleDelete = () => {
@@ -291,7 +278,7 @@ const EmptyTable: React.FC = () => (
 );
 
 const TableInputData: React.FC = () => {
-    const context = useContext();
+    const context = useTIContext();
     const { fields, getValues } = context;
     const values = getValues();
 
@@ -394,4 +381,4 @@ const TableInputHeader: React.FC<{ fields: Array<TypeField> }> = ({ fields }) =>
     );
 }
 
-export { TableInput }
+export { TableInput, useTIContext }
