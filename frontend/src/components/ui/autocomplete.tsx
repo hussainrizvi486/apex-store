@@ -5,7 +5,7 @@ import { cn } from '@utils/index';
 import { Spinner } from '@components/loaders/spinner';
 
 
-interface OptionType {
+export interface OptionType {
     label: string;
     value: string;
     disabled?: boolean;

@@ -4,6 +4,7 @@ import { DataForm, DataFormProvider } from "@components/data-form/main"
 import { useState } from "react";
 import { ReactSortable } from "react-sortablejs";
 import { Button } from "@components/ui/button";
+import { TableInput } from "@components/table-input";
 
 const fields: Array<TypeField> = [
     {
@@ -153,7 +154,7 @@ const ProductMedia: React.FC<CustomFieldProps> = ({ form }) => {
             })
 
             setData(files);
-            form.setValue?.("media_files", files);
+            form?.setValue?.("media_files", files);
         }
     }
 
@@ -161,7 +162,7 @@ const ProductMedia: React.FC<CustomFieldProps> = ({ form }) => {
         if (data?.length) {
             const updated = data.filter((_, idx) => idx !== index);
             setData(updated.length > 0 ? updated : null);
-            form.setValue?.("media_files", updated);
+            form?.setValue?.("media_files", updated);
         }
     }
 
@@ -214,10 +215,106 @@ const ProductMedia: React.FC<CustomFieldProps> = ({ form }) => {
 
 const Index = () => {
     return (
-        <div className="p-4">
-            <DataFormProvider fields={fields}>
+        <div className="p-4 max-w-6xl mx-auto" >
+            <TableInput fields={[
+                {
+                    label: "Price List",
+                    name: "price_list",
+                    type: "autocomplete",
+                    options: [
+                        { label: "Retail", value: "retail" },
+                        { label: "Wholesale", value: "wholesale" },
+                        { label: "Distributor", value: "distributor" },
+                        { label: "Custom", value: "custom" },
+                    ],
+                    required: true,
+                },
+                {
+                    label: "Price",
+                    defaultValue: 0,
+                    type: "currency",
+                    name: "price",
+                    required: true,
+
+                },
+                {
+                    label: "Valid From",
+                    type: "date",
+                    name: "valid_from",
+                },
+                {
+                    label: "Valid Till",
+                    type: "date",
+                    name: "valid_till"
+                }
+            ]}
+                values={[
+                    {
+                        price_list: { label: "Retail", value: "retail" },
+                        price: 100,
+                        valid_from: "2025-07-01",
+                        valid_till: "2025-07-31"
+                    },
+                    {
+                        price_list: { label: "Wholesale", value: "wholesale" },
+                        price: 90,
+                        valid_from: "2025-07-01",
+                        valid_till: "2025-07-31"
+                    },
+                    {
+                        price_list: { label: "Distributor", value: "distributor" },
+                        price: 85,
+                        valid_from: "2025-07-01",
+                        valid_till: "2025-12-31"
+                    },
+                    {
+                        price_list: { label: "Custom", value: "custom" },
+                        price: 120,
+                        valid_from: "2025-06-15",
+                        valid_till: "2025-08-15"
+                    },
+                    {
+                        price_list: { label: "Retail", value: "retail" },
+                        price: 105,
+                        valid_from: "2025-08-01",
+                        valid_till: "2025-08-31"
+                    },
+                    {
+                        price_list: { label: "Wholesale", value: "wholesale" },
+                        price: 88,
+                        valid_from: "2025-08-01",
+                        valid_till: "2025-12-31"
+                    },
+                    {
+                        price_list: { label: "Distributor", value: "distributor" },
+                        price: 80,
+                        valid_from: "2025-07-15",
+                        valid_till: "2025-09-15"
+                    },
+                    {
+                        price_list: { label: "Custom", value: "custom" },
+                        price: 130,
+                        valid_from: "2025-07-01",
+                        valid_till: "2025-10-01"
+                    },
+                    {
+                        price_list: { label: "Retail", value: "retail" },
+                        price: 110,
+                        valid_from: "2025-09-01",
+                        valid_till: "2025-09-30"
+                    },
+                    {
+                        price_list: { label: "Wholesale", value: "wholesale" },
+                        price: 95,
+                        valid_from: "2025-10-01",
+                        valid_till: "2025-12-31"
+                    }
+                ]}
+
+            />
+            {/* <DataFormProvider fields={fields}>
                 <DataForm />
-            </DataFormProvider>
+            </DataFormProvider> */}
         </div>
     )
 }

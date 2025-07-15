@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from "react";
-import { TypeField, FieldValue } from "@components/data-form/types";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { TypeField } from "@components/data-form/types";
 import { Input } from "@components/ui/input";
+import { TypeFieldValue, TIContextType, TFRowState } from "@components/table-input/types"
 import { Checkbox } from "@components/ui/checkbox";
-import { AutoComplete } from "@components/ui/autocomplete";
+import { AutoComplete, OptionType } from "@components/ui/autocomplete";
 import {
     Select,
     SelectContent,
@@ -13,35 +14,29 @@ import {
     SelectValue,
 } from "@components/ui/select";
 import { cn } from "@utils/index";
-import { TIContextType, TIFieldState, TFRowState } from ".";
 
 
 interface FieldProps {
     field: TypeField;
-    onChange?: (value: FieldValue) => void;
-    onBlur?: (value: FieldValue) => void;
-    value?: FieldValue;
+    onChange?: (value: TypeFieldValue) => void;
+    onBlur?: (value: TypeFieldValue) => void;
     state: TFRowState;
     ctx: TIContextType
 }
 
 const Field: React.FC<FieldProps> = React.memo((props) => {
-    const { field, onBlur, value, state, ctx } = props;
+    const { field, onBlur, state, ctx } = props;
+
     const [className, setClassName] = useState<string>("");
     const fieldState = state.fields[field.name];
+    const value = useMemo(() => fieldState.value, [fieldState.value]);
 
-    // console.log("field",fieldState)
 
-    // console.log("state", state);
+    const handleChange = useCallback((newValue: TypeFieldValue) => {
+        console.log(field.name, newValue, state.id);
+        ctx.setValue({ name: field.name, value: newValue, id: state.id });
+    }, [field.name, state.id, ctx]);
 
-    const onChange = (value: FieldValue) => {
-        ctx.setValue({ name: field.name, value, index: state.index });
-        // const row = ctx.state.find((row) => row.index === state?.index);
-        // if (row) {
-        //     ctx.setValue({ name: field.name, value, index: row.index });
-        // }
-        // console.log("Field onChange", field.name, value);
-    }
 
 
     useEffect(() => {
@@ -54,14 +49,14 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
 
     }, [fieldState?.hasError]);
 
-
+    // const memoized = useMemo(() => {
     if (field.type === "checkbox") {
         return (
             <Checkbox
                 name={field.name}
-                id={field.name}
+                id={state.id}
                 checked={Boolean(value)}
-                onCheckedChange={(checked) => onChange?.(checked)}
+                onCheckedChange={(checked) => handleChange?.(checked)}
                 onBlur={() => onBlur?.(value)}
             />
         );
@@ -70,12 +65,14 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
     if (field.type === "textarea") {
         return (
             <textarea
+                id={state.id}
                 name={field.name}
                 className={cn("w-full text-sm p-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary", className)}
                 rows={6}
-                onChange={(event) => onChange?.(event.target.value)}
+                onChange={(event) => handleChange?.(event.target.value)}
                 onBlur={(event) => onBlur?.(event.target.value)}
-                value={value as string || ""}
+                defaultValue={value as string}
+            // value={value as string || ""}
             />
         );
     }
@@ -83,8 +80,9 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
     if (field.type === "select") {
         return (
             <Select
+                id={state.id}
                 value={value as string || ""}
-                onValueChange={(val) => onChange?.(val)}
+                onValueChange={(val) => handleChange?.(val)}
             >
                 <SelectTrigger className={cn(className)}
                     onBlur={() => onBlur?.(value)}
@@ -105,26 +103,24 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
     }
 
     if (field.type === "autocomplete") {
-
-        // const defaultValue = value ? typeof value === "string" ? value : JSON.stringify(value) : "";
         return (
             <AutoComplete
+
                 label={field.label}
                 className={className}
-                onChange={onChange}
+                onChange={handleChange}
                 options={field.options}
                 // value={value}
-                defaultValue={value}
+                defaultValue={value as OptionType}
                 getOptions={field.getOptions}
                 renderOption={field.renderOption}
             />
         );
     }
 
-    // if (field.type === "custom" && field.component) {
-    //     const form = null;
-    //     return field.component({ form });
-    // }
+    if (field.type === "custom" && field.component) {
+        return field.component();
+    }
 
     if (field.type == "date") {
         return (
@@ -133,7 +129,7 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
                 className={className}
                 type="date"
                 defaultValue={value as string || ""}
-                onChange={(event) => onChange?.(event.target.value)}
+                onChange={(event) => handleChange?.(event.target.value)}
                 onBlur={(event) => onBlur?.(event.target.value)}
                 placeholder={field.placeholder}
             />
@@ -142,14 +138,19 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
     return (
         <Input
             name={field.name}
+            id={state.id}
             className={className}
             type={field.type === "number" || field.type === "float" || field.type === "currency" ? "number" : "text"}
-            onChange={(event) => onChange?.(event.target.value)}
+            onChange={(event) => handleChange?.(event.target.value)}
             onBlur={(event) => onBlur?.(event.target.value)}
             defaultValue={value as string || ""}
             placeholder={field.placeholder}
         />
     );
+
+    // }, [field, value, className, handleChange, onBlur, state.id])
+    // console.log(state.id)
+    // return memoized;
 });
 
 export { Field }

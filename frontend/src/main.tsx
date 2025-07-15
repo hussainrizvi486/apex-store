@@ -21,7 +21,7 @@ const apiClient = new QueryClient({
 export default apiClient;
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  <>
     <Toaster />
     <Router>
       <Provider store={store}>
@@ -30,5 +30,5 @@ createRoot(document.getElementById('root')!).render(
         </QueryClientProvider>
       </Provider>
     </Router>
-  </StrictMode>,
+  </>,
 )

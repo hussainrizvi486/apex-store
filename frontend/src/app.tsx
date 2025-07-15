@@ -54,7 +54,7 @@ function Application() {
       {/* <AdminModule />
       <CustomerModule /> */}
       <Routes>
-        <Route path="/test" element={<TestCase />} />
+        <Route path="/test" element={<TestCase />} index/>
 
         <Route element={<AuthRoutes />}>
           <Route path="/cart" element={<CartPage />} />

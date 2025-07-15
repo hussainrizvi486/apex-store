@@ -33,7 +33,7 @@ export type DFContextValue = {
 
 
 export interface CustomFieldProps {
-    form: DFContextValue,
+    form?: DFContextValue,
 }
 export interface TypeField {
     name: string;
@@ -53,7 +53,7 @@ export interface TypeField {
     dependsOn?: (values: FormValues) => boolean;
     requiredOn?: (values: FormValues) => boolean;
     readOnlyOn?: (values: FormValues) => boolean;
-    component?: (props: CustomFieldProps) => React.ReactNode;
+    component?: (props?: CustomFieldProps) => React.ReactNode;
     fields?: Array<TypeField>;
 }
 
