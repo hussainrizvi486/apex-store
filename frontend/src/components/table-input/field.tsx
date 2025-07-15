@@ -13,8 +13,7 @@ import {
     SelectValue,
 } from "@components/ui/select";
 import { cn } from "@utils/index";
-import { TIFieldState, useTIContext } from ".";
-
+import { TIContextType, TIFieldState, TFRowState } from ".";
 
 
 interface FieldProps {
@@ -22,31 +21,38 @@ interface FieldProps {
     onChange?: (value: FieldValue) => void;
     onBlur?: (value: FieldValue) => void;
     value?: FieldValue;
-    state: TIFieldState;
-
+    state: TFRowState;
+    ctx: TIContextType
 }
 
 const Field: React.FC<FieldProps> = React.memo((props) => {
-    const ctx = useTIContext()
-
-    const { field, onBlur, value, state } = props;
+    const { field, onBlur, value, state, ctx } = props;
     const [className, setClassName] = useState<string>("");
+    const fieldState = state.fields[field.name];
 
+    // console.log("field",fieldState)
+
+    // console.log("state", state);
 
     const onChange = (value: FieldValue) => {
         ctx.setValue({ name: field.name, value, index: state.index });
-        console.log("Field onChange", field.name, value);
+        // const row = ctx.state.find((row) => row.index === state?.index);
+        // if (row) {
+        //     ctx.setValue({ name: field.name, value, index: row.index });
+        // }
+        // console.log("Field onChange", field.name, value);
     }
 
 
     useEffect(() => {
-        if (state.hasError) {
-            setClassName("ring-2 ring-red-500 ring-offset-2");
-        }
-        else {
+        if (!fieldState?.hasError) {
             setClassName("");
+            return;
         }
-    }, [state.hasError]);
+
+        setClassName("ring-2 ring-red-500 ring-offset-2");
+
+    }, [fieldState?.hasError]);
 
 
     if (field.type === "checkbox") {
@@ -106,6 +112,7 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
                 label={field.label}
                 className={className}
                 onChange={onChange}
+                options={field.options}
                 // value={value}
                 defaultValue={value}
                 getOptions={field.getOptions}
@@ -128,7 +135,6 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
                 defaultValue={value as string || ""}
                 onChange={(event) => onChange?.(event.target.value)}
                 onBlur={(event) => onBlur?.(event.target.value)}
-                // value={value as string || ""}
                 placeholder={field.placeholder}
             />
         )

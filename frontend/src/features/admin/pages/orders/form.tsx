@@ -1,5 +1,5 @@
 import { AutoComplete } from "@components/ui/autocomplete";
-import { TableInput } from "@components/ui/table-input";
+import { TableInput } from "@components/table-input";
 
 const itemFields = [
     {

@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { AutoComplete } from "@components/ui/autocomplete";
 import { Column, Section } from "./components/layout";
 import { FieldValue, FormValues, FormState, TypeDFLayout, TypeField, TypeDFSection } from "./types";
-import { TableInput } from "@components/ui/table-input/index";
+import { TableInput } from "@components/table-input/index";
 
 
 type DFContextValue = {
@@ -201,8 +201,6 @@ const buildLayout = (fields: TypeField[]) => {
 	const layout: TypeDFLayout = [];
 	const sections: TypeDFSection[] = fields.filter(field => field.sectionBreak)
 
-
-	console.log("Sections found:", sections);
 	if (!sections.length) {
 		const section: TypeDFSection = { label: '' };
 		const columns: TypeField[][] = [[]];

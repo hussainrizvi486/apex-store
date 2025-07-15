@@ -11,37 +11,40 @@ const CartPage = React.lazy(() => import("./features/cart/pages/index"));
 // const NotFound = React.lazy(() => import("./pages/404"));
 const SearchPage = React.lazy(() => import("@features/product/pages/search/index"));
 const ProductDetailPage = React.lazy(() => import("@features/product/pages/detail/index"))
-import { routes as AdminRoutes } from "@features/admin/routes"
-import { routes as CustomerRoutes } from "@features/customer/routes"
+// import { routes as AdminRoutes } from "@features/admin/routes"
+// import { routes as CustomerRoutes } from "@features/customer/routes"
 import { Linkedin, Twitter } from "lucide-react"
 import { DataForm, DataFormProvider } from "@components/data-form/main"
 import { formField } from "@features/admin/pages/product/form"
 import { TypeField } from "@components/data-form"
+import { Index as TestCase } from "@components/data-form/test-case"
 
-const AdminModule = () => {
-  const routes = useRoutes(AdminRoutes);
-  return routes
-}
+// const AdminModule = () => {
+//   const routes = useRoutes(AdminRoutes);
+//   return routes
+// }
 
-const CustomerModule = () => {
-  return useRoutes(CustomerRoutes);
-}
+// const CustomerModule = () => {
+//   return useRoutes(CustomerRoutes);
+// }
 
 
 
-const TestCase = () => {
-  let fields: TypeField[] = formField;
+// const TestCase = () => {
+//   let fields: TypeField[] = formField;
 
-  return (
+//   return (
 
-    <div className="p-4 max-w-6xl mx-auto">
-      <DataFormProvider fields={fields} >
-        <DataForm />
-      </DataFormProvider>
+//     <div className="p-4 max-w-6xl mx-auto">
+//       <DataFormProvider fields={fields} >
+//         <DataForm />
+//       </DataFormProvider>
 
-    </div>
-  )
-}
+//     </div>
+//   )
+// }
+
+
 
 function Application() {
 

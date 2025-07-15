@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { DFInputProps, FieldValue, TypeField, FieldState } from "../index";
 import { useEffect, useState } from "react";
 import { useDFContext } from "../context";
-import { TableInput } from "@components/ui/table-input";
+import { TableInput } from "@components/table-input";
 import { TextEditor } from "@components/ui";
 import { StepBack } from "lucide-react";
 

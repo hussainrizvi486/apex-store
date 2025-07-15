@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { FileText, Trash2, Settings as SettingsIcon, Pencil as PencilIcon, DeleteIcon } from "lucide-react";
 import { FieldState, TypeField } from "@components/data-form/types";
 import { Button } from "@components/ui/button";
@@ -20,12 +20,16 @@ export interface TIFieldState extends FieldState {
     index: number;
 }
 
-type TableInputState = Array<{
-    [key: string]: TIFieldState;
-}>
+export interface TFRowState {
+    index: number;
+    checked?: boolean;
+    fields: { [key: string]: TIFieldState };
+}
+
+type TableInputState = Array<TFRowState>
 
 type TableInputValues = Array<Record<string, FieldValue>>;
-interface ContextType {
+export interface TIContextType {
     fields: TypeField[];
     values: Record<string, FieldValue> | null;
     state: TableInputState;
@@ -35,12 +39,13 @@ interface ContextType {
     editingRow: number | null;
     setEditingRow: (index: number | null) => void;
     onChange?: () => void;
+    setRowCheck: (index: number) => void;
     getValues: () => TableInputValues;
 }
 
 
 
-const context = React.createContext<ContextType | null>(null);
+const context = React.createContext<TIContextType | null>(null);
 
 interface ProviderProps {
     children: React.ReactNode;
@@ -53,11 +58,16 @@ const ContextProvider: React.FC<ProviderProps> = (props) => {
 
     function getInitialState(fields: Array<TypeField>, values: TableInputValues): TableInputState {
         const state: TableInputState = [];
-        values.forEach((row, index) => {
-            const stateRow: Record<string, TIFieldState> = {}
+        console.log("getInitialState");
+        values?.forEach((row, index) => {
+            const stateRow: TFRowState = {
+                fields: {},
+                index: index + 1,
+            }
+
             fields.forEach((field) => {
                 const value = row[field.name] || field.defaultValue || null;
-                stateRow[field.name] = {
+                stateRow.fields[field.name] = {
                     index: index + 1,
                     value: value,
                     error: "",
@@ -70,89 +80,113 @@ const ContextProvider: React.FC<ProviderProps> = (props) => {
         return state
     }
 
-    const values: TableInputValues = props.values || [];
+
+
+    const values: TableInputValues = props.values;
+    // const values: TableInputValues = [];
     const [state, setState] = useState<TableInputState>(getInitialState(props.fields, values));
     const [editingRow, setEditingRow] = useState<number | null>(null);
 
-    const setValue = (params: { name: string; value: FieldValue; index: number }) => {
+
+    const setValue = React.useCallback((params: { name: string; value: FieldValue; index: number }) => {
         const { index, value, name } = params;
+
         setState(prev => {
+            // Find the row that needs to be updated
+            const rowIndex = prev.findIndex(row => row.index === index);
+            
+            // If row doesn't exist or the value hasn't changed, return the previous state unchanged
+            if (rowIndex === -1) return prev;
+            const row = prev[rowIndex];
+            if (row.fields[name]?.value === value) return prev;
+            
+            // Create a new state array with the updated row
             const newState = [...prev];
-            const row = newState[index];
-
-            if (!row) return prev;
-            if (row[name].value === value) return prev;
-
-            row[name] = {
-                ...row[name],
-                value: value,
-                hasError: false,
-                error: "",
+            newState[rowIndex] = {
+                ...row,
+                fields: {
+                    ...row.fields,
+                    [name]: {
+                        ...row.fields[name],
+                        value: value,
+                        hasError: false,
+                        error: "",
+                    }
+                }
             };
-
+            
             return newState;
         });
-    };
+    }, []);
 
-    const addRow = (values?: Record<string, FieldValue>) => {
-        const row = {} as Record<string, TIFieldState>;
+    const setRowCheck = useCallback((index: number) => {
+
+        setState(prev =>
+            prev.map(row =>
+                row.index === index
+                    ? { ...row, checked: !row.checked }
+                    : row
+            )
+        );
+    }, [])
+
+    const addRow = useCallback((values?: Record<string, FieldValue>) => {
+        const row = { fields: {}, index: state.length + 1 } as TFRowState;
         fields.forEach((field) => {
-            const value = values?.[field.name] || field.defaultValue;
-            row[field.name] = {
+            const value = values?.[field.name] || field?.defaultValue;
+            row.fields[field.name] = {
                 index: state.length + 1,
                 value: value,
                 error: "",
                 hasError: false,
                 field: field,
             };
+
         })
         setState((prev) => {
             return [...prev, row];
         });
-    }
+    }, [])
 
-    const deleteRow = (index: number | Array<number>) => {
+    const deleteRow = useCallback((index: number | Array<number>) => {
+
         if (Array.isArray(index)) {
             setState((prev) => {
-                return prev.filter((_, i) => !index.includes(i));
+                return [...prev.filter((row) => !index.includes(row.index))];
             });
         } else {
             setState((prev) => {
-                return prev.filter((_, i) => i !== index);
+                return prev.filter((row) => row.index !== index);
             });
         }
 
         setEditingRow(null);
-    }
+    }, [])
 
-    function getValues(): TableInputValues {
+    const getValues = useCallback((): TableInputValues => {
         const values: TableInputValues = [];
-
         state.forEach((row) => {
             const rowValues: Record<string, FieldValue> = {};
-            Object.keys(row).forEach((key) => {
-                const value = row[key].value;
+            Object.keys(row.fields).forEach((key) => {
+                const { fields } = row;
+                const value = fields[key].value;
                 rowValues[key] = value;
             })
             values.push(rowValues);
         });
         return values;
-    }
+
+    }, [state])
+
     useEffect(() => {
         console.warn(state)
     }, [state])
+
+    const contextValue = useMemo(() => ({
+        setRowCheck, setValue, getValues, state, editingRow, setEditingRow, deleteRow, fields, values: props.values, addRow
+    }), [setRowCheck, setValue, getValues, state, editingRow, setEditingRow, deleteRow, fields, props.values, addRow])
     return (
-        <context.Provider value={{
-            setValue,
-            getValues,
-            state,
-            editingRow,
-            setEditingRow,
-            deleteRow,
-            fields,
-            values: props.values,
-            addRow
-        }} >
+        <context.Provider value={contextValue} >
             {props.children}
         </context.Provider>
     )
@@ -181,8 +215,8 @@ const TableInput: React.FC<TableInputProps> = (props) => {
 
 
 const TableInputMain = () => {
-    const context = useContext();
-    const { addRow, editingRow } = context;
+    const context = useTIContext();
+    const { addRow, editingRow, state, deleteRow } = context;
 
     function handleAddRow() {
         addRow();
@@ -207,7 +241,10 @@ const TableInputMain = () => {
             </div>
             <div className="flex items-center">
                 <div className="flex gap-2 items-center">
-                    <Button size="sm" variant="destructive" className={cn("hidden")}>Delete</Button>
+                    {
+                        state.filter(row => row.checked).length > 0 ?
+                            <Button size="sm" variant="destructive" onClick={() => deleteRow(state.filter(row => row.checked).map(row => row.index))}>Delete</Button> : <></>
+                    }
                     <Button onClick={handleAddRow} size="sm">Add Row</Button>
                 </div>
             </div>
@@ -229,13 +266,12 @@ const TableInputMain = () => {
 const EditRowForm: React.FC = () => {
     const context = useTIContext();
     const { fields, state, editingRow, deleteRow, addRow } = context;
+    const rowState = state.find(row => row.index === editingRow);
 
-    const rowState = state[editingRow!];
     if (editingRow === null || !rowState) return <></>
     const displayRowNumber = editingRow! + 1;
 
     const handleDelete = () => {
-        // Fix: Pass the actual array index (0-based) to deleteRow
         deleteRow(editingRow!);
     };
 
@@ -255,9 +291,9 @@ const EditRowForm: React.FC = () => {
             <div className="py-6">
                 {fields.map((field, index) => {
                     return (
-                        <div key={field.name} className="mb-4">
+                        <div key={index} className="mb-4">
                             <label className="mb-2 text-sm">{field.label}</label>
-                            <Field field={field} />
+                            <Field field={field} state={rowState} ctx={context} />
                         </div>
                     )
                 })}
@@ -281,61 +317,60 @@ const TableInputData: React.FC = () => {
     const context = useTIContext();
     const { fields, getValues } = context;
     const values = getValues();
-
-    const { setEditingRow, editingRow } = context;
+    const { setEditingRow, state, setRowCheck } = context;
 
     function handleEditRow(index: number) {
         setEditingRow(index);
     }
 
-    useEffect(() => {
-        console.log("Editing row changed:", editingRow);
-    }, [editingRow])
 
     if (!values?.length) {
         return <EmptyTable />
     }
 
-    const handleChange = (index: number, fieldName: string, value: FieldValue) => {
-        context.setValue(fieldName, value, index);
-    }
+
     return (
         <div className="divide-y divide-gray-200">
             <div>
-                {values.map((row, index) => (
+                {values.map((_, index) => (
                     <div key={index}
                         style={getColumnsCSS(fields.length)}
                         className={cn(
                             "grid items-center transition-colors duration-150 ease-in-out border-b",
                         )}
                     >
+
                         <div
                             className="px-3 py-3 flex items-center justify-center border-r border-gray-200 h-full">
-                            <Checkbox />
+                            <Checkbox onCheckedChange={() => setRowCheck(index + 1)} />
                         </div>
+
                         <div
                             className="px-3 py-3 flex items-center justify-center border-r border-gray-200 h-full">
-                            <span className={cn(
-                                "text-sm font-medium rounded-full w-6 h-6 flex items-center justify-center",
-                            )}>
+                            <span className="text-sm font-medium rounded-full w-6 h-6 flex items-center justify-center">
                                 {index + 1}
                             </span>
                         </div>
 
-                        {fields.map((field, colIndex) => (
-                            <div
-                                key={colIndex}
-                                className={cn(
-                                    "px-3 py-2 border-r border-gray-200 last:border-r-0 h-full flex items-center",
-                                )}>
-                                <Field field={field} />
-                            </div>
-                        ))}
+                        {fields.map((field, colIndex) => {
+                            const rowState = state.find(row => row.index === index + 1);
+                            if (!rowState) return null;
+
+                            return (
+                                <div
+                                    key={colIndex}
+                                    className={cn(
+                                        "px-3 py-2 border-r border-gray-200 last:border-r-0 h-full flex items-center",
+                                    )}>
+                                    <Field field={field} state={rowState} ctx={context} />
+                                </div>
+                            )
+                        })}
 
                         <div className="px-3 flex items-center justify-center">
                             <button
                                 type="button"
-                                onClick={() => { handleEditRow(index) }}
+                                onClick={() => handleEditRow(index + 1)}
                                 className=" p-1.5 rounded-full transition-all duration-150 cursor-pointer opacity-70"
                                 title="Edit row"
                             >
@@ -345,7 +380,7 @@ const TableInputData: React.FC = () => {
                     </div>
                 ))}
             </div>
-        </div>
+        </div >
     )
 }
 
@@ -381,4 +416,4 @@ const TableInputHeader: React.FC<{ fields: Array<TypeField> }> = ({ fields }) =>
     );
 }
 
-export { TableInput, useTIContext }
+export { TableInput }
