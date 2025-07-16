@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { TypeField } from "@components/data-form/types";
 import { Input } from "@components/ui/input";
 import { TypeFieldValue, TIContextType, TFRowState } from "@components/table-input/types"
@@ -20,23 +20,22 @@ interface FieldProps {
     field: TypeField;
     onChange?: (value: TypeFieldValue) => void;
     onBlur?: (value: TypeFieldValue) => void;
+    gridUpdate?: boolean,
     state: TFRowState;
     ctx: TIContextType
 }
 
-const Field: React.FC<FieldProps> = React.memo((props) => {
+const Field: React.FC<FieldProps> = (props) => {
     const { field, onBlur, state, ctx } = props;
 
     const [className, setClassName] = useState<string>("");
     const fieldState = state.fields[field.name];
-    const value = useMemo(() => fieldState.value, [fieldState.value]);
+    const value = fieldState.value;
 
 
-    const handleChange = useCallback((newValue: TypeFieldValue) => {
-        console.log(field.name, newValue, state.id);
+    const handleChange = (newValue: TypeFieldValue) => {
         ctx.setValue({ name: field.name, value: newValue, id: state.id });
-    }, [field.name, state.id, ctx]);
-
+    };
 
 
     useEffect(() => {
@@ -49,7 +48,6 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
 
     }, [fieldState?.hasError]);
 
-    // const memoized = useMemo(() => {
     if (field.type === "checkbox") {
         return (
             <Checkbox
@@ -72,7 +70,7 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
                 onChange={(event) => handleChange?.(event.target.value)}
                 onBlur={(event) => onBlur?.(event.target.value)}
                 defaultValue={value as string}
-            // value={value as string || ""}
+            
             />
         );
     }
@@ -83,7 +81,7 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
                 id={state.id}
                 value={value as string || ""}
                 onValueChange={(val) => handleChange?.(val)}
-            >
+            >   
                 <SelectTrigger className={cn(className)}
                     onBlur={() => onBlur?.(value)}
                 >
@@ -110,7 +108,6 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
                 className={className}
                 onChange={handleChange}
                 options={field.options}
-                // value={value}
                 defaultValue={value as OptionType}
                 getOptions={field.getOptions}
                 renderOption={field.renderOption}
@@ -130,6 +127,7 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
                 type="date"
                 defaultValue={value as string || ""}
                 onChange={(event) => handleChange?.(event.target.value)}
+
                 onBlur={(event) => onBlur?.(event.target.value)}
                 placeholder={field.placeholder}
             />
@@ -143,14 +141,11 @@ const Field: React.FC<FieldProps> = React.memo((props) => {
             type={field.type === "number" || field.type === "float" || field.type === "currency" ? "number" : "text"}
             onChange={(event) => handleChange?.(event.target.value)}
             onBlur={(event) => onBlur?.(event.target.value)}
-            defaultValue={value as string || ""}
+        defaultValue={value as string || ""}
+        value={value as string}
             placeholder={field.placeholder}
-        />
-    );
+        />);
 
-    // }, [field, value, className, handleChange, onBlur, state.id])
-    // console.log(state.id)
-    // return memoized;
-});
+};
 
 export { Field }

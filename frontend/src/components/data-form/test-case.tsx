@@ -6,6 +6,13 @@ import { ReactSortable } from "react-sortablejs";
 import { Button } from "@components/ui/button";
 import { TableInput } from "@components/table-input";
 
+import { Dialog, DialogTrigger, DialogContent } from "@components/ui/dialog";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@components/ui/popover";
+
 const fields: Array<TypeField> = [
     {
         type: "section",
@@ -215,7 +222,29 @@ const ProductMedia: React.FC<CustomFieldProps> = ({ form }) => {
 
 const Index = () => {
     return (
+        
         <div className="p-4 max-w-6xl mx-auto" >
+            <div>
+
+                <Dialog >
+                    <DialogTrigger asChild>
+                        <Button >Open</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+
+                        <Popover>
+                            <PopoverTrigger>
+                                <Button >Open popover</Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80">bABY</PopoverContent>
+                        </Popover>
+
+                    </DialogContent>
+                </Dialog>
+            </div>
+            <br />
+            <br />
+            <br />
             <TableInput fields={[
                 {
                     label: "Price List",

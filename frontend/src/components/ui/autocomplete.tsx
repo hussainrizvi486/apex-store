@@ -90,7 +90,8 @@ const AutoComplete: React.FC<AutoCompleteProps> = (props) => {
 
             <PopoverContent
                 style={{ width: "var(--radix-popover-trigger-width)" }}
-                className="p-1"
+                className="p-1 z-50 relative"
+
             >
                 <div className="mb-2 flex items-center px-2 border-b border-b-gray-200">
                     <div><SearchIcon className='size-4' /></div>

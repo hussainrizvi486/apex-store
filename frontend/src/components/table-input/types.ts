@@ -19,10 +19,10 @@ export interface TIContextType {
     editingRow: string | null;
     setValue: (params: { name: string; value: FieldValue; id: string }) => void;
     addRow: () => void;
-    deleteRow: (index: string | string[]) => void;
-    setEditingRow: (index: string | null) => void;
+    deleteRow: (id?: string | string[]) => void;
+    setEditingRow: (id?: string | null) => void;
     onChange?: () => void;
-    setRowCheck: (index: string) => void;
+    setRowCheck: (id?: string) => void;
     getValues: () => TableInputValues;
 }
 

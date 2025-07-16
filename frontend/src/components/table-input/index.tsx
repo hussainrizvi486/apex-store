@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { FileText, Trash2, Settings as SettingsIcon, Pencil as PencilIcon } from "lucide-react";
-import { FieldState, TypeField } from "@components/data-form/types";
+import { FileText, Trash2, Settings as SettingsIcon, Pencil as PencilIcon, Satellite } from "lucide-react";
+import { TypeField } from "@components/data-form/types";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
 import { FieldValue } from "@components/data-form";
@@ -8,7 +8,7 @@ import { cn } from "@utils/index";
 import { Dialog, DialogContent } from "@components/ui/dialog";
 import { Field } from "./field";
 import { TIContextType, TableInputState, TableInputValues, TIFieldState, TFRowState } from "./types";
-
+import { Form as EditForm } from "./form";
 
 function getColumnsCSS(count: number): React.CSSProperties {
     let styles = "2rem 2rem ";
@@ -18,8 +18,7 @@ function getColumnsCSS(count: number): React.CSSProperties {
 }
 
 
-
-const context = React.createContext<TIContextType | null>(null);
+const TIContext = React.createContext<TIContextType | null>(null);
 
 interface ProviderProps {
     children: React.ReactNode;
@@ -125,8 +124,7 @@ const ContextProvider: React.FC<ProviderProps> = (props) => {
     };
 
     const deleteRow = (id: string | Array<string>) => {
-        // console.log(state.map(row => row.checked));
-        if (Array.isArray(id)) {
+        if (!id) {
             setState((prev) => {
                 const updated = prev.filter(row => !row.checked);
                 return [...updated];
@@ -171,20 +169,21 @@ const ContextProvider: React.FC<ProviderProps> = (props) => {
     //     setRowCheck, setValue, getValues, state, editingRow, setEditingRow, deleteRow, fields, values: props.values, addRow
     // }), [setRowCheck, setValue, getValues, state, editingRow, setEditingRow, deleteRow, fields, props.values, addRow])
 
-    useEffect(() => {
-        console.warn(state)
-    }, [state])
+    // useEffect(() => {
+    //     console.warn(state)
+    // }, [state])
 
     return (
-        <context.Provider value={contextValue} >
+        <TIContext.Provider value={contextValue} >
             {props.children}
-        </context.Provider>
+        </TIContext.Provider>
     )
 }
 
 
 const useTIContext = () => {
-    const ctx = React.useContext(context);
+    const ctx = React.useContext(TIContext)
+        ;
     if (!ctx) {
         throw new Error("useContext must be used within a ContextProvider");
     }
@@ -205,191 +204,10 @@ const TableInput: React.FC<TableInputProps> = (props) => {
 }
 
 
-const TableInputMain = () => {
-    const context = useTIContext();
-    const { addRow, editingRow, state, deleteRow } = context;
 
-    function handleAddRow() {
-        addRow();
-    }
-
-    const [openRow, setOpenRow] = useState<boolean>(false);
-
-
-    useEffect(() => {
-        if (editingRow !== null) {
-            setOpenRow(true);
-            return
-        }
-        setOpenRow(false);
-    }, [editingRow])
-
-
-    return (
-        <>
-            <div className="border border-gray-200 rounded-lg overflow-hidden  mb-4">
-                <TableInputHeader fields={context.fields} />
-                <div className="w-full">
-                    <TableInputData />
-                </div>
-            </div>
-            <div className="flex items-center">
-                <div className="flex gap-2 items-center">
-                    {state.filter(row => row.checked).length > 0 ?
-                        <Button size="sm" variant="destructive"
-                            onClick={() => deleteRow(state.filter(row => row.checked).map(row => row.id))}>
-                            Delete
-                        </Button>
-
-                        : <></>}
-
-                    <Button onClick={handleAddRow} size="sm">Add Row</Button>
-                </div>
-            </div>
-
-            <Dialog open={openRow} onOpenChange={(value) => {
-                if (!value) {
-                    context.setEditingRow(null);
-                }
-                setOpenRow(value)
-            }}>
-                <DialogContent className="sm:max-w-4xl w-full"  >
-                    <EditRowForm />
-                </DialogContent>
-            </Dialog >
-        </>
-    )
-}
-
-const EditRowForm: React.FC = () => {
-    const context = useTIContext();
-    const { fields, state, setEditingRow, editingRow, deleteRow, addRow } = context;
-    const rowState = state.find(row => row.id === editingRow);
-
-    if (editingRow === null || !rowState) return <></>
-
-
-    const handleDelete = () => {
-        deleteRow(rowState.id);
-    };
-
-
-
-    return (
-        <div>
-            <header className="flex items-center justify-between">
-                <div className="font-medium">Editing Row # {rowState.index}</div>
-                <div className="flex items-center gap-2">
-                    <Button variant="destructive" size="sm" onClick={handleDelete}>
-                        <Trash2 className="size-4" />
-                    </Button>
-                    <Button size="sm" onClick={() => {
-                        setEditingRow(null);
-                        addRow()
-                    }}>Insert Below</Button>
-                </div>
-            </header>
-
-            <div className="py-6">
-                {fields.map((field, index) => {
-                    return (
-                        <div key={index} className="mb-4">
-                            <label className="mb-2 text-sm">{field.label}</label>
-                            <Field field={field} state={rowState} ctx={context} />
-                        </div>
-                    )
-                })}
-            </div>
-        </div>
-    )
-}
-
-
-const EmptyTable: React.FC = () => (
-    <div className="py-8 flex justify-center">
-        <div className="flex flex-col items-center text-gray-500">
-            <FileText className="w-12 h-12 mb-2" />
-            <div className="text-sm">No data available</div>
-            <div className="text-xs text-gray-400">Click "Add Row" to get started</div>
-        </div>
-    </div>
-);
-
-const TableInputData: React.FC = () => {
-    const context = useTIContext();
-    const { fields, getValues } = context;
-    const values = getValues();
-    const { setEditingRow, state, setRowCheck } = context;
-
-    function handleEditRow(id: string) {
-        setEditingRow(id);
-    }
-
-
-    if (!values?.length) {
-        return <EmptyTable />
-    }
-
-
-    return (
-        <div className="divide-y divide-gray-200">
-            <div>
-
-                {state.map((row) => {
-                    const rowState = state.find(i => i.id === row.id);
-                    if (!rowState) return <></>;
-                    return (
-                        <div key={row.id}
-                            style={getColumnsCSS(fields.length)}
-                            className={cn(
-                                "grid items-center transition-colors duration-150 ease-in-out border-b",
-                            )}
-                        >
-
-                            <div
-                                className="px-3 py-3 flex items-center justify-center border-r border-gray-200 h-full">
-                                <Checkbox onCheckedChange={() => setRowCheck(row.id)} />
-                            </div>
-
-                            <div
-                                className="px-3 py-3 flex items-center justify-center border-r border-gray-200 h-full">
-                                <span className="text-sm font-medium rounded-full w-6 h-6 flex items-center justify-center">
-                                    {row.index}
-                                </span>
-                            </div>
-
-                            {fields.map((field, colIndex) => {
-
-                                return (
-                                    <div
-                                        key={colIndex}
-                                        className={cn(
-                                            "px-3 py-2 border-r border-gray-200 last:border-r-0 h-full flex items-center",
-                                        )}>
-                                        <Field field={field} state={rowState} ctx={context} />
-                                    </div>
-                                )
-                            })}
-
-                            <div className="px-3 flex items-center justify-center">
-                                <button
-                                    type="button"
-                                    onClick={() => handleEditRow(row.id)}
-                                    className=" p-1.5 rounded-full transition-all duration-150 cursor-pointer opacity-70"
-                                    title="Edit row"
-                                >
-                                    <PencilIcon className="size-4" />
-                                </button>
-                            </div>
-                        </div>
-                    )
-                })}
-            </div>
-        </div >
-    )
-}
-
-const TableInputHeader: React.FC<{ fields: Array<TypeField> }> = ({ fields }) => {
+const Header: React.FC = () => {
+    const ctx = useTIContext();
+    const { fields } = ctx;
     return (
         <div className="bg-gray-100 border-b border-gray-200">
             <div
@@ -421,4 +239,146 @@ const TableInputHeader: React.FC<{ fields: Array<TypeField> }> = ({ fields }) =>
     );
 }
 
-export { TableInput }
+const TableInputMain = () => {
+    const context = useTIContext();
+
+    const { addRow, editingRow, state, deleteRow } = context;
+
+    function handleAddRow() { addRow(); }
+
+    const [openRow, setOpenRow] = useState<boolean>(false);
+
+
+    useEffect(() => {
+        if (editingRow !== null) {
+            setOpenRow(true);
+            return
+        }
+        setOpenRow(false);
+    }, [editingRow])
+
+
+    return (
+        <>
+            <div className="border border-gray-200 rounded-lg overflow-hidden  mb-4">
+                <Header />
+
+                <div className="w-full">
+                    <TableInputData />
+                </div>
+            </div>
+
+            <div className="flex items-center">
+                <div className="flex gap-2 items-center">
+                    {state.filter(row => row.checked).length > 0 ?
+                        <Button size="sm" variant="destructive"
+                            onClick={() => deleteRow(state.filter(row => row.checked).map(row => row.id))}>
+                            Delete
+                        </Button>
+
+                        : <></>}
+
+                    <Button onClick={handleAddRow} size="sm">Add Row</Button>
+                </div>
+            </div>
+
+            <Dialog open={openRow} onOpenChange={(value) => {
+                if (!value) {
+                    context.setEditingRow(null);
+                }
+                setOpenRow(value)
+            }}>
+                <DialogContent className="sm:max-w-4xl w-full"  >
+                    <EditForm />
+                </DialogContent>
+            </Dialog >
+        </>
+    )
+}
+
+
+
+
+const TableInputData: React.FC = () => {
+    const context = useTIContext();
+
+    const { fields } = context;
+    const { setEditingRow, state, setRowCheck } = context;
+
+    function handleEditRow(id: string) {
+        setEditingRow(id);
+    }
+
+
+    if (!state?.length) {
+        return <>   <div className="py-8 flex justify-center">
+            <div className="flex flex-col items-center text-gray-500">
+                <FileText className="w-12 h-12 mb-2" />
+                <div className="text-sm">No data available</div>
+                <div className="text-xs text-gray-400">Click "Add Row" to get started</div>
+            </div>
+        </div></>
+    }
+
+
+    return (
+        <div className="divide-y divide-gray-200">
+            <div>
+                {state.map((row) => {
+                    const rowState = state.find(i => i.id === row.id);
+                    if (!rowState) return <></>;
+
+                    return (
+                        <div key={row.id}
+                            style={getColumnsCSS(fields.length)}
+                            className={cn(
+                                "grid items-center transition-colors duration-150 ease-in-out border-b",
+                            )}
+                        >
+
+                            <div
+                                className="px-3 py-3 flex items-center justify-center border-r border-gray-200 h-full">
+                                <Checkbox onCheckedChange={() => setRowCheck(row.id)} />
+                            </div>
+
+                            <div
+                                className="px-3 py-3 flex items-center justify-center border-r border-gray-200 h-full">
+                                <span className="text-sm font-medium rounded-full w-6 h-6 flex items-center justify-center">
+                                    {row.index}
+                                </span>
+                            </div>
+
+                            {fields.map((field, colIndex) => {
+                                // const value = rowState.fields[field.name].value;
+                                console.log()
+                                return (
+                                    <div
+                                        key={colIndex}
+                                        className={cn(
+                                            "px-3 py-2 border-r border-gray-200 last:border-r-0 h-full flex items-center",
+                                        )}>
+                                        <Field field={field} state={rowState} ctx={context} gridUpdate={true} />
+                                    </div>
+                                )
+                            })}
+
+                            <div className="px-3 flex items-center justify-center">
+                                <button
+                                    type="button"
+                                    onClick={() => handleEditRow(row.id)}
+                                    className=" p-1.5 rounded-full transition-all duration-150 cursor-pointer opacity-70"
+                                    title="Edit row"
+                                >
+                                    <PencilIcon className="size-4" />
+                                </button>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div >
+    )
+}
+
+
+export { TableInput, useTIContext }
