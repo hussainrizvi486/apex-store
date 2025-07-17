@@ -13,11 +13,26 @@ const PopoverContent = React.forwardRef<
     return (
         <PopoverPrimitive.Portal>
             <PopoverPrimitive.Content
+                style={{ zIndex: 9999 }}
                 ref={ref}
                 align={align}
                 sideOffset={sideOffset}
+                onCloseAutoFocus={(e) => {
+                    e.preventDefault();
+                }}
+                
+                onInteractOutside={(e) => {
+                    const target = e.target as Element;
+                    if (target.closest('[data-radix-dialog-overlay]') ||
+                        target.closest('[data-radix-dialog-content]')) {
+                        e.preventDefault();
+                    }
+                }}
+                onEscapeKeyDown={(e) => {
+                    e.stopPropagation();
+                }}
                 className={cn(
-                    "z-[60] w-auto rounded-md border border-gray-200 bg-popover p-2 text-foreground shadow-md outline-none",
+                    "w-auto rounded-md border border-gray-200 bg-popover p-2 text-foreground shadow-md outline-none",
                     "transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:scale-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:scale-out-95",
                     "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
                     className

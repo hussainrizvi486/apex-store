@@ -70,7 +70,7 @@ const Field: React.FC<FieldProps> = (props) => {
                 onChange={(event) => handleChange?.(event.target.value)}
                 onBlur={(event) => onBlur?.(event.target.value)}
                 defaultValue={value as string}
-            
+
             />
         );
     }
@@ -78,12 +78,13 @@ const Field: React.FC<FieldProps> = (props) => {
     if (field.type === "select") {
         return (
             <Select
-                id={state.id}
+
                 value={value as string || ""}
                 onValueChange={(val) => handleChange?.(val)}
-            >   
+            >
                 <SelectTrigger className={cn(className)}
                     onBlur={() => onBlur?.(value)}
+                    id={state.id}
                 >
                     <SelectValue placeholder={field.placeholder || "Select"} />
                 </SelectTrigger>
@@ -141,8 +142,8 @@ const Field: React.FC<FieldProps> = (props) => {
             type={field.type === "number" || field.type === "float" || field.type === "currency" ? "number" : "text"}
             onChange={(event) => handleChange?.(event.target.value)}
             onBlur={(event) => onBlur?.(event.target.value)}
-        defaultValue={value as string || ""}
-        value={value as string}
+            defaultValue={value as string || ""}
+            value={value as string}
             placeholder={field.placeholder}
         />);
 

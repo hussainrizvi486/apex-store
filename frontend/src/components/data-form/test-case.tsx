@@ -222,7 +222,7 @@ const ProductMedia: React.FC<CustomFieldProps> = ({ form }) => {
 
 const Index = () => {
     return (
-        
+
         <div className="p-4 max-w-6xl mx-auto" >
             <div>
 
@@ -231,8 +231,7 @@ const Index = () => {
                         <Button >Open</Button>
                     </DialogTrigger>
                     <DialogContent>
-
-                        <Popover>
+                        <Popover >
                             <PopoverTrigger>
                                 <Button >Open popover</Button>
                             </PopoverTrigger>

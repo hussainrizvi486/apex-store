@@ -161,13 +161,11 @@ const ContextProvider: React.FC<ProviderProps> = (props) => {
         setState(getInitialState(fields, values));
     }, [])
 
+    
     const contextValue = {
         setRowCheck, setValue, getValues, state, editingRow, setEditingRow, deleteRow, fields, values: props.values, addRow
     }
-    // const contextValue = useMemo(() => (
-    //     {
-    //     setRowCheck, setValue, getValues, state, editingRow, setEditingRow, deleteRow, fields, values: props.values, addRow
-    // }), [setRowCheck, setValue, getValues, state, editingRow, setEditingRow, deleteRow, fields, props.values, addRow])
+
 
     // useEffect(() => {
     //     console.warn(state)
