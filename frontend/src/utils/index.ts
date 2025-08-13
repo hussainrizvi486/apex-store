@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { twMerge } from 'tailwind-merge'
-
 import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
 
 
-export function cn(...args: (string)[]): string {
+function cn(...args: (string | null | undefined)[]): string {
     return twMerge(args.filter(String).join(" "));
 }
 
-
-export function useIsMobile() {
+function useIsMobile() {
     const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
 
     React.useEffect(() => {
@@ -27,21 +25,31 @@ export function useIsMobile() {
     return !!isMobile
 }
 
-
-export function decimal(value: any, precision = 2) {
+function decimal(value: any, precision = 2) {
     const v = isNaN(parseFloat(value)) ? 0 : parseFloat(value);
     return v.toFixed(precision);
 }
 
-
-
-export function formatCurrency(value: any) {
+function formatCurrency(value: any, currency: string = "USD"): string {
+    if (isNaN(parseFloat(value))) return "$0.00";
     return new Intl.NumberFormat("en-PH", {
         style: "currency",
-        currency: "PHP",
+        currency: currency,
     }).format(value);
 }
 
-export function float(value: any) {
+function float(value: any): number {
     return isNaN(parseFloat(value)) ? 0 : parseFloat(value);
 }
+
+function integer(value: any): number {
+    return isNaN(parseInt(value)) ? 0 : parseInt(value);
+}
+
+function isActiveURL(path: string): boolean {
+    if (!path) return false;
+
+    return window.location.pathname === path;
+}
+
+export { float, formatCurrency, decimal, useIsMobile, cn, integer, isActiveURL };

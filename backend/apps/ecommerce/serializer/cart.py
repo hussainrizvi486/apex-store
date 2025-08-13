@@ -1,5 +1,5 @@
-from apps.ecommerce.models.cart import Cart, CartItem, Product, ProductVariant
-from .product import ProductSerializer, ProductVariantSerializer
+from apps.ecommerce.models.cart import Cart, CartItem, Product
+from .product import ProductSerializer
 from rest_framework import serializers
 
 
@@ -16,8 +16,6 @@ class CartItemSerializer(serializers.ModelSerializer):
             ]
 
     product = Product()
-
-    # variant = ProductVariantSerializer(read_only=True)
 
     class Meta:
         model = CartItem
@@ -40,23 +38,6 @@ class CartItemAddSerializer(serializers.Serializer):
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
 
     def validate(self, data):
-        try:
-            product = Product.objects.get(id=data["product_id"])
-        except Product.DoesNotExist:
-            raise serializers.ValidationError({"product_id": "Invalid product ID"})
-
-        if data.get("variant_id"):
-            try:
-                variant = ProductVariant.objects.get(id=data.get("variant_id"))
-                if variant.product.id != product.id:
-                    raise serializers.ValidationError(
-                        {
-                            "variant_id": "Variant does not belong to the specified product"
-                        }
-                    )
-            except ProductVariant.DoesNotExist:
-                raise serializers.ValidationError({"variant_id": "Invalid variant ID"})
-
         if data["quantity"] <= 0:
             raise serializers.ValidationError(
                 {"quantity": "Quantity must be greater than zero"}
@@ -71,8 +52,32 @@ class CartItemAddSerializer(serializers.Serializer):
 
 class CartItemUpdateSerializer(serializers.Serializer):
     quantity = serializers.DecimalField(max_digits=10, decimal_places=2)
+    product_id = serializers.CharField(max_length=255, required=False)
+    variant_id = serializers.CharField(max_length=255, required=False)
+    action = serializers.ChoiceField(
+        choices=["remove", "update"], default="update"
+    )
 
-    def validate_quantity(self, value):
-        if value <= 0:
-            raise serializers.ValidationError("Quantity must be greater than zero")
-        return value
+    def validate(self, data):
+
+        try:
+            product = Product.objects.get(id=data["product_id"])
+        except Product.DoesNotExist:
+            raise serializers.ValidationError({"product_id": "Invalid product ID"})
+
+        if data.get("variant_id"):
+            try:
+                variant = ProductVariant.objects.get(id=data.get("variant_id"))
+                if variant.product.id != product.id:
+                    raise serializers.ValidationError(
+                        {"variant": "Variant does not belong to the specified product"}
+                    )
+            except ProductVariant.DoesNotExist:
+                raise serializers.ValidationError({"variant": "Invalid variant ID"})
+
+        if data["quantity"] < 0:
+            raise serializers.ValidationError(
+                {"quantity": "Quantity must be greater than or equal to zero"}
+            )
+
+        return data

@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from apps.ecommerce.models.cart import Cart, CartItem, Product, ProductVariant, Customer
+from apps.ecommerce.models.cart import Cart, CartItem, Product, Customer
 from apps.ecommerce.serializer.cart import (
     CartSerializer,
     CartItemSerializer,
@@ -39,19 +39,14 @@ class CartViewSet(viewsets.ModelViewSet):
         data = serializer.validated_data
 
         product = get_object_or_404(Product, id=data["product_id"])
-        variant = None
-        if data.get("variant_id"):
-            variant = get_object_or_404(ProductVariant, id=data["variant_id"])
-
         cart.add_item(
             product=product,
-            variant=variant,
             quantity=serializer.validated_data["quantity"],
             price=serializer.validated_data["price"],
         )
 
-        # Refresh the cart to get updated values
-        cart.refresh_from_db()
+        cart.save()
+
         return Response(
             data={
                 "message": "Item added to cart",
@@ -59,56 +54,40 @@ class CartViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    # @action(detail=True, methods=["put"], url_path="update-item/(?P<item_id>[^/.]+)")
-    def update_item(self, request, pk=None, item_id=None):
+    def update(self, *args, **kwargs):
+        serializer = CartItemUpdateSerializer(data=self.request.data)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         cart = self.get_object()
-        
+        data = serializer.validated_data
+        action = data.get("action")  # noqa: F811
 
-    #     try:
-    #         item = cart.items.get(id=item_id)
-    #     except CartItem.DoesNotExist:
-    #         return Response(
-    #             {"detail": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND
-    #         )
+        filters = {
+            "product__id": data["product_id"],
+            "cart": cart,
+        }
 
-    #     serializer = CartItemUpdateSerializer(data=request.data)
+        if data.get("variant_id"):
+            filters["variant__id"] = data["variant_id"]
 
-    #     if serializer.is_valid():
-    #         item.quantity = serializer.validated_data["quantity"]
-    #         item.save()
+        cart_item = get_object_or_404(CartItem, **filters)
 
-    #         # After updating the item, recalculate cart totals
-    #         cart.calculate_totals()
-    #         cart.save()
+        if action == "update":
+            if not data.get("variant_id"):
+                cart_item.quantity = data["quantity"]
+                cart_item.save()
 
-    #         return Response(CartSerializer(cart).data)
-    #     else:
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        elif action == "remove":
+            cart_item = get_object_or_404(CartItem, **filters)
+            cart_item.delete()
 
-    # @action(detail=True, methods=["delete"], url_path="remove-item/(?P<item_id>[^/.]+)")
-    # def remove_item(self, request, pk=None, item_id=None):
-    #     cart = self.get_object()
+        cart.save()
 
-    #     try:
-    #         item = cart.items.get(id=item_id)
-    #     except CartItem.DoesNotExist:
-    #         return Response(
-    #             {"detail": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND
-    #         )
-
-    #     # Delete the item
-    #     item.delete()
-
-    #     # Recalculate cart totals
-    #     cart.calculate_totals()
-    #     cart.save()
-
-    #     return Response(CartSerializer(cart).data)
-
-
-# {
-#   "product_id": 123,
-#   "variant_id": 456,
-#   "quantity": 2.00,
-#   "price": 19.99
-# }
+        return Response(
+            data={
+                "message": "Cart updated successfully",
+            },
+            status=status.HTTP_200_OK,
+        )

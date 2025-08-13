@@ -1,6 +1,6 @@
 from django.db import models
 from . import BaseModel, Customer
-from .product import Product, ProductVariant
+from .product import Product
 
 
 class Cart(BaseModel):
@@ -21,11 +21,10 @@ class Cart(BaseModel):
         self.calculate_totals()
         super().save(*args, **kwargs)
 
-    def add_item(self, product, variant, quantity, price):
+    def add_item(self, product, quantity, price):
         item, created = CartItem.objects.get_or_create(
             cart=self,
             product=product,
-            variant=variant,
             defaults={"quantity": quantity, "price": price},
         )
 
@@ -41,13 +40,6 @@ class CartItem(BaseModel):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="cart_items"
-    )
-    variant = models.ForeignKey(
-        ProductVariant,
-        on_delete=models.CASCADE,
-        related_name="cart_items",
-        blank=True,
-        null=True,
     )
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     price = models.DecimalField(max_digits=10, decimal_places=2)

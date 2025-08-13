@@ -63,12 +63,10 @@ const Page = () => {
     return validated;
   };
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-
-    const data = new FormData(e.target);
-
+    const data = new FormData(event.currentTarget);
     const payload = {
       email: data.get('email') as string,
       password: data.get('password') as string

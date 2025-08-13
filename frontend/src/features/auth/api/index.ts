@@ -4,6 +4,11 @@ import { logoutUser, loginUser as loginUserAction } from '../slices';
 
 import { API_URL } from "@api";
 import { getAuthState } from "@features/auth";
+import { use } from 'react';
+import { useMatch } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+
+
 
 
 interface LoginBody {
@@ -28,15 +33,14 @@ const authAPI = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-    // withCredentials: true,
 });
+
 
 // Request interceptor
 authAPI.interceptors.request.use((config) => {
     const tokens = getAuthState();
-    console.log("tokens", tokens);
-    if (tokens?.access) {
-        config.headers["Authorization"] = `Bearer ${tokens.access}`;
+    if (tokens?.access_token) {
+        config.headers["Authorization"] = `Bearer ${tokens.access_token}`;
     }
     return config;
 });
@@ -82,19 +86,19 @@ const registerUser = async (body: { email: string; password: string }) => {
 
 async function refreshAccessTokenFn(dispatch?: Dispatch): Promise<LoginResponse | null> {
     const tokens = getAuthState();
-    // console.log("tokens ref", tokens)
 
     if (!tokens?.refresh_token) {
-        // localStorage.removeItem("tokens");
+        localStorage.removeItem("tokens");
         dispatch?.(logoutUser());
         return null;
     }
 
     try {
-        const response = await authAPI.post<LoginResponse>('/auth/api/v1/refresh', {
+        const response = await authAPI.post<LoginResponse>('/auth/api/v1/login/refresh', {
             refresh_token: tokens.refresh_token
         });
         const { data } = response;
+
         localStorage.setItem("tokens", JSON.stringify(data));
         dispatch?.(loginUserAction(data));
         return data;
@@ -105,4 +109,22 @@ async function refreshAccessTokenFn(dispatch?: Dispatch): Promise<LoginResponse 
     }
 }
 
+export const useLoginMutation = () => {
+    return useMutation({
+        mutationFn: loginUser,
+        mutationKey: ["login - user"],
+
+        // onSuccess: (data, variables, context) => {
+        //     localStorage.setItem("tokens", JSON.stringify(data));
+        //     // Dispatch login action if needed
+        //     // dispatch(loginUserAction(data));
+        // },
+        // onError: (error, variables, context) => {
+        //     console.error("Login failed:", error);
+        // }
+    })
+}
+
 export { loginUser, registerUser, refreshAccessTokenFn, authAPI };
+
+

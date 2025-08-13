@@ -37,12 +37,12 @@ class LoginAPI(APIView):
                     "refresh": str(token_object),
                 }
                 return Response(
-                    data={"data": tokens, "message": "Login success"},
+                    data=tokens,
                     status=status.HTTP_200_OK,
                 )
 
         return Response(
-            data={"message": "Invaid user credentials"},
+            data={"message": "Invalid user credentials"},
             status=status.HTTP_401_UNAUTHORIZED,
         )
 

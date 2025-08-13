@@ -5,30 +5,24 @@ import { Header } from "./header";
 
 const SIDEBAR_ITEMS = [
     {
-        label: "Point of Sale",
+        label: "Orders",
         icon: <House />,
-        handleClick: function () { }
     },
     {
         label: "Invoices",
         icon: <ReceiptText />,
         url: "/invoice",
-        handleClick: function () { }
     },
     {
-        label: "POS Settings",
-        icon: <Settings2 />,
+        label: "Products",
+        icon: <PackageOpen />,
     },
     {
         label: "Settings",
+        icon: <Settings2 />,
         handleClick: function () { }
     },
-    {
-        label: "Inventory",
-        icon: <PackageOpen />,
-        url: "/item",
-        handleClick: function () { }
-    },
+
 ];
 
 
@@ -68,11 +62,8 @@ export const SidebarLayout = () => {
                 </div>
             </Sidebar>
 
-            <div className="flex-auto">
-                <Header />
-                <div className="p-4">
-                    <Outlet />
-                </div>
+            <div className="flex-auto px-2">
+                <Outlet />
             </div>
 
         </SidebarProvider>

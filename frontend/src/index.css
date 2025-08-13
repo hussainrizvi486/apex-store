@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 @source "../node_modules/@my-company/ui-lib";
 
 html {
@@ -6,18 +7,41 @@ html {
 }
 
 
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button,
+input[type='number'] {
+    -webkit-appearance: none;
+    -moz-appearance: textfield !important;
+    --color-input: #a7a7a7;
+    margin: 0;
+}
+
+
+@layer base {
+    * {
+        border-color: #ebebeb;
+    }
+}
 
 @theme {
-    --color-background: oklch(1 0 0); /* pure white */
-    --color-foreground: oklch(0.2 0.01 285); /* near-black text */
-    --color-popover: oklch(0.98 0.005 280); /* soft gray popover background */
-    --color-accent: oklch(0.95 0.02 270); /* soft bluish lavender */
-    --color-primary: oklch(0.6 0.22 265); /* rich purple-blue */
-    --color-primary-foreground: oklch(0.98 0.02 160); /* light yellow for contrast */
-    --color-destructive: oklch(0.55 0.22 30); /* toned-down red-orange */
-    --color-input: oklch(0.94 0.005 275); /* slightly off-white input bg */
-    --color-ring: oklch(0.65 0.18 263); /* visible bluish ring */
-    --color-muted-foreground: oklch(0.45 0.01 280); /* softer gray text */
+    --default-border-color: #e0e0e0;
+    --color-background: #ffffff;
+    --color-sidebar: #ebebeb;
+    --color-hover-bg: #dccee8;
+    --color-muted: #f8f9fa;
+    --color-foreground: #333333;
+    --color-popover: var(--color-background);
+    --color-accent: #f5f5f7;
+    --color-primary: #6366f1;
+    --color-primary-foreground: #fafafa;
+    --color-secondary: #ededed;
+    --color-secondary-foreground: #323232;
+    --color-destructive: #dc2626;
+    --color-destructive-foreground: #FFF;
+    --color-input: #a7a7a7;
+    --color-ring: #8b5cf6;
+    --color-muted-foreground: #6b7280;
+
     --font-poppins: 'Poppins', sans-serif;
     --font-roboto: 'Roboto', sans-serif;
 }

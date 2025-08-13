@@ -35,6 +35,8 @@ class User(AbstractUser):
         default=uuid4, primary_key=True, editable=False, unique=True, max_length=999
     )
     email = models.EmailField(unique=True)
+    image = models.ImageField(upload_to="user_images", null=True, blank=True)
+    dob = models.DateField(null=True, blank=True)
     username = models.CharField(max_length=50, unique=False, null=False)
     mobile = models.CharField(max_length=50, unique=True, null=True, blank=True)
     modified = models.DateTimeField(auto_now=True, null=True)
@@ -46,3 +48,17 @@ class User(AbstractUser):
 
     def __str__(self) -> str:
         return str(self.email)
+
+    def has_permission(self, permission, model):
+        if self.is_superuser:
+            return True
+
+        user_roles = self.user_roles.filter(is_active=True)
+        if not user_roles.exists():
+            return False
+
+        for user_role in user_roles:
+            if user_role.role.has_permission(permission, model):
+                return True
+
+        return False
